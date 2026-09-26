@@ -162,7 +162,7 @@
       <div id="edAvisos" class="avisos"></div><div id="edCuerpo"></div>`;
     cont.innerHTML = html;
 
-    const vistas = [["productos", "Productos"], ["movimientos", "Movimientos"], ["saldos", "Saldos y valores"]];
+    const vistas = [["productos", "Productos"], ["movimientos", "Movimientos"], ["saldos", "Saldos y valores"], ["importar", "Importar"]];
     const seg = $("#edVistas");
     vistas.forEach(([id, et]) => {
       const b = document.createElement("button");
@@ -171,7 +171,9 @@
       b.onclick = () => { E.vista = id; recuerda.guarda("patrimonio.editor", id); pinta(); };
       seg.appendChild(b);
     });
-    $("#edCuerpo").innerHTML = { productos: vistaProductos, movimientos: vistaMovimientos, saldos: vistaSaldos }[E.vista]();
+    $("#edCuerpo").innerHTML = ({ productos: vistaProductos, movimientos: vistaMovimientos, saldos: vistaSaldos,
+      importar: vistaImportar }[E.vista] || vistaProductos)();
+    if (E.vista === "importar") conectaImportar();
     const filtro = $("#edFiltro");
     if (filtro) filtro.onchange = e => { E.filtro = e.target.value; pinta(); };
   }
@@ -530,6 +532,174 @@
     try { await borra("valoraciones", id); pinta(); } catch (x) { alert(x.message); }
   }
 
+  /* ---------------------------------------------- importar */
+  const IMP = { origen: "myinvestor", informe: null, token: null, hecho: null, prompt: null, archivos: [] };
+  const ICONOS = {
+    myinvestor: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/></svg>',
+    plantilla: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>',
+    ia: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg>',
+  };
+
+  function zona(acepta, varios, texto) {
+    return `<label class="zona" id="imZona"><input type="file" id="imArchivos" accept="${acepta}"${varios ? " multiple" : ""}>
+      <span class="zIc">↥</span><b>${texto}</b><small>o pulsa aquí para elegir${varios ? "los" : "lo"}</small>
+      <span class="zNom" id="imNombres"></span></label>`;
+  }
+
+  function vistaImportar() {
+    if (IMP.informe) return vistaPrevia();
+    const exito = IMP.hecho ? `<div class="exito"><b>✓ ${esc(IMP.hecho)}</b>
+      <button class="btn" data-acc="verPanelDatos">Ver mi panel →</button></div>` : "";
+    const op = (id, titulo, texto) => `<button class="imOp${IMP.origen === id ? " sel" : ""}" data-acc="imOrigen" data-id="${id}">
+      <span class="ic">${ICONOS[id]}</span><b>${titulo}</b><small>${texto}</small></button>`;
+    let paso;
+    if (IMP.origen === "myinvestor") {
+      paso = `<ol class="pasos">
+          <li>Entra en MyInvestor desde el ordenador y abre <b>cada uno de tus fondos</b>.</li>
+          <li>Pulsa <b>«Plusvalías y minusvalías»</b> y descarga el <b>CSV</b>. No le cambies el nombre: lleva el ISIN del fondo.</li>
+          <li>Arrastra aquí todos los archivos a la vez.</li></ol>
+        ${zona(".csv", true, "Arrastra aquí los CSV de MyInvestor")}
+        <p class="ayuda">Cada importación sustituye lo que importaste antes de ese mismo fondo: repítela cada mes sin miedo a duplicar.
+          Las compras de ETF o acciones de MyInvestor, anótalas a mano o con la plantilla.</p>`;
+    } else if (IMP.origen === "plantilla") {
+      paso = `<ol class="pasos">
+          <li>Descarga la plantilla: <a class="btn" href="api/plantilla.xlsx" download>Excel</a>
+            <a class="btn" href="api/plantilla.csv" download>CSV</a></li>
+          <li>Rellena una fila por operación. En la hoja «Ejemplo» tienes cinco filas de muestra.</li>
+          <li>Guárdala y arrástrala aquí.</li></ol>
+        ${zona(".xlsx,.csv,.txt", false, "Arrastra aquí tu plantilla")}`;
+    } else {
+      paso = `<ol class="pasos">
+          <li><b>Copia el prompt</b>: <button class="btn" data-acc="imCopiar" id="imCopiarBtn">Copiar prompt</button>
+            <details class="verPrompt"><summary>Ver el prompt</summary><pre id="imPrompt">${esc(IMP.prompt || "Cargando…")}</pre></details></li>
+          <li>Abre ChatGPT, Gemini o la IA que uses. Pega el prompt y, debajo, tu extracto (o adjunta el PDF).
+            <span class="alerta">Antes, borra tu nombre, DNI, IBAN, números de cuenta y cualquier dato personal.</span></li>
+          <li>Copia su respuesta y pégala aquí:</li></ol>
+        <textarea id="imTexto" class="imTexto" rows="8" spellcheck="false"
+          placeholder="fecha;identificador;nombre;tipo_producto;tipo_movimiento;unidades;importe;moneda;comision;nota"></textarea>`;
+    }
+    return `${exito}<section class="tarjeta"><header><h2>Importar datos</h2>
+        <span class="subt">Trae tus movimientos de golpe. Antes de guardar nada verás una vista previa.</span></header>
+      <div class="imOps">
+        ${op("myinvestor", "MyInvestor", "El CSV de cada fondo")}
+        ${op("plantilla", "Plantilla", "Excel o CSV, para cualquier banco")}
+        ${op("ia", "Con ayuda de una IA", "Convierte el extracto de tu banco")}
+      </div>
+      <div class="imPaso">${paso}
+        <div class="imAcc"><span class="sp"></span>
+          <button class="btn prim" data-acc="imRevisar" id="imRevisarBtn">Revisar antes de importar</button></div>
+      </div></section>`;
+  }
+
+  function conectaImportar() {
+    const inp = $("#imArchivos"), z = $("#imZona");
+    if (inp) {
+      const muestra = () => {
+        IMP.archivos = [...inp.files];
+        $("#imNombres").textContent = IMP.archivos.map(f => f.name).join(" · ");
+        z.classList.toggle("lleno", IMP.archivos.length > 0);
+      };
+      inp.onchange = muestra;
+      z.ondragover = e => { e.preventDefault(); z.classList.add("encima"); };
+      z.ondragleave = () => z.classList.remove("encima");
+      z.ondrop = e => {
+        e.preventDefault();
+        z.classList.remove("encima");
+        inp.files = e.dataTransfer.files;
+        muestra();
+      };
+    }
+    if (IMP.origen === "ia" && !IMP.prompt) {
+      api("GET", "api/prompt").then(j => { IMP.prompt = j.texto; const pre = $("#imPrompt"); if (pre) pre.textContent = j.texto; });
+    }
+  }
+
+  async function imRevisar() {
+    const fd = new FormData();
+    fd.append("origen", IMP.origen);
+    const inp = $("#imArchivos");
+    if (inp) [...inp.files].forEach(f => fd.append("archivos", f));
+    const txt = $("#imTexto");
+    if (txt) fd.append("texto", txt.value);
+    const b = $("#imRevisarBtn");
+    b.disabled = true;
+    b.textContent = "Revisando y buscando precios…";
+    try {
+      const r = await fetch("api/importar/previsualizar", { method: "POST", body: fd });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error((j.errores || ["Algo ha fallado al leerlo."]).join("\n"));
+      IMP.informe = j.informe;
+      IMP.token = j.token;
+      IMP.hecho = null;
+      pinta();
+    } catch (x) {
+      alert(x.message);
+      b.disabled = false;
+      b.textContent = "Revisar antes de importar";
+    }
+  }
+
+  function vistaPrevia() {
+    const inf = IMP.informe, t = inf.totales;
+    const n = inf.añadidos + inf.saldos;
+    const cifra = (et, v, extra = "") => `<div class="cifra"><span>${et}</span><b>${v}</b>${extra ? `<small>${extra}</small>` : ""}</div>`;
+    const errores = inf.errores.length ? `<div class="imErr"><b>${inf.errores.length} ${inf.errores.length === 1 ? "fila tiene" : "filas tienen"} problemas y no se importará${inf.errores.length === 1 ? "" : "n"}:</b>
+      <ul>${inf.errores.map(e => `<li><span class="fila">${typeof e.fila === "number" ? "Fila " + e.fila : esc(e.fila)}</span>${esc(e.mensaje)}</li>`).join("")}</ul></div>` : "";
+    const avisos = inf.avisos.map(a => `<div class="av"><span>⚠</span><span>${esc(a)}</span></div>`).join("");
+    const nuevos = inf.productosNuevos.length ? `<div class="imNuevos"><div class="secc">Productos nuevos que se crearán</div>
+      ${inf.productosNuevos.map(p => `<div class="imProd"><b>${esc(p.nombre)}</b>
+        <span class="meta"><span>${esc(E.tipos[p.tipo] || p.tipo)}</span><span>${esc(p.codigo || "valor a mano")}</span>
+        <span>${esc(E.fuentes[p.fuente])}</span>${p.precio ? `<span>${num(p.precio)} ${esc(p.monedaPrecio)} · ${fecha(p.fechaPrecio)}</span>` : ""}</span></div>`).join("")}</div>` : "";
+    const ESTADO = { nuevo: "Nuevo", repetido: "Ya estaba", error: "Con error" };
+    const filas = inf.filas.map(f => `<tr class="est-${f.estado}"><td>${fecha(f.fecha)}</td>
+      <td style="text-align:left">${esc(f.productoNombre)}</td><td style="text-align:left">${esc(E.tiposMov[f.tipo] || "Saldo")}</td>
+      <td>${f.unidades ? num(f.unidades) : "—"}</td><td>${eur(f.importe)}</td>
+      <td style="text-align:left">${f.marcas.map(m => `<span class="marca">${esc(m)}</span>`).join("")}</td>
+      <td><span class="estado">${ESTADO[f.estado]}</span></td></tr>`).join("");
+    return `<section class="tarjeta"><header><h2>Vista previa</h2>
+        <span class="subt">Todavía no se ha guardado nada.</span></header>
+      <div class="cifras">
+        ${cifra("Movimientos nuevos", inf.añadidos, t.numCompras ? `${t.numCompras} compras` : "")}
+        ${cifra("Invertido en compras", eur(t.compras))}
+        ${cifra("Ventas y dividendos", eur(t.ventas + t.dividendos))}
+        ${inf.saldos ? cifra("Saldos anotados", inf.saldos) : ""}
+        ${inf.repetidos ? cifra("Ya estaban", inf.repetidos, "se omiten") : ""}
+        ${inf.sustituidos ? cifra("Sustituyen a", inf.sustituidos, "importados antes") : ""}
+      </div>
+      <div class="comprueba"><b>Compara estas cifras con tu banco antes de confirmar.</b>
+        ${IMP.origen === "ia" ? "Una IA puede equivocarse al copiar números o saltarse alguna fila: revisa sobre todo el total invertido." : ""}</div>
+      ${avisos}${errores}${nuevos}
+      ${filas ? `<div class="tablaEnv alto" style="margin-top:16px"><table class="dt"><thead><tr><th>Fecha</th>
+        <th style="text-align:left">Producto</th><th style="text-align:left">Tipo</th><th>Unidades</th><th>Importe</th>
+        <th style="text-align:left"></th><th>Estado</th></tr></thead><tbody>${filas}</tbody></table></div>` : ""}
+      <div class="imAcc"><button class="btn" data-acc="imCancelar">Cancelar</button><span class="sp"></span>
+        <button class="btn prim" data-acc="imConfirmar" id="imConfirmarBtn"${n ? "" : " disabled"}>
+          ${n ? `Importar ${n} ${n === 1 ? "dato" : "datos"}` : "No hay nada nuevo que importar"}</button></div></section>`;
+  }
+
+  async function imConfirmar() {
+    const b = $("#imConfirmarBtn");
+    b.disabled = true;
+    b.textContent = "Importando…";
+    try {
+      const j = await api("POST", "api/importar/confirmar", { token: IMP.token });
+      E.cfg = j.cartera;
+      window.EDITOR_SUCIO = true;
+      const i = j.informe;
+      const pl = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+      IMP.hecho = "Importado: " + [i.añadidos && pl(i.añadidos, "movimiento", "movimientos"),
+        i.saldos && pl(i.saldos, "saldo", "saldos")].filter(Boolean).join(" y ") +
+        (i.repetidos ? `. ${pl(i.repetidos, "ya estaba y se ha omitido", "ya estaban y se han omitido")}` : "") + ".";
+      IMP.informe = null;
+      IMP.token = null;
+      pinta();
+      avisa(j.avisos);
+    } catch (x) {
+      alert(x.message);
+      b.disabled = false;
+    }
+  }
+
   /* ---------------------------------------------- acciones */
   const ACC = {
     empezar,
@@ -545,6 +715,21 @@
     editarValor: soloPropio(id => formValor(E.cfg.valoraciones.find(v => v.id === id))),
     borrarValor: soloPropio(borrarValor),
     todosValores: soloPropio(todosValores),
+    imOrigen(id) { IMP.origen = id; IMP.hecho = null; pinta(); },
+    imRevisar: soloPropio(imRevisar),
+    imCancelar() { IMP.informe = null; IMP.token = null; pinta(); },
+    imConfirmar,
+    verPanelDatos() { recuerda.guarda("patrimonio.tab", "patrimonio"); location.reload(); },
+    async imCopiar() {
+      const txt = IMP.prompt || (await api("GET", "api/prompt")).texto;
+      IMP.prompt = txt;
+      try { await navigator.clipboard.writeText(txt); } catch (e) {
+        const ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select();
+        document.execCommand("copy"); ta.remove();
+      }
+      const b = $("#imCopiarBtn");
+      if (b) { b.textContent = "✓ Copiado"; setTimeout(() => { b.textContent = "Copiar prompt"; }, 2000); }
+    },
   };
   document.addEventListener("click", e => {
     const b = e.target.closest("[data-acc]");

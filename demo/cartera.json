@@ -395,7 +395,8 @@
    "unidades": 1.315266,
    "importe": 3352.6,
    "nota": "MyInvestor",
-   "id": "m1"
+   "id": "m1",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-08-28",
@@ -404,7 +405,8 @@
    "unidades": 0,
    "importe": 11.26,
    "nota": "Plusvalía de un reembolso (MyInvestor no da la fecha de venta)",
-   "id": "m2"
+   "id": "m2",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-08-28",
@@ -413,7 +415,8 @@
    "unidades": 0,
    "importe": 110.65,
    "nota": "Plusvalía de un reembolso (MyInvestor no da la fecha de venta)",
-   "id": "m3"
+   "id": "m3",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-08-29",
@@ -422,7 +425,8 @@
    "unidades": 0.470643,
    "importe": 1199.8,
    "nota": "MyInvestor",
-   "id": "m4"
+   "id": "m4",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-09-06",
@@ -431,7 +435,8 @@
    "unidades": 0.012794,
    "importe": 32.65,
    "nota": "MyInvestor",
-   "id": "m5"
+   "id": "m5",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-09-11",
@@ -440,7 +445,8 @@
    "unidades": 0.007897,
    "importe": 20.16,
    "nota": "MyInvestor",
-   "id": "m6"
+   "id": "m6",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-09-16",
@@ -449,7 +455,8 @@
    "unidades": 0.006296,
    "importe": 16.08,
    "nota": "MyInvestor",
-   "id": "m7"
+   "id": "m7",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-09-30",
@@ -458,7 +465,8 @@
    "unidades": 0.183481,
    "importe": 469.26,
    "nota": "MyInvestor",
-   "id": "m8"
+   "id": "m8",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-10-01",
@@ -467,7 +475,8 @@
    "unidades": 67.691125,
    "importe": 731.01,
    "nota": "MyInvestor",
-   "id": "m9"
+   "id": "m9",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-10-09",
@@ -476,7 +485,8 @@
    "unidades": 1.454469,
    "importe": 15.99,
    "nota": "MyInvestor",
-   "id": "m10"
+   "id": "m10",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-10-21",
@@ -485,7 +495,8 @@
    "unidades": 1.429951,
    "importe": 15.99,
    "nota": "MyInvestor",
-   "id": "m11"
+   "id": "m11",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-11-08",
@@ -494,7 +505,8 @@
    "unidades": 0.213546,
    "importe": 548.3,
    "nota": "MyInvestor",
-   "id": "m12"
+   "id": "m12",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-11-29",
@@ -503,7 +515,8 @@
    "unidades": 18.095445,
    "importe": 107.99,
    "nota": "MyInvestor",
-   "id": "m13"
+   "id": "m13",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-11-29",
@@ -512,7 +525,8 @@
    "unidades": 0.544159,
    "importe": 1399.89,
    "nota": "MyInvestor",
-   "id": "m14"
+   "id": "m14",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-11-29",
@@ -521,7 +535,8 @@
    "unidades": 84.61887,
    "importe": 989.99,
    "nota": "MyInvestor",
-   "id": "m15"
+   "id": "m15",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2024-12-26",
@@ -530,7 +545,8 @@
    "unidades": 84.903209,
    "importe": 999.99,
    "nota": "MyInvestor",
-   "id": "m16"
+   "id": "m16",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-01-09",
@@ -539,7 +555,8 @@
    "unidades": 3.296286,
    "importe": 19.99,
    "nota": "MyInvestor",
-   "id": "m17"
+   "id": "m17",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-01-31",
@@ -548,7 +565,8 @@
    "unidades": 75.114971,
    "importe": 899.99,
    "nota": "MyInvestor",
-   "id": "m18"
+   "id": "m18",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-02-03",
@@ -557,7 +575,8 @@
    "unidades": 2.615951,
    "importe": 15.99,
    "nota": "MyInvestor",
-   "id": "m19"
+   "id": "m19",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-02-03",
@@ -566,7 +585,8 @@
    "unidades": 16.358282,
    "importe": 99.99,
    "nota": "MyInvestor",
-   "id": "m20"
+   "id": "m20",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-02-20",
@@ -575,7 +595,8 @@
    "unidades": 2.518971,
    "importe": 16.0,
    "nota": "MyInvestor",
-   "id": "m21"
+   "id": "m21",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-02-28",
@@ -584,7 +605,8 @@
    "unidades": 75.693858,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m22"
+   "id": "m22",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-03-03",
@@ -593,7 +615,8 @@
    "unidades": 16.240621,
    "importe": 100.0,
    "nota": "MyInvestor",
-   "id": "m23"
+   "id": "m23",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-03-20",
@@ -602,7 +625,8 @@
    "unidades": 2.74823,
    "importe": 17.0,
    "nota": "MyInvestor",
-   "id": "m24"
+   "id": "m24",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-03-26",
@@ -611,7 +635,8 @@
    "unidades": 2.592815,
    "importe": 16.0,
    "nota": "MyInvestor",
-   "id": "m25"
+   "id": "m25",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-03-31",
@@ -620,7 +645,8 @@
    "unidades": 365.77115,
    "importe": 4000.0,
    "nota": "MyInvestor",
-   "id": "m26"
+   "id": "m26",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-04-08",
@@ -629,7 +655,8 @@
    "unidades": 102.933606,
    "importe": 1000.0,
    "nota": "MyInvestor",
-   "id": "m27"
+   "id": "m27",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-04-30",
@@ -638,7 +665,8 @@
    "unidades": 17.325018,
    "importe": 100.0,
    "nota": "MyInvestor",
-   "id": "m28"
+   "id": "m28",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-04-30",
@@ -647,7 +675,8 @@
    "unidades": 85.836093,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m29"
+   "id": "m29",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-06-04",
@@ -656,7 +685,8 @@
    "unidades": 16.485328,
    "importe": 100.0,
    "nota": "MyInvestor",
-   "id": "m30"
+   "id": "m30",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-06-04",
@@ -665,7 +695,8 @@
    "unidades": 80.645886,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m31"
+   "id": "m31",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-06-25",
@@ -674,7 +705,8 @@
    "unidades": 16.09917,
    "importe": 100.0,
    "nota": "MyInvestor",
-   "id": "m32"
+   "id": "m32",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-06-25",
@@ -683,7 +715,8 @@
    "unidades": 80.963645,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m33"
+   "id": "m33",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-08-05",
@@ -692,7 +725,8 @@
    "unidades": 15.583363,
    "importe": 100.0,
    "nota": "MyInvestor",
-   "id": "m34"
+   "id": "m34",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-08-05",
@@ -701,7 +735,8 @@
    "unidades": 78.280611,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m35"
+   "id": "m35",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-08-11",
@@ -710,7 +745,8 @@
    "unidades": 3.102603,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m36"
+   "id": "m36",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-08-11",
@@ -719,7 +755,8 @@
    "unidades": 3.102603,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m37"
+   "id": "m37",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-08-12",
@@ -728,7 +765,8 @@
    "unidades": 3.114295,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m38"
+   "id": "m38",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-08-13",
@@ -737,7 +775,8 @@
    "unidades": 3.236446,
    "importe": 21.0,
    "nota": "MyInvestor",
-   "id": "m39"
+   "id": "m39",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-08-18",
@@ -746,7 +785,8 @@
    "unidades": 6.308178,
    "importe": 41.0,
    "nota": "MyInvestor",
-   "id": "m40"
+   "id": "m40",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-08-28",
@@ -755,7 +795,8 @@
    "unidades": 3.106941,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m41"
+   "id": "m41",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-08-29",
@@ -764,7 +805,8 @@
    "unidades": 3.122268,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m42"
+   "id": "m42",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-09-01",
@@ -773,7 +815,8 @@
    "unidades": 6.207228,
    "importe": 40.0,
    "nota": "MyInvestor",
-   "id": "m43"
+   "id": "m43",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-09-02",
@@ -782,7 +825,8 @@
    "unidades": 77.332878,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m44"
+   "id": "m44",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-09-17",
@@ -791,7 +835,8 @@
    "unidades": 9.144813,
    "importe": 62.0,
    "nota": "MyInvestor",
-   "id": "m45"
+   "id": "m45",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-09-24",
@@ -800,7 +845,8 @@
    "unidades": 2.915197,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m46"
+   "id": "m46",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-09-29",
@@ -809,7 +855,8 @@
    "unidades": 2.934918,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m47"
+   "id": "m47",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-10-01",
@@ -818,7 +865,8 @@
    "unidades": 74.561334,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m48"
+   "id": "m48",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-10-22",
@@ -827,7 +875,8 @@
    "unidades": 2.962963,
    "importe": 21.0,
    "nota": "MyInvestor",
-   "id": "m49"
+   "id": "m49",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-10-28",
@@ -836,7 +885,8 @@
    "unidades": 5.715481,
    "importe": 41.0,
    "nota": "MyInvestor",
-   "id": "m50"
+   "id": "m50",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-10-29",
@@ -845,7 +895,8 @@
    "unidades": 72.318784,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m51"
+   "id": "m51",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-11-10",
@@ -854,7 +905,8 @@
    "unidades": 2.764225,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m52"
+   "id": "m52",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-11-13",
@@ -863,7 +915,8 @@
    "unidades": 2.769776,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m53"
+   "id": "m53",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-11-21",
@@ -872,7 +925,8 @@
    "unidades": 2.890842,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m54"
+   "id": "m54",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-11-28",
@@ -881,7 +935,8 @@
    "unidades": 2.846448,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m55"
+   "id": "m55",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-12-01",
@@ -890,7 +945,8 @@
    "unidades": 72.790801,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m56"
+   "id": "m56",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-12-09",
@@ -899,7 +955,8 @@
    "unidades": 2.824699,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m57"
+   "id": "m57",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-12-23",
@@ -908,7 +965,8 @@
    "unidades": 14.204343,
    "importe": 100.0,
    "nota": "MyInvestor",
-   "id": "m58"
+   "id": "m58",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2025-12-23",
@@ -917,7 +975,8 @@
    "unidades": 72.255495,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m59"
+   "id": "m59",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-01-19",
@@ -926,7 +985,8 @@
    "unidades": 2.619755,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m60"
+   "id": "m60",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-01-22",
@@ -935,7 +995,8 @@
    "unidades": 5.241708,
    "importe": 40.0,
    "nota": "MyInvestor",
-   "id": "m61"
+   "id": "m61",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-02-02",
@@ -944,7 +1005,8 @@
    "unidades": 13.199404,
    "importe": 100.0,
    "nota": "MyInvestor",
-   "id": "m62"
+   "id": "m62",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-02-02",
@@ -953,7 +1015,8 @@
    "unidades": 71.124879,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m63"
+   "id": "m63",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-02-03",
@@ -962,7 +1025,8 @@
    "unidades": 2.698466,
    "importe": 21.0,
    "nota": "MyInvestor",
-   "id": "m64"
+   "id": "m64",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-02-05",
@@ -971,7 +1035,8 @@
    "unidades": 2.618864,
    "importe": 20.0,
    "nota": "MyInvestor",
-   "id": "m65"
+   "id": "m65",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-02-06",
@@ -990,7 +1055,8 @@
    "unidades": 2.751789,
    "importe": 21.0,
    "nota": "MyInvestor",
-   "id": "m67"
+   "id": "m67",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-02-23",
@@ -1019,7 +1085,8 @@
    "unidades": 39.937167,
    "importe": 300.0,
    "nota": "MyInvestor",
-   "id": "m70"
+   "id": "m70",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-03-09",
@@ -1028,7 +1095,8 @@
    "unidades": 71.750309,
    "importe": 900.0,
    "nota": "MyInvestor",
-   "id": "m71"
+   "id": "m71",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-03-31",
@@ -1037,7 +1105,8 @@
    "unidades": 41.178247,
    "importe": 300.0,
    "nota": "MyInvestor",
-   "id": "m72"
+   "id": "m72",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-03-31",
@@ -1046,7 +1115,8 @@
    "unidades": 82.066771,
    "importe": 1000.0,
    "nota": "MyInvestor",
-   "id": "m73"
+   "id": "m73",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-04-17",
@@ -1055,7 +1125,8 @@
    "unidades": 36.964477,
    "importe": 300.0,
    "nota": "MyInvestor",
-   "id": "m74"
+   "id": "m74",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-04-17",
@@ -1064,7 +1135,8 @@
    "unidades": 23.101802,
    "importe": 300.0,
    "nota": "MyInvestor",
-   "id": "m75"
+   "id": "m75",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-05-01",
@@ -1073,7 +1145,8 @@
    "unidades": 61.003508,
    "importe": 800.0,
    "nota": "MyInvestor",
-   "id": "m76"
+   "id": "m76",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-05-04",
@@ -1082,7 +1155,8 @@
    "unidades": 23.607734,
    "importe": 200.0,
    "nota": "MyInvestor",
-   "id": "m77"
+   "id": "m77",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-05-15",
@@ -1091,7 +1165,8 @@
    "unidades": 34.724636,
    "importe": 300.0,
    "nota": "MyInvestor",
-   "id": "m78"
+   "id": "m78",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-05-15",
@@ -1100,7 +1175,8 @@
    "unidades": 22.266094,
    "importe": 300.0,
    "nota": "MyInvestor",
-   "id": "m79"
+   "id": "m79",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-05-26",
@@ -1119,7 +1195,8 @@
    "unidades": 33.282671,
    "importe": 300.0,
    "nota": "MyInvestor",
-   "id": "m81"
+   "id": "m81",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-05-27",
@@ -1128,7 +1205,8 @@
    "unidades": 72.824195,
    "importe": 1000.0,
    "nota": "MyInvestor",
-   "id": "m82"
+   "id": "m82",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-06-04",
@@ -1147,7 +1225,8 @@
    "unidades": 55.892777,
    "importe": 500.0,
    "nota": "MyInvestor",
-   "id": "m84"
+   "id": "m84",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-06-12",
@@ -1156,7 +1235,8 @@
    "unidades": 36.533684,
    "importe": 500.0,
    "nota": "MyInvestor",
-   "id": "m85"
+   "id": "m85",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-06-25",
@@ -1175,7 +1255,8 @@
    "unidades": 53.68724,
    "importe": 500.0,
    "nota": "MyInvestor",
-   "id": "m87"
+   "id": "m87",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-06-29",
@@ -1184,7 +1265,8 @@
    "unidades": 55.436672,
    "importe": 500.0,
    "nota": "MyInvestor",
-   "id": "m88"
+   "id": "m88",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-06-29",
@@ -1193,7 +1275,8 @@
    "unidades": 72.051302,
    "importe": 1000.0,
    "nota": "MyInvestor",
-   "id": "m89"
+   "id": "m89",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-07-10",
@@ -1212,7 +1295,8 @@
    "unidades": 56.038108,
    "importe": 500.0,
    "nota": "MyInvestor",
-   "id": "m91"
+   "id": "m91",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-07-15",
@@ -1221,7 +1305,8 @@
    "unidades": 35.422053,
    "importe": 500.0,
    "nota": "MyInvestor",
-   "id": "m92"
+   "id": "m92",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-07-27",
@@ -1240,7 +1325,8 @@
    "unidades": 29.739247,
    "importe": 250.0,
    "nota": "MyInvestor",
-   "id": "m94"
+   "id": "m94",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-07-28",
@@ -1249,7 +1335,8 @@
    "unidades": 71.654281,
    "importe": 1000.0,
    "nota": "MyInvestor",
-   "id": "m95"
+   "id": "m95",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-08-18",
@@ -1268,7 +1355,8 @@
    "unidades": 57.702071,
    "importe": 500.0,
    "nota": "MyInvestor",
-   "id": "m97"
+   "id": "m97",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-08-19",
@@ -1277,7 +1365,8 @@
    "unidades": 35.377944,
    "importe": 500.0,
    "nota": "MyInvestor",
-   "id": "m98"
+   "id": "m98",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-08-26",
@@ -1296,7 +1385,8 @@
    "unidades": 55.805568,
    "importe": 499.99,
    "nota": "MyInvestor",
-   "id": "m100"
+   "id": "m100",
+   "origen": "myinvestor"
   },
   {
    "fecha": "2026-08-27",
@@ -1305,7 +1395,8 @@
    "unidades": 70.38763,
    "importe": 999.99,
    "nota": "MyInvestor",
-   "id": "m101"
+   "id": "m101",
+   "origen": "myinvestor"
   }
  ],
  "valoraciones": [

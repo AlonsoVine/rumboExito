@@ -11,6 +11,7 @@ import datetime as dt
 import json
 import logging
 import os
+import secrets
 import sys
 import threading
 import urllib.request
@@ -19,7 +20,7 @@ import webbrowser
 from flask import Flask, Response, jsonify, request, send_from_directory
 from werkzeug.serving import make_server
 
-from . import almacen, buscar, motor
+from . import almacen, buscar, importar, motor, plantilla
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(RAIZ, "app", "web")
@@ -195,6 +196,78 @@ def api_empezar():
         almacen.guarda(os.path.join(DATOS, "cartera.json"), cfg)
         recalcula(descargar="faltan")
     return jsonify(ok=True)
+
+
+# ---------------------------------------------------------------- importar
+
+PLANES = {}   # vista previa pendiente de confirmar: {token: plan}
+
+
+@app.post("/api/importar/previsualizar")
+def api_importar_previsualizar():
+    """Lee lo que se quiere importar y devuelve la vista previa, sin guardar nada."""
+    if modo() == "demo":
+        return jsonify(ok=False, errores=[AVISO_DEMO]), 403
+    origen = request.form.get("origen")
+    archivos = [(f.filename, f.read()) for f in request.files.getlist("archivos") if f.filename]
+    texto = (request.form.get("texto") or "").strip()
+    with cerrojo:
+        cfg = almacen.carga(os.path.join(DATOS, "cartera.json"))
+        if origen == "myinvestor":
+            if not archivos:
+                return jsonify(ok=False, errores=["Elige los archivos CSV que has descargado de MyInvestor."]), 400
+            plan = importar.preparar_myinvestor(cfg, archivos, DATOS)
+        else:
+            if not archivos and not texto:
+                return jsonify(ok=False, errores=["Elige un archivo o pega el texto que te ha dado la IA."]), 400
+            filas, error = [], None
+            for nombre, contenido in archivos or [("pegado.csv", texto)]:
+                leidas, error = importar.leer_tabla(nombre, contenido)
+                if error:
+                    return jsonify(ok=False, errores=[f"{nombre}: {error}" if archivos else error]), 400
+                filas += leidas
+            plan = importar.preparar_tabla(cfg, filas, DATOS)
+        informe = importar.vista_previa(cfg, plan)
+    token = secrets.token_hex(8)
+    PLANES.clear()   # solo una importación pendiente a la vez
+    PLANES[token] = plan
+    return jsonify(ok=True, token=token, informe=informe)
+
+
+@app.post("/api/importar/confirmar")
+def api_importar_confirmar():
+    plan = PLANES.pop((request.get_json(silent=True) or {}).get("token"), None)
+    if plan is None:
+        return jsonify(ok=False, errores=["Esa vista previa ya no vale: vuelve a revisar el archivo."]), 400
+    informe = {}
+
+    def fn(cfg):
+        informe.update(importar.aplicar(cfg, plan))
+        return None
+    respuesta = cambia(fn)
+    if isinstance(respuesta, tuple):
+        return respuesta
+    datos = respuesta.get_json()
+    datos["informe"] = {k: informe[k] for k in ("añadidos", "repetidos", "saldos", "sustituidos")}
+    return jsonify(datos)
+
+
+@app.get("/api/plantilla.xlsx")
+def api_plantilla_xlsx():
+    return Response(plantilla.excel(), headers={"Content-Disposition": 'attachment; filename="plantilla_patrimonio.xlsx"'},
+                    mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@app.get("/api/plantilla.csv")
+def api_plantilla_csv():
+    return Response(plantilla.csv_vacio(), mimetype="text/csv",
+                    headers={"Content-Disposition": 'attachment; filename="plantilla_patrimonio.csv"'})
+
+
+@app.get("/api/prompt")
+def api_prompt():
+    with open(os.path.join(RAIZ, "app", "prompt_ia.txt"), encoding="utf-8") as f:
+        return jsonify(texto=f.read())
 
 
 @app.post("/api/reiniciar")

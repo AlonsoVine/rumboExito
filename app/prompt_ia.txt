@@ -1,0 +1,24 @@
+Convierte el extracto de mi banco o bróker que pego al final en una tabla para importarla en mi app de patrimonio.
+
+Devuélveme SOLO un CSV dentro de un bloque de código, sin explicaciones, separado por punto y coma (;) y con esta cabecera exacta:
+fecha;identificador;nombre;tipo_producto;tipo_movimiento;unidades;importe;moneda;comision;nota
+
+Reglas para cada columna:
+- fecha: la fecha de la operación (o de ejecución), en formato AAAA-MM-DD.
+- identificador: el ISIN si aparece (12 caracteres, como IE00BYX5NX33); si no, el ticker (como AAPL). Para cuentas bancarias, déjalo vacío.
+- nombre: el nombre del producto o de la cuenta, tal y como aparece.
+- tipo_producto: una de estas palabras: fondo, etf, accion, cripto, commodity, bono, pension, efectivo, inmueble, deuda, otro.
+- tipo_movimiento: una de estas palabras: compra, venta, dividendo, comision, saldo. Usa «saldo» solo para el saldo de una cuenta en una fecha.
+- unidades: participaciones, acciones o unidades compradas o vendidas, en positivo y con punto decimal. Déjalo vacío si no aparece.
+- importe: el dinero total de la operación, en positivo, con punto decimal y sin símbolo de moneda. En una compra, lo que salió de la cuenta con las comisiones incluidas; en una venta o un dividendo, lo que entró.
+- moneda: la moneda del importe (EUR, USD…).
+- comision: la comisión de esa operación si aparece (ya va incluida en el importe). Si no, vacío.
+- nota: vacío, o una nota muy breve.
+
+Importante:
+- Una fila por operación, ordenadas por fecha.
+- No inventes nada: si un dato no aparece en el extracto, deja esa casilla vacía.
+- No incluyas nóminas, recibos, gastos del día a día ni transferencias entre mis propias cuentas.
+
+EXTRACTO:
+[Pega aquí tu extracto. ANTES, BORRA tu nombre, DNI, IBAN, números de cuenta y tarjeta, dirección y cualquier dato personal: solo hacen falta fechas, productos e importes.]

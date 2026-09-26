@@ -483,6 +483,60 @@ def aplicar_movimientos(p, movs):
             "vendidas": vendidas}
 
 
+def descarga_series(productos_cfg, series=None):
+    """Descarga (o lee de la cache) las series que necesitan esos productos.
+    Devuelve el diccionario de series que usa precio_eur()."""
+    series = {} if series is None else series
+
+    def pide(clave, fn, *args):
+        if clave and clave not in series:
+            series[clave] = fn(*args)
+
+    def pide_fx(moneda):
+        sim = simbolo_fx(moneda)[0]
+        pide(sim, descargar_serie, sim)
+
+    for p in productos_cfg:
+        f, cod = p.get("fuente"), p.get("codigo")
+        if cod and f == "yahoo":
+            pide(cod, descargar_serie, cod)
+            pide_fx(p.get("moneda"))
+        elif cod and f == "morningstar" and "MS:" + cod not in series:
+            ms = descargar_morningstar(cod)
+            # Los codigos 0P... de Morningstar existen tambien en Yahoo con ".F": sirven
+            # para cubrir huecos y, donde coinciden, dan un decimal mas.
+            yh = descargar_serie(cod + ".F") if cod.startswith("0P") else {}
+            series["MS:" + cod] = combinar_vl(ms, yh, p.get("corto", cod)) if ms else yh
+        elif cod and f == "coingecko":
+            pide("CG:" + cod, descargar_coingecko, cod)
+        if p.get("respaldo"):
+            pide(p["respaldo"], descargar_serie, p["respaldo"])
+            pide_fx(p.get("respaldoMoneda"))
+        if p.get("vivo"):
+            pide("CG:" + p["vivo"], descargar_coingecko, p["vivo"])
+    return series
+
+
+def serie_producto(p, carpeta, fresca=False):
+    """Precio diario en euros de un producto suelto. Usa los precios guardados en la
+    cache (descargando solo lo que falte) o, con fresca=True, los baja de nuevo."""
+    global CACHE, SIN_RED, SOLO_FALTAN
+    CACHE, SIN_RED, SOLO_FALTAN = os.path.join(carpeta, "cache"), False, not fresca
+    _COTIZACIONES.pop(p.get("id"), None)
+    p = dict(p, id=p.get("id") or "_suelto")
+    s = precio_eur(p, descarga_series([p]))
+    _COTIZACIONES.pop(p["id"], None)
+    return s
+
+
+def serie_cambio(moneda, carpeta):
+    """Cambio diario de 'moneda' a euros ({} si es EUR), con cache."""
+    global CACHE, SIN_RED, SOLO_FALTAN
+    CACHE, SIN_RED, SOLO_FALTAN = os.path.join(carpeta, "cache"), False, True
+    sim = simbolo_fx(moneda)[0]
+    return descargar_serie(sim) if sim else {}
+
+
 # ---------------------------------------------------------------- construccion
 
 def construir(cfg, carpeta, descargar=True):
@@ -505,34 +559,7 @@ def construir(cfg, carpeta, descargar=True):
         p.setdefault("corto", (p.get("nombre") or p["id"])[:24])
 
     print("\n=== 1. Precios ===" if descargar is True else "\n=== 1. Precios guardados ===")
-    series = {}
-
-    def pide(clave, fn, *args):
-        if clave and clave not in series:
-            series[clave] = fn(*args)
-
-    def pide_fx(moneda):
-        sim = simbolo_fx(moneda)[0]
-        pide(sim, descargar_serie, sim)
-
-    for p in productos_cfg:
-        f, cod = p["fuente"], p.get("codigo")
-        if cod and f == "yahoo":
-            pide(cod, descargar_serie, cod)
-            pide_fx(p.get("moneda"))
-        elif cod and f == "morningstar" and "MS:" + cod not in series:
-            ms = descargar_morningstar(cod)
-            # Los codigos 0P... de Morningstar existen tambien en Yahoo con ".F": sirven
-            # para cubrir huecos y, donde coinciden, dan un decimal mas.
-            yh = descargar_serie(cod + ".F") if cod.startswith("0P") else {}
-            series["MS:" + cod] = combinar_vl(ms, yh, p["corto"]) if ms else yh
-        elif cod and f == "coingecko":
-            pide("CG:" + cod, descargar_coingecko, cod)
-        if p.get("respaldo"):
-            pide(p["respaldo"], descargar_serie, p["respaldo"])
-            pide_fx(p.get("respaldoMoneda"))
-        if p.get("vivo"):
-            pide("CG:" + p["vivo"], descargar_coingecko, p["vivo"])
+    series = descarga_series(productos_cfg)
 
     movs_por, vals_por = defaultdict(list), defaultdict(list)
     for m in cfg.get("movimientos", []):
