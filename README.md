@@ -6,6 +6,8 @@ Fondos, ETF, acciones, criptomonedas, oro, planes de pensiones, cuentas del banc
 
 ![El panel de patrimonio](docs/capturas/01_panel.png)
 
+Herramienta **gratuita** hecha por **Dani Dominguez Quant**. Si te resulta útil, la mejor forma de apoyarla es [suscribirte al canal de YouTube](https://www.youtube.com/channel/UCiS3qumDoE7QDwzo_ChU6yQ?sub_confirmation=1) ▶, donde cuento cada mes cómo evoluciona la cartera de ejemplo.
+
 > **Aviso.** Es una herramienta informativa. **No es asesoramiento financiero** ni una recomendación de compra o venta. Los precios vienen de servicios públicos gratuitos y pueden tener errores o retrasos: no se garantiza la exactitud de los datos. La cartera de ejemplo que trae es la cartera real del autor, con fines divulgativos.
 
 ---
@@ -363,5 +365,7 @@ mis_datos/       TUS DATOS (se crea al usarla; no se sube a ningún sitio)
 ## Licencia
 
 [MIT](LICENSE): puedes usarla, copiarla y modificarla libremente.
+
+Hecha por **Dani Dominguez Quant**. ¿Te ha servido? [Suscríbete al canal](https://www.youtube.com/channel/UCiS3qumDoE7QDwzo_ChU6yQ?sub_confirmation=1) ▶
 
 **Herramienta informativa. No es asesoramiento financiero ni una recomendación de inversión. No se garantiza la exactitud de los datos ni de los precios. Úsala bajo tu propia responsabilidad.**

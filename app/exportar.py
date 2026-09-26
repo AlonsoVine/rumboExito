@@ -99,7 +99,7 @@ def pagina(web, datos, ocultar=False, titulo="Mi patrimonio"):
     if ocultar:
         previo += "window.OCULTAR_IMPORTES = true;\n"
     trozos = [previo + "window.DATOS = " + json.dumps(datos, ensure_ascii=False, separators=(",", ":")) + ";"]
-    trozos += [lee(n) for n in ("graficos.js", "app.js")]
+    trozos += [lee(n) for n in ("canal.js", "graficos.js", "app.js")]
     scripts = "\n".join("<script>\n" + t.replace("</script>", "<\\/script>") + "\n</script>" for t in trozos)
     html, n = re.subn(r"<script>\s*/\* Carga los scripts.*?</script>", lambda m: scripts, html, flags=re.S)
     if not n:

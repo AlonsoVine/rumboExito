@@ -842,6 +842,44 @@
   const btnEmpezar = $("#btnEmpezar");
   if (btnEmpezar) btnEmpezar.onclick = empezar;
 
+  /* ---------------------------------------------- el canal del autor */
+  // Una tarjeta pequeña, la primera vez que ves tu propio panel con datos. Si pulsas
+  // «Ahora no», vuelve como mucho una vez más al cabo de un mes; luego, nunca.
+  (function canal() {
+    const K = window.CANAL;
+    if (!K) return;
+    document.querySelectorAll(".autorCanal").forEach(el => { el.textContent = K.autor; });
+    document.querySelectorAll(".enlaceCanal").forEach(el => { el.href = K.canal; });
+    document.querySelectorAll(".enlaceSuscribir").forEach(el => { el.href = K.suscribir; });
+    const tut = $("#ayudaTutorial");
+    if (tut) tut.href = K.tutorial || K.canal + "/videos";
+
+    if (!D || D.modo !== "propio" || !(D.productos || []).length) return;
+    let est = {};
+    try { est = JSON.parse(recuerda.lee("patrimonio.canal") || "{}"); } catch (e) { est = {}; }
+    const MES = 30 * 24 * 3600 * 1000;
+    if (est.hecho || (est.veces || 0) >= 2 || (est.veces === 1 && Date.now() - (est.ultima || 0) < MES)) return;
+    const guarda = cambios => recuerda.guarda("patrimonio.canal", JSON.stringify({ ...est, ...cambios }));
+
+    setTimeout(() => {
+      if (document.body.classList.contains("video") || $("#modal").open) return;
+      const t = document.createElement("div");
+      t.className = "tarjetaCanal";
+      t.setAttribute("role", "dialog");
+      t.innerHTML = `<button class="x" aria-label="Cerrar">×</button>
+        <b>¿Te está siendo útil?</b>
+        <p>Esta herramienta es gratis. La hago para mi canal de YouTube, donde cuento cómo invierto:
+          suscribirte es la mejor forma de apoyarla. — ${esc(K.autor)}</p>
+        <div class="botones"><a class="btn prim" href="${esc(K.suscribir)}" target="_blank" rel="noopener">▶ Suscribirme</a>
+          <button class="ahoraNo">Ahora no</button></div>`;
+      const cierra = () => { t.remove(); guarda({ veces: (est.veces || 0) + 1, ultima: Date.now() }); };
+      t.querySelector(".x").onclick = cierra;
+      t.querySelector(".ahoraNo").onclick = cierra;
+      t.querySelector("a").onclick = () => { guarda({ hecho: true }); setTimeout(() => t.remove(), 300); };
+      document.body.appendChild(t);
+    }, 6000);
+  })();
+
   window.Editor = { mostrar: pinta };
   carga().then(pinta).catch(x => {
     const cont = $("#editor");
