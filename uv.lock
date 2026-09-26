@@ -165,8 +165,8 @@ wheels = [
 ]
 
 [[package]]
-name = "patrimonio-dashboard"
-version = "1.0.0"
+name = "rumbo"
+version = "1.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "flask" },
