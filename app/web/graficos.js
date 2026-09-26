@@ -12,11 +12,17 @@
   const nfNum = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 2 });
   const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
+  // En la web exportada con «ocultar importes» no se enseña ninguna cantidad.
+  const oculto = () => global.OCULTAR_IMPORTES === true;
+  const nfUnidades = { format: v => oculto() ? "•••" : nfNum.format(v) };
+
   function fmtEur(v, dec) {
+    if (oculto()) return "•••";
     if (v === null || v === undefined || isNaN(v)) return "—";
     return dec === 0 ? nfEur0.format(v) : nfEur.format(v);
   }
   function fmtEurCorto(v) {
+    if (oculto()) return "•••";
     if (v === null || v === undefined || isNaN(v)) return "—";
     const a = Math.abs(v);
     if (a >= 1e6) return (v / 1e6).toLocaleString("es-ES", { maximumFractionDigits: 2 }) + " M€";
@@ -33,6 +39,7 @@
     return (v >= 0 ? "+" : "") + fmtPct(v, dec);
   }
   function fmtEurSigno(v) {
+    if (oculto()) return "•••";
     if (v === null || v === undefined || isNaN(v)) return "—";
     return (v >= 0 ? "+" : "") + fmtEur(v);
   }
@@ -751,7 +758,7 @@
   }
 
   global.G = {
-    fmtEur, fmtEurCorto, fmtPct, fmtPctSigno, fmtEurSigno, fmtFecha, fmtFechaCorta, fmtMes, nfNum,
+    fmtEur, fmtEurCorto, fmtPct, fmtPctSigno, fmtEurSigno, fmtFecha, fmtFechaCorta, fmtMes, nfNum: nfUnidades,
     areaApilada, lineaConEventos, barrasApiladas, donut, mini, escalaBonita, css,
     barrasHorizontales, barrasSimples, multiLinea, barrasAgrupadas
   };

@@ -29,6 +29,12 @@
       b.setAttribute("aria-selected", String(b.dataset.tab === "datos")));
     document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-datos"; });
     document.querySelectorAll(".aviso-legal, #bannerDemo").forEach(el => { el.hidden = true; });
+    document.querySelectorAll("#tabs button").forEach(b => {
+      b.onclick = () => {
+        document.querySelectorAll("#tabs button").forEach(x => x.setAttribute("aria-selected", String(x === b)));
+        document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-" + b.dataset.tab; });
+      };
+    });
     return;
   }
 
@@ -452,6 +458,8 @@
   }
 
   function pintaHitos(mTodo) {
+    // En la web con importes ocultos no hay hitos (delatarían cifras).
+    $("#hitos").closest("section").hidden = !D.total.hitos.length;
     $("#hitos").innerHTML = D.total.hitos.map(h => {
       const hecho = !!h.fecha;
       return `<div class="hito ${hecho ? "hecho" : ""}">
@@ -691,6 +699,7 @@
       ["Precio medio de compra", p.precioMedio != null ? G.fmtEur(p.precioMedio) : null],
       [p.origen === "ordenes" ? "Precio actual" : "Valor liquidativo",
         p.nav != null ? G.fmtEur(p.nav) + (p.navFecha ? " · cierre del " + G.fmtFechaCorta(p.navFecha) : "") : null],
+      ["Fuente del precio", p.fuentePrecio ? p.fuentePrecio + (p.codigo ? " · " + p.codigo : "") : null],
       ["Plusvalía ya materializada", p.realizado ? G.fmtEur(p.realizado) : null],
       ["Peso en el patrimonio", p.peso != null ? G.fmtPct(p.peso, 1) : null],
     ].filter(c => c[0] && c[1]);
@@ -959,7 +968,7 @@
        Fuentes de precios: ${fuentes.join(", ") || "ninguna"}. En la pestaña Productos verás la de cada uno.<br>
        <b>Aviso:</b> herramienta informativa. No es asesoramiento financiero ni una recomendación de compra o venta.
        Los precios vienen de servicios públicos gratuitos y pueden tener errores o retrasos: no se garantiza su exactitud.`;
-    $("#bannerDemo").hidden = D.modo !== "demo";
+    if ($("#bannerDemo")) $("#bannerDemo").hidden = D.modo !== "demo";
   }
 
   /* ---------------------------------------------- bitcoin en vivo */
@@ -1021,7 +1030,7 @@
   $("#metaFecha").textContent = "Datos a " + G.fmtFecha(D.fechaExtracto);
 
   $("#btnTema").onclick = () => { cambiaTema(); pintar(); };
-  $("#btnPrecios").onclick = async () => {
+  if ($("#btnPrecios")) $("#btnPrecios").onclick = async () => {
     const b = $("#btnPrecios");
     b.disabled = true;
     b.textContent = "↻ Actualizando…";
@@ -1036,7 +1045,7 @@
       b.textContent = "↻ Actualizar precios";
     }
   };
-  if (location.protocol === "file:") $("#btnPrecios").hidden = true;
+  if (location.protocol === "file:" && $("#btnPrecios")) $("#btnPrecios").hidden = true;
   $("#btnVideo").onclick = () => {
     document.body.classList.toggle("video");
     $("#btnVideo").classList.toggle("act");
@@ -1061,8 +1070,9 @@
       estado.ocultos = filtrando() ? new Set() : new Set(idsCorto());
       pintaPatrimonio();
     }
-    const n = "12345".indexOf(e.key);
-    if (n >= 0) irA(["patrimonio", "mes", "fondos", "rendimiento", "datos"][n]);
+    const n = "123456".indexOf(e.key);
+    const tab = ["patrimonio", "mes", "fondos", "rendimiento", "datos", "ayuda"][n];
+    if (n >= 0 && document.getElementById("tab-" + tab)) irA(tab);
   });
 
   let t = null;

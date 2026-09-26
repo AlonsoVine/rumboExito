@@ -11,6 +11,7 @@ import datetime as dt
 import json
 import logging
 import os
+import re
 import secrets
 import sys
 import threading
@@ -20,7 +21,7 @@ import webbrowser
 from flask import Flask, Response, jsonify, request, send_from_directory
 from werkzeug.serving import make_server
 
-from . import almacen, buscar, importar, motor, plantilla
+from . import almacen, buscar, exportar, importar, motor, plantilla
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(RAIZ, "app", "web")
@@ -268,6 +269,137 @@ def api_plantilla_csv():
 def api_prompt():
     with open(os.path.join(RAIZ, "app", "prompt_ia.txt"), encoding="utf-8") as f:
         return jsonify(texto=f.read())
+
+
+# ---------------------------------------------------------------- copias de seguridad
+
+def ruta_copias():
+    return os.path.join(DATOS, "copias")
+
+
+def valida_copia(cfg):
+    """Comprueba que un JSON tiene pinta de cartera de esta app."""
+    if not isinstance(cfg, dict) or not all(isinstance(cfg.get(k), list)
+                                            for k in ("productos", "movimientos", "valoraciones")):
+        raise almacen.ErrorValidacion(["Ese archivo no es una copia de seguridad de esta app."])
+    return cfg
+
+
+def restaura(cfg):
+    """Pone cfg como cartera. Lo que hubiera antes queda en las copias automáticas."""
+    with cerrojo:
+        almacen.guarda(os.path.join(DATOS, "cartera.json"), cfg)
+        for viejo in ("calculado_propio.json", "historico.json"):
+            if os.path.exists(os.path.join(DATOS, viejo)):
+                os.remove(os.path.join(DATOS, viejo))
+        recalcula(descargar="faltan")
+
+
+@app.get("/api/copias")
+def api_copias():
+    lista = []
+    if os.path.isdir(ruta_copias()):
+        for n in os.listdir(ruta_copias()):
+            if not n.endswith(".json"):
+                continue
+            ruta = os.path.join(ruta_copias(), n)
+            cfg = lee_json(ruta, {}) or {}
+            lista.append({"archivo": n,
+                          "fecha": dt.datetime.fromtimestamp(os.path.getmtime(ruta)).isoformat(timespec="minutes"),
+                          "motivo": "Antes de empezar de nuevo" if n.startswith("antes_de_reiniciar")
+                          else "Antes de recuperar una copia" if n.startswith("antes_de_recuperar")
+                          else "Automática",
+                          "productos": len(cfg.get("productos", [])),
+                          "movimientos": len(cfg.get("movimientos", []))})
+    lista.sort(key=lambda c: c["fecha"], reverse=True)
+    return jsonify(copias=lista)
+
+
+@app.get("/api/copia/descargar")
+def api_copia_descargar():
+    if modo() != "propio":
+        return jsonify(ok=False, errores=["Todavía no tienes una cartera propia que guardar."]), 400
+    with open(os.path.join(DATOS, "cartera.json"), "rb") as f:
+        contenido = f.read()
+    nombre = f"copia_patrimonio_{dt.date.today().isoformat()}.json"
+    return Response(contenido, mimetype="application/json",
+                    headers={"Content-Disposition": f'attachment; filename="{nombre}"'})
+
+
+@app.post("/api/copia/subir")
+def api_copia_subir():
+    """Importa una copia descargada antes (por ejemplo, al cambiar de ordenador)."""
+    f = request.files.get("archivo")
+    if not f:
+        return jsonify(ok=False, errores=["Elige el archivo de la copia (termina en .json)."]), 400
+    try:
+        cfg = valida_copia(json.loads(importar.decodifica(f.read())))
+    except ValueError:
+        return jsonify(ok=False, errores=["Ese archivo no es una copia de seguridad de esta app."]), 400
+    except almacen.ErrorValidacion as e:
+        return jsonify(ok=False, errores=e.errores), 400
+    restaura(cfg)
+    return jsonify(ok=True)
+
+
+@app.post("/api/copia/recuperar")
+def api_copia_recuperar():
+    nombre = os.path.basename((request.get_json(silent=True) or {}).get("archivo") or "")
+    ruta = os.path.join(ruta_copias(), nombre)
+    if not nombre.endswith(".json") or not os.path.exists(ruta):
+        return jsonify(ok=False, errores=["Esa copia ya no existe."]), 400
+    try:
+        cfg = valida_copia(lee_json(ruta))
+    except almacen.ErrorValidacion as e:
+        return jsonify(ok=False, errores=e.errores), 400
+    if modo() == "propio":
+        # Además de la copia automática, una con nombre propio que no se borra sola.
+        sello = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+        with open(os.path.join(DATOS, "cartera.json"), "rb") as a, \
+                open(os.path.join(ruta_copias(), f"antes_de_recuperar_{sello}.json"), "wb") as b:
+            b.write(a.read())
+    restaura(cfg)
+    return jsonify(ok=True)
+
+
+# ---------------------------------------------------------------- web estática y versión
+
+@app.get("/api/exportar-web")
+def api_exportar_web():
+    datos = lee_json(ruta_calculado())
+    if not datos:
+        return jsonify(ok=False, errores=["Todavía no hay nada que exportar."]), 400
+    ocultar = request.args.get("ocultar") == "1"
+    html = exportar.pagina(WEB, datos, ocultar=ocultar, titulo=datos.get("titular") or "Mi patrimonio")
+    nombre = "patrimonio_sin_importes.html" if ocultar else "patrimonio.html"
+    return Response(html.encode("utf-8"), mimetype="text/html",
+                    headers={"Content-Disposition": f'attachment; filename="{nombre}"'})
+
+
+REPO = "https://github.com/danidm98/patrimonio-dashboard"
+_VERSION = {}
+
+
+def version_actual():
+    with open(os.path.join(RAIZ, "app", "VERSION"), encoding="utf-8") as f:
+        return f.read().strip()
+
+
+@app.get("/api/version")
+def api_version():
+    """Compara esta versión con la publicada en GitHub (se consulta como mucho una vez al día)."""
+    actual = version_actual()
+    if not _VERSION or dt.datetime.now() - _VERSION["cuando"] > dt.timedelta(hours=24):
+        try:
+            url = REPO.replace("github.com", "raw.githubusercontent.com") + "/main/app/VERSION"
+            with urllib.request.urlopen(urllib.request.Request(url, headers=motor.UA), timeout=5) as r:
+                _VERSION.update(ultima=r.read().decode().strip(), cuando=dt.datetime.now())
+        except Exception:
+            _VERSION.update(ultima=None, cuando=dt.datetime.now())
+    ultima = _VERSION.get("ultima")
+    como_tupla = lambda v: tuple(int(x) for x in re.findall(r"\d+", v or "0"))
+    return jsonify(actual=actual, ultima=ultima, repo=REPO,
+                   hayNueva=bool(ultima) and como_tupla(ultima) > como_tupla(actual))
 
 
 @app.post("/api/reiniciar")

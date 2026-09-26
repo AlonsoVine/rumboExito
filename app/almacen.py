@@ -161,7 +161,7 @@ def guarda_producto(cfg, datos):
 
     nuevo.update(tipo=tipo, fuente=fuente, moneda=moneda,
                  largoPlazo=bool(datos.get("largoPlazo", True)),
-                 slot=int(datos.get("slot") or 1) if str(datos.get("slot") or "1").isdigit() else 1,
+                 slot=int(datos["slot"]) if str(datos.get("slot") or "").isdigit() else None,
                  ter=ter / 100 if ter is not None else None,
                  riesgo=int(riesgo) if riesgo is not None else None)
     if fuente == "manual":
@@ -172,9 +172,15 @@ def guarda_producto(cfg, datos):
     if existente:
         cambio = (existente.get("fuente"), existente.get("codigo")) != (fuente, nuevo["codigo"])
         destino = existente
+        if nuevo["slot"] is None:
+            nuevo.pop("slot")   # si no se dice color, se queda el que tenía
     else:
         cambio = fuente != "manual"
         destino = {"id": slug(nuevo["corto"], {p["id"] for p in cfg["productos"]})}
+        if nuevo["slot"] is None:
+            # Sin color elegido (por ejemplo, al importar): el que menos se use.
+            usos = [sum(1 for p in cfg["productos"] if p.get("slot") == s) for s in range(1, 9)]
+            nuevo["slot"] = usos.index(min(usos)) + 1
         cfg["productos"].append(destino)
     # Se conservan los campos que el formulario no toca (la exposición del índice, etc.).
     for k, v in nuevo.items():

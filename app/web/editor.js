@@ -52,6 +52,7 @@
   async function guarda(coleccion, datos) {
     const j = await api("POST", "api/" + coleccion, datos);
     E.cfg = j.cartera;
+    COP.lista = null;   // hay una copia automática nueva
     window.EDITOR_SUCIO = true;
     avisa(j.avisos);
     return j.item;
@@ -59,6 +60,7 @@
   async function borra(coleccion, id) {
     const j = await api("DELETE", `api/${coleccion}/${encodeURIComponent(id)}`);
     E.cfg = j.cartera;
+    COP.lista = null;
     window.EDITOR_SUCIO = true;
   }
   function avisa(avisos) {
@@ -163,7 +165,7 @@
       <div id="edAvisos" class="avisos"></div><div id="edCuerpo"></div>`;
     cont.innerHTML = html;
 
-    const vistas = [["productos", "Productos"], ["movimientos", "Movimientos"], ["saldos", "Saldos y valores"], ["importar", "Importar"]];
+    const vistas = [["productos", "Productos"], ["movimientos", "Movimientos"], ["saldos", "Saldos y valores"], ["importar", "Importar"], ["copias", "Copias y web"]];
     const seg = $("#edVistas");
     vistas.forEach(([id, et]) => {
       const b = document.createElement("button");
@@ -173,8 +175,8 @@
       seg.appendChild(b);
     });
     $("#edCuerpo").innerHTML = ({ productos: vistaProductos, movimientos: vistaMovimientos, saldos: vistaSaldos,
-      importar: vistaImportar }[E.vista] || vistaProductos)();
-    if (E.vista === "importar") conectaImportar();
+      importar: vistaImportar, copias: vistaCopias }[E.vista] || vistaProductos)();
+    if (E.vista === "importar" || E.vista === "copias") conectaImportar();
     const filtro = $("#edFiltro");
     if (filtro) filtro.onchange = e => { E.filtro = e.target.value; pinta(); };
   }
@@ -705,6 +707,91 @@
     }
   }
 
+  /* ---------------------------------------------- copias y web */
+  const COP = { lista: null };
+
+  function vistaCopias() {
+    if (COP.lista === null) {
+      api("GET", "api/copias").then(j => { COP.lista = j.copias; if (E.vista === "copias") pinta(); });
+    }
+    const propio = E.modo === "propio";
+    const filas = (COP.lista || []).map(c => `<tr><td>${fecha(c.fecha.slice(0, 10))} <small>${c.fecha.slice(11, 16)}</small></td>
+      <td style="text-align:left">${esc(c.motivo)}</td><td>${c.productos}</td><td>${c.movimientos}</td>
+      <td class="acc"><button data-acc="recuperarCopia" data-id="${esc(c.archivo)}">Recuperar</button></td></tr>`).join("");
+    return `<section class="tarjeta"><header><h2>Copia de seguridad</h2>
+        <span class="subt">Un archivo con toda tu cartera, para guardarlo donde quieras o pasarlo a otro ordenador.</span></header>
+      <div class="dosCol">
+        <div class="bloque"><b>Guardar una copia</b>
+          <p class="ayuda">Descarga un archivo <code>.json</code> con todos tus productos, movimientos y saldos.
+            Guárdalo en tu nube o en un USB de vez en cuando.</p>
+          ${propio ? '<a class="btn prim" href="api/copia/descargar" download>Descargar copia</a>'
+            : '<span class="subt">Disponible cuando empieces tu propia cartera.</span>'}</div>
+        <div class="bloque"><b>Recuperar desde un archivo</b>
+          <p class="ayuda">Sube una copia que descargaste antes. Sustituye la cartera actual (que se guarda antes, por si acaso).</p>
+          ${zona(".json", false, "Arrastra aquí tu copia")}
+          <div class="imErr" id="copFallo" hidden></div>
+          <div class="imAcc"><span class="sp"></span><button class="btn prim" data-acc="subirCopia" id="copSubirBtn">Recuperar esta copia</button></div></div>
+      </div></section>
+
+      <section class="tarjeta"><header><h2>Copias automáticas</h2>
+        <span class="subt">Antes de cada cambio se guarda una copia (las últimas 20). Si te equivocas, vuelve a una anterior.</span></header>
+      ${COP.lista === null ? '<p class="cargando">Cargando…</p>' : filas
+        ? `<div class="tablaEnv alto"><table class="dt"><thead><tr><th>Fecha</th><th style="text-align:left">Motivo</th>
+          <th>Productos</th><th>Movimientos</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
+        : '<p class="subt">Todavía no hay copias: se crean solas en cuanto cambias algo.</p>'}</section>
+
+      <section class="tarjeta"><header><h2>Publicar como web</h2>
+        <span class="subt">Tu panel en un solo archivo, de solo lectura, para enseñarlo o subirlo a internet.</span></header>
+      <label class="interruptor"><input type="checkbox" id="webOcultar"><span class="pista"></span>
+        <span><b>Ocultar importes</b><small>Solo se ven porcentajes y la forma de las gráficas. Las cantidades reales no
+          van dentro del archivo, ni siquiera escondidas.</small></span></label>
+      <ol class="pasos" style="margin-top:18px">
+        <li><button class="btn prim" data-acc="exportarWeb">Descargar la web</button>
+          Puedes abrirla con doble clic o mandarla por correo.</li>
+        <li>Para tener un enlace: crea una carpeta, mete dentro el archivo, cámbiale el nombre a <code>index.html</code>
+          y arrastra la carpeta a <a href="https://app.netlify.com/drop" target="_blank" rel="noopener">app.netlify.com/drop</a>.
+          En unos segundos te da una dirección para compartir.</li>
+      </ol>
+      <p class="ayuda">La web lleva la fecha de hoy: cuando actualices tus datos, vuelve a descargarla y súbela otra vez.</p></section>`;
+  }
+
+  async function subirCopia() {
+    const inp = $("#imArchivos"), fallo = $("#copFallo");
+    fallo.hidden = true;
+    if (!inp.files.length) { fallo.textContent = "Elige primero el archivo de la copia."; fallo.hidden = false; return; }
+    if (E.modo === "propio" && !confirm("Esto sustituye tu cartera actual por la de la copia. Tu cartera actual se guarda antes en «Copias automáticas». ¿Seguir?")) return;
+    const fd = new FormData();
+    fd.append("archivo", inp.files[0]);
+    const r = await fetch("api/copia/subir", { method: "POST", body: fd });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) { fallo.textContent = (j.errores || ["No he podido leer la copia."]).join("\n"); fallo.hidden = false; return; }
+    recuerda.guarda("patrimonio.tab", "datos");
+    recuerda.guarda("patrimonio.editor", "productos");
+    location.reload();
+  }
+
+  async function recuperarCopia(archivo) {
+    const c = COP.lista.find(x => x.archivo === archivo);
+    if (!confirm(`¿Volver a la copia del ${fecha(c.fecha.slice(0, 10))} a las ${c.fecha.slice(11, 16)} (${c.productos} productos, ${c.movimientos} movimientos)?\n\nTu cartera actual se guarda antes, así que puedes deshacerlo.`)) return;
+    try {
+      await api("POST", "api/copia/recuperar", { archivo });
+      recuerda.guarda("patrimonio.tab", "datos");
+      location.reload();
+    } catch (x) { alert(x.message); }
+  }
+
+  /* ---------------------------------------------- aviso de versión nueva */
+  api("GET", "api/version").then(v => {
+    const pie = $("#ayudaVersion");
+    if (pie) pie.innerHTML = `Versión ${esc(v.actual)}. ¿Otra duda o un fallo? Cuéntalo en la
+      <a href="${esc(v.repo)}" target="_blank" rel="noopener">página del proyecto en GitHub</a>.`;
+    if (!v.hayNueva) return;
+    $("#bannerVersionTexto").innerHTML = `<b>Hay una versión nueva (${esc(v.ultima)}).</b> Descárgala en
+      <a href="${esc(v.repo)}" target="_blank" rel="noopener">GitHub</a> y copia tu carpeta <code>mis_datos</code> a la
+      nueva: así no pierdes nada. Los pasos están en la pestaña Ayuda.`;
+    $("#bannerVersion").hidden = false;
+  }).catch(() => { /* sin internet: no pasa nada */ });
+
   /* ---------------------------------------------- acciones */
   const ACC = {
     empezar,
@@ -724,6 +811,9 @@
     imRevisar: soloPropio(imRevisar),
     imCancelar() { IMP.informe = null; IMP.token = null; pinta(); },
     imConfirmar,
+    subirCopia,
+    recuperarCopia,
+    exportarWeb() { location.href = "api/exportar-web?ocultar=" + ($("#webOcultar").checked ? "1" : "0"); },
     verPanelDatos() { recuerda.guarda("patrimonio.tab", "patrimonio"); location.reload(); },
     async imCopiar() {
       const txt = IMP.prompt || (await api("GET", "api/prompt")).texto;

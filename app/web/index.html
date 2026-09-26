@@ -303,7 +303,7 @@ body.video .topFila,body.video #seccionTabla,body.video .pie,body.video #seccion
 [hidden]{display:none !important}
 .btn.prim{background:var(--s1);border-color:transparent;color:#fff;font-weight:600}
 .btn.prim:hover{filter:brightness(1.1);color:#fff;background:var(--s1)}
-body.sinDatos #tabs button:not([data-tab="datos"]),body.sinDatos #btnPrecios,body.sinDatos #metaFecha{display:none}
+body.sinDatos #tabs button:not([data-tab="datos"]):not([data-tab="ayuda"]),body.sinDatos #btnPrecios,body.sinDatos #metaFecha{display:none}
 
 /* ---- Mis datos ---- */
 .sp{flex:1}
@@ -538,6 +538,32 @@ body.video .tarjeta{padding:22px 24px}
   background:color-mix(in srgb,var(--bien) 12%,var(--sup));border:1px solid color-mix(in srgb,var(--bien) 35%,transparent)}
 .exito b{flex:1;font-size:14px}
 @media(max-width:640px){.imOps{grid-template-columns:1fr}}
+/* ---- Ayuda y versión ---- */
+.ayudaTarjeta{margin-top:24px;max-width:860px}
+.faq{border-top:1px solid var(--borde)}
+.faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;padding:15px 2px;font-size:14.5px;font-weight:620}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";margin-left:auto;font-size:20px;font-weight:400;color:var(--tinta3);transition:transform .15s}
+.faq[open] summary::after{transform:rotate(45deg)}
+.faq summary:hover{color:var(--s1)}
+.faq > div{padding:0 2px 16px;font-size:14px;line-height:1.65;color:var(--tinta2)}
+.faq p{margin:0 0 8px} .faq ol,.faq ul{margin:0 0 8px;padding-left:22px}
+.faq li{margin-bottom:4px} .faq b{color:var(--tinta)}
+.faq code{font:12.5px ui-monospace,Consolas,monospace;background:var(--sup2);border:1px solid var(--borde);border-radius:5px;padding:1px 5px}
+.ayudaPie{margin:16px 0 0;padding-top:16px;border-top:1px solid var(--borde);font-size:13px;color:var(--tinta3)}
+.ayudaPie a{color:var(--s1)}
+.dosCol{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.bloque{background:var(--sup2);border:1px solid var(--borde);border-radius:14px;padding:16px}
+.bloque > b{font-size:14.5px}
+.bloque .zona{background:var(--sup);padding:18px 12px}
+.bloque .imAcc{margin-top:12px}
+#editor .tarjeta > .interruptor{margin-top:4px}
+@media(max-width:760px){.dosCol{grid-template-columns:1fr}}
+@media(max-width:720px){
+  .topFila{gap:6px;flex-wrap:wrap}
+  .topFila .btn{padding:6px 9px;font-size:12px;white-space:nowrap}
+  .topFila .meta{display:none}
+}
 </style>
 </head>
 <body>
@@ -558,12 +584,14 @@ body.video .tarjeta{padding:22px 24px}
       <button data-tab="fondos" role="tab" aria-selected="false">Productos</button>
       <button data-tab="rendimiento" role="tab" aria-selected="false">Rendimiento</button>
       <button data-tab="datos" role="tab" aria-selected="false">Mis datos</button>
+      <button data-tab="ayuda" role="tab" aria-selected="false">Ayuda</button>
     </nav>
   </div>
 </div>
 
 <div class="env">
 
+<div class="banner" id="bannerVersion" hidden><span id="bannerVersionTexto"></span></div>
 <div class="banner" id="bannerDemo" hidden>
   <span><b>Estás viendo una cartera de ejemplo:</b> es la cartera real del autor del canal, con fines
   divulgativos. No es una recomendación de inversión.</span>
@@ -720,6 +748,71 @@ body.video .tarjeta{padding:22px 24px}
 </div>
 
 <div class="panel" id="tab-datos" role="tabpanel" hidden><div id="editor"></div></div>
+
+<div class="panel" id="tab-ayuda" role="tabpanel" hidden>
+  <section class="tarjeta ayudaTarjeta">
+    <header><h2>Ayuda</h2><span class="subt">Las dudas más habituales. Pulsa una para ver la respuesta.</span></header>
+
+    <details class="faq" open><summary>Mi producto no aparece en el buscador</summary><div>
+      <p>Prueba en este orden:</p>
+      <ol>
+        <li><b>Busca por ISIN</b> (12 caracteres, como <code>IE00BYX5NX33</code>). Lo tienes en la ficha del producto en tu banco. Es la forma más fiable, sobre todo para fondos.</li>
+        <li>Para acciones y ETF, prueba el <b>ticker con la bolsa</b>: <code>SAN.MC</code> (Madrid), <code>IWDA.AS</code> (Ámsterdam), <code>EUNL.DE</code> (Xetra), <code>AAPL</code> (EE. UU.).</li>
+        <li>Para criptomonedas, escribe su nombre en inglés (<code>bitcoin</code>, <code>ethereum</code>).</li>
+        <li>Si no cotiza en ningún sitio (un plan de pensiones, un depósito, oro físico, un piso), créalo igualmente y elige <b>«Valor anotado a mano»</b> como fuente del precio. Luego anota su valor de vez en cuando en «Saldos y valores».</li>
+      </ol></div></details>
+
+    <details class="faq"><summary>El valor no coincide con el que veo en mi banco</summary><div>
+      <p>Pequeñas diferencias son normales:</p>
+      <ul>
+        <li>Los <b>fondos</b> publican su valor liquidativo con uno o dos días de retraso, y cada web lo actualiza a una hora distinta.</li>
+        <li>Las <b>acciones y ETF</b> se valoran al último cierre; tu banco puede enseñar el precio en vivo.</li>
+        <li>El <b>precio de tu orden</b> que ves en el banco suele ir redondeado: lo exacto es importe ÷ unidades.</li>
+      </ul>
+      <p>Si la diferencia es grande, revisa que las unidades y los importes de tus movimientos sean correctos, y que el producto use la bolsa y la moneda buenas (en su ficha, «Fuente del precio»).</p></div></details>
+
+    <details class="faq"><summary>¿De dónde salen los precios y cada cuánto se actualizan?</summary><div>
+      <p>De Morningstar (fondos), Yahoo Finance (acciones, ETF, materias primas, cripto y tipos de cambio) y CoinGecko (cripto en vivo). Son servicios públicos y gratuitos: casi siempre van bien, pero pueden fallar o traer algún dato raro.</p>
+      <p>La app actualiza los precios al abrirse si tienen más de 6 horas, y cuando pulsas <b>«↻ Actualizar precios»</b>. Si una fuente no responde, usa el último precio guardado y te avisa.</p></div></details>
+
+    <details class="faq"><summary>¿Mis datos salen de mi ordenador?</summary><div>
+      <p>No. Todo se guarda en la carpeta <code>mis_datos</code>, dentro de la carpeta de la app. No hay cuentas, ni servidores, ni nadie más que los vea. La app solo sale a internet para descargar precios, y en esas consultas no va ningún dato tuyo.</p></div></details>
+
+    <details class="faq"><summary>¿Cómo meto mi cuenta del banco, un plan de pensiones o un piso?</summary><div>
+      <ol>
+        <li>En <b>Mis datos → Productos</b>, añade el producto. Para una cuenta elige el tipo «Cuenta / efectivo»; para lo demás, la fuente «Valor anotado a mano».</li>
+        <li>En <b>Saldos y valores</b>, anota su valor con la fecha. Una vez al mes basta: con <b>«Anotar todos de una vez»</b> lo haces en un minuto.</li>
+        <li>Si sabes cuánto llevas aportado (por ejemplo, a un plan de pensiones), anótalo también: así el panel calcula su rentabilidad.</li>
+      </ol></div></details>
+
+    <details class="faq"><summary>¿Qué es la TIR y por qué no coincide con la rentabilidad?</summary><div>
+      <p>La <b>rentabilidad</b> compara lo que vale tu cartera con lo que has metido, sin mirar cuándo lo metiste. La <b>TIR</b> (tasa interna de rentabilidad) sí tiene en cuenta cuándo entró y salió cada euro, y lo expresa como un porcentaje anual. Si aportas poco a poco, la TIR es la cifra honesta para compararte con un depósito o con un índice.</p></div></details>
+
+    <details class="faq"><summary>He borrado o cambiado algo sin querer</summary><div>
+      <p>Antes de cada cambio, la app guarda una copia automática (las últimas 20). Ve a <b>Mis datos → Copias y web</b> y pulsa <b>«Recuperar»</b> en la copia de antes del error.</p></div></details>
+
+    <details class="faq"><summary>¿Cómo actualizo a una versión nueva sin perder mis datos?</summary><div>
+      <ol>
+        <li>Cierra la app (la ventana negra).</li>
+        <li>Descarga el ZIP nuevo desde la página del proyecto en GitHub y descomprímelo.</li>
+        <li>Copia tu carpeta <code>mis_datos</code> de la versión antigua a la nueva (o copia todo lo nuevo encima de lo viejo, menos <code>mis_datos</code>).</li>
+        <li>Abre la app con «Iniciar» como siempre.</li>
+      </ol>
+      <p>Por si acaso, antes descarga una copia en <b>Mis datos → Copias y web</b>.</p></div></details>
+
+    <details class="faq"><summary>¿Cómo lo paso a otro ordenador?</summary><div>
+      <p>En el ordenador viejo, <b>Mis datos → Copias y web → Descargar copia</b>. En el nuevo, instala la app, ábrela y, en ese mismo sitio, sube el archivo con <b>«Recuperar desde un archivo»</b>. También vale copiar la carpeta <code>mis_datos</code> entera.</p></div></details>
+
+    <details class="faq"><summary>Windows o Mac me dicen que el archivo puede ser peligroso</summary><div>
+      <p>Pasa con cualquier archivo descargado de internet que no viene de una tienda de apps. <code>Iniciar.bat</code> e <code>Iniciar.command</code> son texto plano: puedes abrirlos con el Bloc de notas o TextEdit y leer todo lo que hacen.</p>
+      <ul>
+        <li><b>Windows</b>: en el aviso azul, pulsa «Más información» y luego «Ejecutar de todas formas».</li>
+        <li><b>Mac</b>: la primera vez, clic derecho sobre <code>Iniciar.command</code> → «Abrir» → «Abrir».</li>
+      </ul></div></details>
+
+    <p class="ayudaPie" id="ayudaVersion">¿Otra duda? Mira la página del proyecto en GitHub.</p>
+  </section>
+</div><!-- /ayuda -->
 
   <div class="avisos" id="avisos"></div>
   <footer class="pie" id="pie"></footer>
