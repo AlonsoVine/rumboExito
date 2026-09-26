@@ -1157,6 +1157,13 @@
       '<div class="av" style="margin:20px 0"><span>⚠</span><span><b>Algo ha fallado al pintar el panel.</b> ' +
       String(e && e.message || e) + '<br>Cierra la app y vuelve a abrirla con «Iniciar»; si sigue igual, pulsa F12 y mira la consola del navegador.</span></div>');
   }
+  // ?ir=seccionComparar pone esa sección la primera de su pestaña (para capturas y enlaces).
+  const irA_ = qs.get("ir") && document.getElementById(qs.get("ir"));
+  if (irA_) {
+    irA_.parentNode.prepend(irA_);
+    irA_.style.marginTop = "24px";
+    pintarTab();
+  }
   actualizaVivo();
   setInterval(actualizaVivo, 60000);
 })();
