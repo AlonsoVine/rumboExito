@@ -385,7 +385,7 @@ def api_exportar_web():
                     headers={"Content-Disposition": f'attachment; filename="{nombre}"'})
 
 
-REPO = "https://github.com/danidm98/patrimonio-dashboard"
+REPO = "https://github.com/danidm98/rumbo"
 _VERSION = {}
 
 
