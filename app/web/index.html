@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es" data-tema="oscuro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi patrimonio</title>
+<style>
+/* ============================ tokens ============================ */
+:root{
+  color-scheme:dark;
+  --plano:#0d0d0d; --sup:#1a1a19; --sup2:#232320; --sup3:#2b2b28;
+  --tinta:#ffffff; --tinta2:#c3c2b7; --tinta3:#898781;
+  --rejilla:#2c2c2a; --eje:#383835; --borde:rgba(255,255,255,.10);
+  --bien:#0ca30c; --mal:#e66767; --aviso:#fab219;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --radio:14px;
+}
+:root[data-tema="claro"]{
+  color-scheme:light;
+  --plano:#f9f9f7; --sup:#fcfcfb; --sup2:#f2f1ec; --sup3:#e8e7e0;
+  --tinta:#0b0b0b; --tinta2:#52514e; --tinta3:#898781;
+  --rejilla:#e1e0d9; --eje:#c3c2b7; --borde:rgba(11,11,11,.10);
+  --bien:#006300; --mal:#d03b3b; --aviso:#b07d00;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--plano); color:var(--tinta);
+  font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.015em}
+a{color:inherit}
+code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
+.env{max-width:1320px;margin:0 auto;padding:0 22px 72px}
+
+/* ============================ barra superior ============================ */
+.top{
+  position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--plano) 88%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--borde);
+}
+.top .env{padding-top:12px;padding-bottom:0}
+.topFila{display:flex;align-items:center;gap:14px;padding-bottom:10px}
+.marca{font-weight:680;font-size:15px;letter-spacing:-.02em;display:flex;align-items:center;gap:9px}
+.marca .pt{width:9px;height:9px;border-radius:50%;background:var(--s1)}
+.sep{flex:1}
+.meta{color:var(--tinta3);font-size:12.5px}
+.btn{
+  border:1px solid var(--borde);background:var(--sup);color:var(--tinta2);
+  border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px;transition:.13s;
+}
+.btn:hover{background:var(--sup2);color:var(--tinta)}
+.btn.act{background:var(--tinta);color:var(--plano);border-color:var(--tinta)}
+
+/* ============================ pestanas ============================ */
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{
+  border:0;background:transparent;color:var(--tinta3);font:inherit;font-size:14px;font-weight:600;
+  padding:10px 15px 12px;cursor:pointer;border-bottom:2px solid transparent;
+  transition:.13s;white-space:nowrap;letter-spacing:-.01em;
+}
+.tabs button:hover{color:var(--tinta)}
+.tabs button[aria-selected="true"]{color:var(--tinta);border-bottom-color:var(--s1)}
+.panel[hidden]{display:none}
+
+/* ============================ hero ============================ */
+.hero{padding:34px 0 6px}
+.hEtq{color:var(--tinta3);font-size:12.5px;text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+.hCifra{font-size:clamp(44px,7.2vw,76px);font-weight:700;letter-spacing:-.035em;line-height:1;margin:8px 0 10px;font-variant-numeric:tabular-nums}
+.hSub{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;color:var(--tinta2);font-size:14.5px}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;border:1px solid var(--borde);
+  background:var(--sup);border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--tinta2);
+}
+.pill.vivo{border-color:color-mix(in srgb,var(--bien) 45%,transparent)}
+.pill.reset{cursor:pointer;font-family:inherit;border-style:dashed}
+.pill.reset:hover{color:var(--tinta);border-color:var(--tinta3)}
+.latido{width:7px;height:7px;border-radius:50%;background:var(--bien);animation:lat 2s ease-in-out infinite}
+@keyframes lat{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+.pos{color:var(--bien)} .neg{color:var(--mal)}
+.fuerte{font-weight:650;color:var(--tinta)}
+
+.prog{margin-top:26px;max-width:760px}
+.progBarra{height:9px;border-radius:99px;background:var(--sup2);overflow:hidden;border:1px solid var(--borde)}
+.progRelleno{height:100%;background:linear-gradient(90deg,var(--s1),var(--s3));border-radius:99px;transition:width .8s cubic-bezier(.2,.7,.3,1)}
+.progPie{display:flex;justify-content:space-between;margin-top:7px;font-size:12.5px;color:var(--tinta3)}
+
+/* ============================ tarjetas ============================ */
+.tarjeta{background:var(--sup);border:1px solid var(--borde);border-radius:var(--radio);padding:18px 20px}
+.tarjeta + .tarjeta{margin-top:16px}
+.tarjeta > header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.tarjeta > header h2{font-size:15px;font-weight:650}
+.subt{color:var(--tinta3);font-size:12.5px;font-weight:400}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin:30px 0 26px}
+.kpi{background:var(--sup);border:1px solid var(--borde);border-radius:12px;padding:14px 16px}
+.kpi .e{color:var(--tinta3);font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.kpi .v{font-size:23px;font-weight:660;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .n{color:var(--tinta3);font-size:12px;margin-top:3px}
+.kpisNota{margin:26px 0 -16px}
+.kpisNota:empty{display:none}
+
+.rejilla2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;margin-top:16px}
+@media(max-width:900px){.rejilla2{grid-template-columns:1fr}}
+
+/* ============================ controles ============================ */
+.segm{display:inline-flex;background:var(--sup2);border:1px solid var(--borde);border-radius:9px;padding:2px}
+.segm button{
+  border:0;background:transparent;color:var(--tinta3);font:inherit;font-size:12.5px;
+  padding:5px 11px;border-radius:7px;cursor:pointer;transition:.13s;white-space:nowrap;
+}
+.segm button:hover{color:var(--tinta)}
+.segm button[aria-pressed="true"]{background:var(--sup);color:var(--tinta);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+
+/* ============================ filtros del grafico ============================ */
+.filtros{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin:0 0 15px}
+.filtro{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--borde);
+  background:var(--sup2);border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;
+  color:var(--tinta2);cursor:pointer;transition:.13s;white-space:nowrap;
+}
+.filtro:hover{color:var(--tinta);border-color:var(--tinta3)}
+.filtro i{width:9px;height:9px;border-radius:3px;background:var(--c);flex:none;transition:.13s}
+.filtro .im{color:var(--tinta3);font-variant-numeric:tabular-nums;font-size:12px}
+.filtro[aria-pressed="false"]{opacity:.42}
+.filtro[aria-pressed="false"] i{background:transparent;box-shadow:inset 0 0 0 1.5px var(--c)}
+.filtro[aria-pressed="false"] .im{text-decoration:line-through}
+.filtro.preset{background:transparent;border-style:dashed;color:var(--tinta3)}
+.filtro.preset[aria-pressed="true"]{border-style:solid;background:var(--tinta);color:var(--plano);border-color:var(--tinta);opacity:1}
+.filtroSep{width:1px;align-self:stretch;background:var(--borde);margin:2px 5px}
+
+/* ============================ chips de producto ============================ */
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(214px,1fr));gap:10px;margin-top:16px}
+.chip{
+  text-align:left;background:var(--sup);border:1px solid var(--borde);border-radius:12px;
+  padding:13px 15px;cursor:pointer;font:inherit;color:inherit;transition:.14s;position:relative;overflow:hidden;
+}
+.chip:hover{border-color:var(--tinta3);transform:translateY(-1px)}
+.chip .barra{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+.chip .nm{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--tinta)}
+.chip .nm i{width:9px;height:9px;border-radius:3px;background:var(--c);flex:none}
+.chip .vl{font-size:19px;font-weight:660;margin-top:7px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.chip .pi{display:flex;justify-content:space-between;align-items:center;margin-top:4px;font-size:12px;color:var(--tinta3)}
+.chip .sp{height:26px;margin-top:8px}
+.chip.apagado{opacity:.45}
+.chip.apagado .vl{text-decoration:line-through;text-decoration-thickness:1px}
+
+/* ============================ detalle de fondo ============================ */
+.selFondo{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.selFondo button{
+  display:inline-flex;align-items:center;gap:8px;border:1px solid var(--borde);background:var(--sup);
+  border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;color:var(--tinta2);cursor:pointer;transition:.13s;
+}
+.selFondo button i{width:9px;height:9px;border-radius:3px;background:var(--c)}
+.selFondo button:hover{color:var(--tinta);border-color:var(--tinta3)}
+.selFondo button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff;font-weight:600}
+.selFondo button[aria-pressed="true"] i{background:rgba(255,255,255,.9)}
+
+.ficha{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:2px 20px;
+  background:var(--sup2);border-radius:11px;padding:15px 17px;margin-bottom:16px}
+.ficha div{padding:6px 0}
+.ficha dt{color:var(--tinta3);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.ficha dd{margin:3px 0 0;font-size:13.5px;color:var(--tinta)}
+.papel{background:var(--sup2);border-left:3px solid var(--c,var(--s1));border-radius:0 9px 9px 0;
+  padding:11px 15px;margin-bottom:16px;color:var(--tinta2);font-size:13.5px}
+.ventanas{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.ventana{background:var(--sup2);border-radius:9px;padding:8px 13px;min-width:78px}
+.ventana .e{color:var(--tinta3);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.ventana .v{font-size:15px;font-weight:640;margin-top:2px;font-variant-numeric:tabular-nums}
+
+.grupoEtq{flex-basis:100%;color:var(--tinta3);font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-bottom:-2px}
+.filaTabla{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 10px}
+.tramos{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:12px 0 0;font-size:12.5px;color:var(--tinta3)}
+.tramos span{display:inline-flex;align-items:center;gap:7px}
+.tramos i{width:11px;height:11px;border-radius:50%;flex:none}
+.tramos i.aro{outline:2px solid var(--tinta);outline-offset:1.5px}
+
+/* ============================ el mes ============================ */
+.mesBarra{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.mesBarra select{
+  background:var(--sup);color:var(--tinta);border:1px solid var(--borde);border-radius:9px;
+  padding:8px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;
+}
+.mesTarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:22px 0 16px}
+.mesT{background:var(--sup);border:1px solid var(--borde);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.mesT .barra{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+.mesT .e{color:var(--tinta3);font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.mesT .v{font-size:26px;font-weight:680;letter-spacing:-.025em;margin-top:7px;font-variant-numeric:tabular-nums}
+.mesT .n{color:var(--tinta3);font-size:12px;margin-top:4px}
+
+/* ============================ exposicion ============================ */
+.expo{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:24px}
+.expo h3{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--tinta3);margin-bottom:10px}
+.expoNota{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--tinta3)}
+.expoNota.viejo{color:var(--aviso)}
+
+/* ============================ tablas ============================ */
+.tablaEnv{overflow-x:auto;border-radius:11px;border:1px solid var(--borde)}
+table.dt{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+table.dt th{
+  text-align:right;padding:9px 13px;color:var(--tinta3);font-weight:600;font-size:11.5px;
+  text-transform:uppercase;letter-spacing:.05em;background:var(--sup2);position:sticky;top:0;white-space:nowrap;
+}
+table.dt th:first-child,table.dt td:first-child{text-align:left}
+table.dt th.orden{cursor:pointer;user-select:none}
+table.dt th.orden:hover{color:var(--tinta)}
+table.dt td{padding:9px 13px;text-align:right;border-top:1px solid var(--borde);white-space:nowrap}
+table.dt tbody tr:hover{background:var(--sup2)}
+table.dt tbody tr.destacada td{font-weight:650;color:var(--tinta)}
+table.dt tbody tr.destacada{background:color-mix(in srgb,var(--s1) 13%,transparent)}
+table.dt td i.pt{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:8px;vertical-align:-1px}
+table.dt tfoot td{padding:9px 13px;text-align:right;border-top:1px solid var(--eje);font-weight:650}
+table.dt tfoot td:first-child{text-align:left}
+.tablaEnv.alto{max-height:420px;overflow-y:auto}
+
+.leyenda{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.leyenda td{padding:7px 0;border-top:1px solid var(--borde)}
+.leyenda tr:first-child td{border-top:0}
+.leyenda td:first-child{color:var(--tinta2)}
+.leyenda td:nth-child(2),.leyenda td:nth-child(3){text-align:right}
+.leyenda td:nth-child(3){color:var(--tinta3);width:56px}
+.leyenda i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:9px}
+
+/* ============================ graficos ============================ */
+.envGraf{position:relative;width:100%}
+svg.grafico{display:block;width:100%;height:auto;overflow:visible}
+svg.grafico .rejilla{stroke:var(--rejilla);stroke-width:1}
+svg.grafico .eje{stroke:var(--eje);stroke-width:1}
+svg.grafico .ejeY,svg.grafico .ejeX{fill:var(--tinta3);font-size:11px;font-variant-numeric:tabular-nums}
+svg.grafico .ejeY{text-anchor:end}
+svg.grafico .separador{stroke:var(--sup);stroke-width:2}
+svg.grafico .overlay{stroke:var(--tinta2);stroke-width:2;stroke-dasharray:5 4;opacity:.75}
+svg.grafico .crosshair{stroke:var(--tinta3);stroke-width:1;stroke-dasharray:3 3}
+svg.grafico .punto{stroke:var(--sup);stroke-width:2}
+svg.grafico .puntoTotal{fill:var(--tinta);stroke:var(--sup);stroke-width:2}
+svg.grafico .marcador{stroke:var(--sup);stroke-width:1.5}
+svg.grafico .marcador.aro{stroke:var(--tinta);stroke-width:2}
+svg.grafico .referencia{stroke:var(--tinta2);stroke-width:1.5;stroke-dasharray:6 4;opacity:.85}
+svg.grafico .refEtiqueta{fill:var(--tinta2);font-size:11px;font-weight:600}
+svg.grafico .resalte{fill:var(--tinta3);opacity:.09!important}
+svg.grafico .segSep{stroke:var(--sup);stroke-width:2}
+svg.grafico .arco{stroke:var(--sup);stroke-width:2;cursor:pointer;transition:opacity .12s}
+svg.donut:hover .arco{opacity:.55}
+svg.grafico .arco.act{opacity:1}
+svg.grafico .donutEtiqueta{fill:var(--tinta3);font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+svg.grafico .donutValor{fill:var(--tinta);font-size:21px;font-weight:660}
+svg.grafico .barEtq{fill:var(--tinta2);font-size:12px}
+svg.grafico .barVal{fill:var(--tinta3);font-size:11.5px;font-variant-numeric:tabular-nums}
+svg.grafico .barValArriba{fill:var(--tinta);font-size:12px;font-weight:640;font-variant-numeric:tabular-nums}
+.spark{display:block;width:100%;height:100%}
+.vacio{color:var(--tinta3);font-size:13px;text-align:center;padding:40px 0;margin:0}
+
+.gtt{
+  position:absolute;top:0;left:0;pointer-events:none;opacity:0;transition:opacity .1s;
+  background:var(--sup2);border:1px solid var(--borde);border-radius:10px;padding:10px 12px;
+  font-size:12.5px;min-width:150px;box-shadow:0 8px 26px rgba(0,0,0,.36);z-index:20;
+}
+.gtt.on{opacity:1}
+.gtt b{color:var(--tinta3);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.gtt .ttTotal{font-size:18px;font-weight:660;margin:3px 0 7px;font-variant-numeric:tabular-nums;color:var(--tinta)}
+.gtt table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.gtt td{padding:2.5px 0;color:var(--tinta2)}
+.gtt td:last-child{text-align:right;padding-left:16px;color:var(--tinta)}
+.gtt tr.sep td{border-top:1px solid var(--borde);padding-top:6px;font-weight:650;color:var(--tinta)}
+.gtt i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:7px}
+.gtt i.raya{width:12px;height:0;border-top:2px dashed var(--tinta2);border-radius:0;vertical-align:2px}
+.gtt .ttEvento{color:var(--s4);font-size:12px;margin-top:4px}
+
+/* ============================ hitos ============================ */
+.hitos{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.hito{flex:none;min-width:132px;background:var(--sup2);border-radius:11px;padding:13px 15px;border:1px solid transparent}
+.hito.hecho{border-color:color-mix(in srgb,var(--bien) 40%,transparent)}
+.hito .im{font-size:17px;font-weight:660;font-variant-numeric:tabular-nums}
+.hito .fe{font-size:12px;color:var(--tinta3);margin-top:4px}
+.hito.hecho .fe{color:var(--bien)}
+
+/* ============================ proyeccion ============================ */
+.mandos{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:18px}
+.mando label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--tinta3);margin-bottom:7px}
+.mando label b{color:var(--tinta);font-variant-numeric:tabular-nums;font-weight:640}
+input[type=range]{width:100%;accent-color:var(--s1);height:22px}
+
+/* ============================ avisos ============================ */
+.avisos{margin-top:18px;display:grid;gap:8px}
+.av{display:flex;gap:11px;align-items:flex-start;background:var(--sup);border:1px solid var(--borde);
+  border-left:3px solid var(--aviso);border-radius:0 11px 11px 0;padding:12px 15px;font-size:13px;color:var(--tinta2)}
+.av b{color:var(--tinta)}
+.pie{margin-top:34px;color:var(--tinta3);font-size:12px;line-height:1.7;border-top:1px solid var(--borde);padding-top:18px}
+
+/* ============================ modo video ============================ */
+body.video .topFila,body.video #seccionTabla,body.video .pie,body.video #seccionProyeccion,body.video .banner{display:none}
+.banner{margin-top:18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--sup);
+  border:1px solid var(--borde);border-left:3px solid var(--s1);border-radius:10px;padding:12px 16px;font-size:13.5px;line-height:1.5}
+.banner span{flex:1;min-width:240px;color:var(--tinta2)}
+.banner b{color:var(--tinta)}
+.aviso-legal{margin-top:10px;color:var(--tinta3);font-size:11.5px}
+.btn:disabled{opacity:.55;cursor:progress}
+body.video .hCifra{font-size:clamp(58px,10vw,124px)}
+body.video .kpi .v{font-size:28px}
+body.video .tarjeta{padding:22px 24px}
+
+@media(max-width:640px){
+  .env{padding:0 14px 56px}
+  .tarjeta{padding:15px 15px}
+  .hSub{font-size:13.5px}
+}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="env">
+    <div class="topFila">
+      <div class="marca"><span class="pt"></span><span id="marcaTexto">Mi patrimonio</span></div>
+      <div class="sep"></div>
+      <span class="meta" id="metaFecha"></span>
+      <button class="btn" id="btnPrecios" title="Descarga los precios de hoy de cada producto">↻ Actualizar precios</button>
+      <button class="btn" id="btnTema" title="Cambiar entre claro y oscuro">◐ Tema</button>
+      <button class="btn" id="btnVideo" title="Oculta los controles y agranda las cifras">▶ Modo vídeo</button>
+    </div>
+    <nav class="tabs" id="tabs" role="tablist">
+      <button data-tab="patrimonio" role="tab" aria-selected="true">Patrimonio</button>
+      <button data-tab="mes" role="tab" aria-selected="false">El mes</button>
+      <button data-tab="fondos" role="tab" aria-selected="false">Productos</button>
+      <button data-tab="rendimiento" role="tab" aria-selected="false">Rendimiento</button>
+    </nav>
+  </div>
+</div>
+
+<div class="env">
+
+<div class="banner" id="bannerDemo" hidden>
+  <span><b>Estás viendo una cartera de ejemplo:</b> es la cartera real del autor del canal, con fines
+  divulgativos. No es una recomendación de inversión.</span>
+</div>
+<p class="aviso-legal">Herramienta informativa. No es asesoramiento financiero. No se garantiza la exactitud de los datos ni de los precios.</p>
+
+<!-- ==================================================== PATRIMONIO -->
+<div class="panel" id="tab-patrimonio" role="tabpanel">
+
+  <section class="hero">
+    <div class="hEtq" id="heroEtq">Patrimonio neto</div>
+    <div class="hCifra" id="heroCifra">—</div>
+    <div class="hSub" id="heroSub"></div>
+    <div class="prog" id="progEnv" hidden>
+      <div class="progBarra"><div class="progRelleno" id="progRelleno" style="width:0"></div></div>
+      <div class="progPie"><span id="progIzq"></span><span id="progDer"></span></div>
+    </div>
+  </section>
+
+  <p class="kpisNota subt" id="kpisNota"></p>
+  <div class="kpis" id="kpis"></div>
+
+  <section class="tarjeta">
+    <header>
+      <h2>Evolución del patrimonio</h2>
+      <span class="subt" id="evolNota"></span>
+      <div class="sep"></div>
+      <div class="segm" id="segRango"></div>
+      <div class="segm" id="segVista"></div>
+    </header>
+    <div class="filtros" id="filtros"></div>
+    <div class="envGraf" id="grafPrincipal"></div>
+  </section>
+
+  <section style="margin-top:26px">
+    <header style="display:flex;align-items:center;gap:12px;margin-bottom:2px">
+      <h2 style="font-size:15px">Componentes de la cartera</h2>
+      <span class="subt">Pulsa uno para abrir su ficha completa</span>
+    </header>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <div class="rejilla2">
+    <section class="tarjeta">
+      <header>
+        <h2>Distribución</h2>
+        <div class="sep"></div>
+        <div class="segm" id="segDist"></div>
+      </header>
+      <div class="envGraf" id="grafDonut"></div>
+      <table class="leyenda" id="leyendaDist" style="margin-top:14px"></table>
+    </section>
+    <section class="tarjeta">
+      <header><h2>Aportaciones por mes</h2><span class="subt" id="notaAport"></span></header>
+      <div class="envGraf" id="grafBarras"></div>
+    </section>
+  </div>
+
+  <section class="tarjeta" style="margin-top:16px">
+    <header><h2>Hitos</h2><span class="subt">La primera vez que el patrimonio cruzó cada cifra</span></header>
+    <div class="hitos" id="hitos"></div>
+  </section>
+
+  <section class="tarjeta" id="seccionProyeccion" style="margin-top:16px">
+    <header>
+      <h2>Si sigo así…</h2>
+      <span class="subt">Proyección orientativa: rentabilidad constante, sin impuestos ni inflación</span>
+    </header>
+    <div class="mandos">
+      <div class="mando"><label>Años <b id="vAnos">15</b></label><input type="range" id="rAnos" min="1" max="40" value="15"></div>
+      <div class="mando"><label>Rentabilidad anual <b id="vRent">7 %</b></label><input type="range" id="rRent" min="0" max="15" step="0.5" value="7"></div>
+      <div class="mando"><label>Aportación mensual <b id="vApor">—</b></label><input type="range" id="rApor" min="0" max="3000" step="50" value="500"></div>
+    </div>
+    <div class="envGraf" id="grafProy"></div>
+    <div class="hSub" id="proyResumen" style="margin-top:14px"></div>
+  </section>
+
+  <section class="tarjeta" id="seccionTabla" style="margin-top:16px">
+    <header>
+      <h2>Todas las aportaciones</h2>
+      <span class="subt" id="notaTabla"></span>
+      <div class="sep"></div>
+      <div class="segm" id="segTabla"></div>
+    </header>
+    <div class="tablaEnv alto"><table class="dt" id="tablaMov"></table></div>
+  </section>
+</div>
+
+<!-- ==================================================== EL MES -->
+<div class="panel" id="tab-mes" role="tabpanel" hidden>
+  <section class="hero" style="padding-bottom:0">
+    <div class="mesBarra">
+      <button class="btn" id="mesPrev" title="Mes anterior">‹</button>
+      <select id="mesSel" aria-label="Elegir mes"></select>
+      <button class="btn" id="mesNext" title="Mes siguiente">›</button>
+      <div class="sep"></div>
+      <span class="subt" id="mesNota"></span>
+    </div>
+    <div class="hEtq" id="mesEtq">Cambio del mes</div>
+    <div class="hCifra" id="mesCifra">—</div>
+    <div class="hSub" id="mesSub"></div>
+  </section>
+
+  <div class="mesTarjetas" id="mesTarjetas"></div>
+
+  <section class="tarjeta">
+    <header><h2>Qué ha hecho cada componente</h2><span class="subt" id="mesTablaNota"></span></header>
+    <div class="tablaEnv"><table class="dt" id="mesTabla"></table></div>
+  </section>
+
+  <section class="tarjeta">
+    <header>
+      <h2>Tu esfuerzo y el del mercado, mes a mes</h2>
+      <span class="subt">Lo que aportaste tú, y encima lo que puso o quitó el mercado.</span>
+    </header>
+    <div class="envGraf" id="grafMesHist"></div>
+  </section>
+</div>
+
+<!-- ==================================================== FONDOS -->
+<div class="panel" id="tab-fondos" role="tabpanel" hidden>
+  <div class="selFondo" id="selFondo" style="margin-top:24px"></div>
+  <section class="tarjeta" id="fondoFicha"></section>
+  <section class="tarjeta" id="fondoExpo" hidden></section>
+  <section class="tarjeta" id="fondoTabla"></section>
+</div>
+
+<!-- ==================================================== RENDIMIENTO -->
+<div class="panel" id="tab-rendimiento" role="tabpanel" hidden>
+  <section class="tarjeta" style="margin-top:24px">
+    <header><h2>Rentabilidad por año natural</h2><span class="subt" id="notaAnual"></span></header>
+    <div class="envGraf" id="grafAnual"></div>
+    <div class="filaTabla">
+      <span class="subt" id="notaTablaAnual"></span>
+    </div>
+    <div class="tablaEnv"><table class="dt" id="tablaAnual"></table></div>
+  </section>
+
+  <section class="tarjeta">
+    <header>
+      <h2>Tu cartera contra otras que podrías haber montado</h2>
+      <span class="subt" id="notaComparador"></span>
+    </header>
+    <div class="envGraf" id="grafComparador"></div>
+    <div class="tablaEnv" style="margin-top:16px"><table class="dt" id="tablaComparador"></table></div>
+    <p class="subt" id="notaRiesgo" style="margin:14px 0 0"></p>
+  </section>
+
+  <section class="tarjeta">
+    <header><h2>Lo que pagas en comisiones</h2><span class="subt" id="notaComisiones"></span></header>
+    <div class="tablaEnv"><table class="dt" id="tablaComisiones"></table></div>
+  </section>
+</div>
+
+  <div class="avisos" id="avisos"></div>
+  <footer class="pie" id="pie"></footer>
+</div>
+
+<script>
+/* Carga los scripts con un sello temporal para que, al recargar despues de
+   actualizar, el navegador no sirva los datos viejos de su cache.
+   async=false conserva el orden de ejecucion. */
+(function () {
+  // Con file:// no se puede anadir "?v=": algunos navegadores no encuentran
+  // el archivo. Ahi basta con la revalidacion por fecha de modificacion.
+  var sello = location.protocol === "file:" ? "" : "?v=" + Date.now();
+  ["datos.js", "graficos.js", "app.js"].forEach(function (archivo) {
+    var s = document.createElement("script");
+    s.src = archivo + sello;
+    s.async = false;
+    document.body.appendChild(s);
+  });
+})();
+</script>
+</body>
+</html>

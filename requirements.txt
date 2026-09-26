@@ -1,0 +1,4 @@
+# Para quien instala Python desde python.org en vez de usar uv.
+# Iniciar.bat / Iniciar.command lo usan solos: no hace falta tocarlo.
+flask>=3.0
+openpyxl>=3.1

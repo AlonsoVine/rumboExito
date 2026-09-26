@@ -1,0 +1,1418 @@
+{
+ "version": 1,
+ "titular": "Cartera de ejemplo",
+ "productos": [
+  {
+   "id": "world",
+   "nombre": "Fidelity MSCI World Index Fund P-Acc-EUR",
+   "corto": "MSCI World",
+   "clase": "Renta variable global",
+   "entidad": "MyInvestor",
+   "gestora": "Fidelity (FIL Investments International)",
+   "indice": "MSCI World",
+   "indiceDetalle": "Unas 1.480 empresas grandes y medianas de 23 países desarrollados. Estados Unidos pesa alrededor del 70%.",
+   "ter": 0.0012,
+   "riesgo": 6,
+   "politica": "Acumulación: reinvierte los dividendos, no tributas hasta vender",
+   "papel": "El núcleo de la cartera: renta variable global a coste mínimo.",
+   "exposicion": {
+    "actualizado": "2026-08-31",
+    "fuente": "Ficha oficial del índice MSCI World (USD)",
+    "constituyentes": 1280,
+    "paises": [
+     [
+      "Estados Unidos",
+      72.14
+     ],
+     [
+      "Japón",
+      5.78
+     ],
+     [
+      "Reino Unido",
+      3.53
+     ],
+     [
+      "Canadá",
+      3.46
+     ],
+     [
+      "Francia",
+      2.36
+     ],
+     [
+      "Resto",
+      12.74
+     ]
+    ],
+    "sectores": [
+     [
+      "Tecnología",
+      29.81
+     ],
+     [
+      "Financiero",
+      16.58
+     ],
+     [
+      "Industrial",
+      11.13
+     ],
+     [
+      "Salud",
+      9.27
+     ],
+     [
+      "Consumo discrecional",
+      8.82
+     ],
+     [
+      "Comunicaciones",
+      7.9
+     ],
+     [
+      "Consumo básico",
+      4.91
+     ],
+     [
+      "Energía",
+      4.09
+     ],
+     [
+      "Materiales",
+      3.47
+     ],
+     [
+      "Utilities",
+      2.39
+     ],
+     [
+      "Inmobiliario",
+      1.64
+     ]
+    ],
+    "top10": [
+     [
+      "NVIDIA",
+      5.56
+     ],
+     [
+      "Apple",
+      5.07
+     ],
+     [
+      "Microsoft",
+      3.9
+     ],
+     [
+      "Amazon",
+      2.74
+     ],
+     [
+      "Alphabet A",
+      2.15
+     ],
+     [
+      "Broadcom",
+      1.82
+     ],
+     [
+      "Alphabet C",
+      1.69
+     ],
+     [
+      "Meta Platforms",
+      1.37
+     ],
+     [
+      "Micron Technology",
+      1.18
+     ],
+     [
+      "Tesla",
+      1.13
+     ]
+    ]
+   },
+   "slot": 1,
+   "largoPlazo": true,
+   "tipoDetalle": "Fondo indexado",
+   "identificador": "IE00BYX5NX33",
+   "tipo": "fondo",
+   "fuente": "morningstar",
+   "codigo": "0P0001CLDK",
+   "moneda": "EUR"
+  },
+  {
+   "id": "emergentes",
+   "nombre": "Fidelity MSCI Emerging Markets Index Fund P-Acc-EUR",
+   "corto": "MSCI Emergentes",
+   "clase": "Renta variable emergente",
+   "entidad": "MyInvestor",
+   "gestora": "Fidelity (FIL Investments International)",
+   "indice": "MSCI Emerging Markets",
+   "indiceDetalle": "Grandes y medianas empresas de países emergentes. Mayor peso: Taiwán, Corea del Sur, China e India.",
+   "ter": 0.002,
+   "riesgo": 6,
+   "politica": "Acumulación",
+   "papel": "Complemento al World, que apenas tiene emergentes. Diversifica fuera de EEUU.",
+   "exposicion": {
+    "actualizado": "2026-08-31",
+    "fuente": "Ficha oficial del índice MSCI Emerging Markets (USD)",
+    "constituyentes": 1178,
+    "paises": [
+     [
+      "Taiwán",
+      27.44
+     ],
+     [
+      "Corea del Sur",
+      20.84
+     ],
+     [
+      "China",
+      20.62
+     ],
+     [
+      "India",
+      11.25
+     ],
+     [
+      "Brasil",
+      3.94
+     ],
+     [
+      "Resto",
+      15.9
+     ]
+    ],
+    "sectores": [
+     [
+      "Tecnología",
+      41.56
+     ],
+     [
+      "Financiero",
+      19.71
+     ],
+     [
+      "Consumo discrecional",
+      8.02
+     ],
+     [
+      "Industrial",
+      6.54
+     ],
+     [
+      "Materiales",
+      6.3
+     ],
+     [
+      "Comunicaciones",
+      6.13
+     ],
+     [
+      "Energía",
+      3.44
+     ],
+     [
+      "Consumo básico",
+      2.73
+     ],
+     [
+      "Salud",
+      2.72
+     ],
+     [
+      "Utilities",
+      1.86
+     ],
+     [
+      "Inmobiliario",
+      0.99
+     ]
+    ],
+    "top10": [
+     [
+      "TSMC",
+      15.14
+     ],
+     [
+      "Samsung Electronics",
+      7.2
+     ],
+     [
+      "SK Hynix",
+      5.48
+     ],
+     [
+      "Tencent",
+      2.88
+     ],
+     [
+      "Alibaba",
+      1.98
+     ],
+     [
+      "MediaTek",
+      1.45
+     ],
+     [
+      "Delta Electronics",
+      0.92
+     ],
+     [
+      "Samsung Elec. pref.",
+      0.89
+     ],
+     [
+      "China Construction Bank",
+      0.83
+     ],
+     [
+      "Hon Hai Precision",
+      0.78
+     ]
+    ]
+   },
+   "slot": 2,
+   "largoPlazo": true,
+   "tipoDetalle": "Fondo indexado",
+   "identificador": "IE00BYX5M476",
+   "tipo": "fondo",
+   "fuente": "morningstar",
+   "codigo": "0P0001CJGK",
+   "moneda": "EUR"
+  },
+  {
+   "id": "monetario",
+   "nombre": "AXA Trésor Court Terme C",
+   "corto": "Monetario",
+   "clase": "Liquidez remunerada",
+   "entidad": "MyInvestor",
+   "gestora": "BNP Paribas Asset Management Europe",
+   "indice": "€STR capitalizado",
+   "indiceDetalle": "Monetario en euros a corto plazo, riesgo 1 sobre 7. Hace de cuenta corriente remunerada, con liquidez en 24-48 h.",
+   "ter": 0.002,
+   "riesgo": 1,
+   "politica": "Acumulación",
+   "papel": "Colchón de seguridad y pólvora seca para aprovechar caídas.",
+   "slot": 3,
+   "largoPlazo": false,
+   "tipoDetalle": "Fondo monetario",
+   "identificador": "FR0000447823",
+   "tipo": "fondo",
+   "fuente": "morningstar",
+   "codigo": "0P00000F24",
+   "moneda": "EUR"
+  },
+  {
+   "id": "bitcoin",
+   "nombre": "WisdomTree Bitcoin",
+   "corto": "Bitcoin ETP",
+   "clase": "Criptoactivos",
+   "entidad": "MyInvestor",
+   "gestora": "WisdomTree",
+   "indice": "Precio spot de bitcoin",
+   "indiceDetalle": "ETP respaldado 1 a 1 con bitcoin en custodia fría. No es un derivado: hay bitcoin real detrás de cada título.",
+   "ter": 0.0015,
+   "riesgo": 7,
+   "politica": "Sin distribución",
+   "papel": "Apuesta asimétrica, de tamaño pequeño y controlado.",
+   "slot": 4,
+   "largoPlazo": true,
+   "mercado": "XETRA",
+   "tipoDetalle": "ETP con respaldo físico",
+   "identificador": "GB00BJYDH287",
+   "tipo": "etf",
+   "fuente": "yahoo",
+   "codigo": "WBTC.PA",
+   "moneda": "EUR",
+   "respaldo": "BTCW.SW",
+   "respaldoMoneda": "CHF",
+   "vivo": "bitcoin"
+  },
+  {
+   "id": "pension_jubilacion",
+   "nombre": "Planes para la jubilación (Mutuactivos)",
+   "corto": "Planes de pensiones",
+   "clase": "Jubilación",
+   "entidad": "Mutuactivos",
+   "gestora": "Mutuactivos, Grupo Mutua Madrileña",
+   "papel": "Ahorro finalista para la jubilación, con desgravación fiscal en el IRPF.",
+   "slot": 5,
+   "largoPlazo": true,
+   "tipoDetalle": "Plan de pensiones",
+   "tipo": "pension",
+   "fuente": "manual"
+  },
+  {
+   "id": "seguro_ahorro",
+   "nombre": "Seguro de ahorro (Mutuactivos)",
+   "corto": "Seguro de ahorro",
+   "clase": "Jubilación",
+   "entidad": "Mutuactivos",
+   "gestora": "Mutuactivos, Grupo Mutua Madrileña",
+   "papel": "Provisión del seguro de ahorro. Rentabilidad baja pero garantizada.",
+   "slot": 6,
+   "largoPlazo": true,
+   "tipoDetalle": "Seguro de ahorro",
+   "tipo": "otro",
+   "fuente": "manual"
+  },
+  {
+   "id": "efectivo_myinvestor",
+   "tipo": "efectivo",
+   "fuente": "manual",
+   "tipoDetalle": "Cuenta corriente",
+   "nombre": "Cuenta MyInvestor",
+   "corto": "Efectivo MyInvestor",
+   "clase": "Efectivo",
+   "entidad": "MyInvestor",
+   "papel": "Munición lista para aportar. Es el dinero que va camino de los fondos.",
+   "slot": 7,
+   "largoPlazo": false
+  },
+  {
+   "id": "efectivo_bbva",
+   "tipo": "efectivo",
+   "fuente": "manual",
+   "tipoDetalle": "Cuenta corriente",
+   "nombre": "Cuenta BBVA",
+   "corto": "Efectivo BBVA",
+   "clase": "Efectivo",
+   "entidad": "BBVA",
+   "papel": "Cuenta del día a día: nómina, recibos y gasto corriente.",
+   "slot": 8,
+   "largoPlazo": false
+  }
+ ],
+ "movimientos": [
+  {
+   "fecha": "2024-08-28",
+   "producto": "monetario",
+   "tipo": "compra",
+   "unidades": 1.315266,
+   "importe": 3352.6,
+   "nota": "MyInvestor",
+   "id": "m1"
+  },
+  {
+   "fecha": "2024-08-28",
+   "producto": "monetario",
+   "tipo": "venta",
+   "unidades": 0,
+   "importe": 11.26,
+   "nota": "Plusvalía de un reembolso (MyInvestor no da la fecha de venta)",
+   "id": "m2"
+  },
+  {
+   "fecha": "2024-08-28",
+   "producto": "monetario",
+   "tipo": "venta",
+   "unidades": 0,
+   "importe": 110.65,
+   "nota": "Plusvalía de un reembolso (MyInvestor no da la fecha de venta)",
+   "id": "m3"
+  },
+  {
+   "fecha": "2024-08-29",
+   "producto": "monetario",
+   "tipo": "compra",
+   "unidades": 0.470643,
+   "importe": 1199.8,
+   "nota": "MyInvestor",
+   "id": "m4"
+  },
+  {
+   "fecha": "2024-09-06",
+   "producto": "monetario",
+   "tipo": "compra",
+   "unidades": 0.012794,
+   "importe": 32.65,
+   "nota": "MyInvestor",
+   "id": "m5"
+  },
+  {
+   "fecha": "2024-09-11",
+   "producto": "monetario",
+   "tipo": "compra",
+   "unidades": 0.007897,
+   "importe": 20.16,
+   "nota": "MyInvestor",
+   "id": "m6"
+  },
+  {
+   "fecha": "2024-09-16",
+   "producto": "monetario",
+   "tipo": "compra",
+   "unidades": 0.006296,
+   "importe": 16.08,
+   "nota": "MyInvestor",
+   "id": "m7"
+  },
+  {
+   "fecha": "2024-09-30",
+   "producto": "monetario",
+   "tipo": "compra",
+   "unidades": 0.183481,
+   "importe": 469.26,
+   "nota": "MyInvestor",
+   "id": "m8"
+  },
+  {
+   "fecha": "2024-10-01",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 67.691125,
+   "importe": 731.01,
+   "nota": "MyInvestor",
+   "id": "m9"
+  },
+  {
+   "fecha": "2024-10-09",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 1.454469,
+   "importe": 15.99,
+   "nota": "MyInvestor",
+   "id": "m10"
+  },
+  {
+   "fecha": "2024-10-21",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 1.429951,
+   "importe": 15.99,
+   "nota": "MyInvestor",
+   "id": "m11"
+  },
+  {
+   "fecha": "2024-11-08",
+   "producto": "monetario",
+   "tipo": "compra",
+   "unidades": 0.213546,
+   "importe": 548.3,
+   "nota": "MyInvestor",
+   "id": "m12"
+  },
+  {
+   "fecha": "2024-11-29",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 18.095445,
+   "importe": 107.99,
+   "nota": "MyInvestor",
+   "id": "m13"
+  },
+  {
+   "fecha": "2024-11-29",
+   "producto": "monetario",
+   "tipo": "compra",
+   "unidades": 0.544159,
+   "importe": 1399.89,
+   "nota": "MyInvestor",
+   "id": "m14"
+  },
+  {
+   "fecha": "2024-11-29",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 84.61887,
+   "importe": 989.99,
+   "nota": "MyInvestor",
+   "id": "m15"
+  },
+  {
+   "fecha": "2024-12-26",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 84.903209,
+   "importe": 999.99,
+   "nota": "MyInvestor",
+   "id": "m16"
+  },
+  {
+   "fecha": "2025-01-09",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 3.296286,
+   "importe": 19.99,
+   "nota": "MyInvestor",
+   "id": "m17"
+  },
+  {
+   "fecha": "2025-01-31",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 75.114971,
+   "importe": 899.99,
+   "nota": "MyInvestor",
+   "id": "m18"
+  },
+  {
+   "fecha": "2025-02-03",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.615951,
+   "importe": 15.99,
+   "nota": "MyInvestor",
+   "id": "m19"
+  },
+  {
+   "fecha": "2025-02-03",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 16.358282,
+   "importe": 99.99,
+   "nota": "MyInvestor",
+   "id": "m20"
+  },
+  {
+   "fecha": "2025-02-20",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.518971,
+   "importe": 16.0,
+   "nota": "MyInvestor",
+   "id": "m21"
+  },
+  {
+   "fecha": "2025-02-28",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 75.693858,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m22"
+  },
+  {
+   "fecha": "2025-03-03",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 16.240621,
+   "importe": 100.0,
+   "nota": "MyInvestor",
+   "id": "m23"
+  },
+  {
+   "fecha": "2025-03-20",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.74823,
+   "importe": 17.0,
+   "nota": "MyInvestor",
+   "id": "m24"
+  },
+  {
+   "fecha": "2025-03-26",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.592815,
+   "importe": 16.0,
+   "nota": "MyInvestor",
+   "id": "m25"
+  },
+  {
+   "fecha": "2025-03-31",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 365.77115,
+   "importe": 4000.0,
+   "nota": "MyInvestor",
+   "id": "m26"
+  },
+  {
+   "fecha": "2025-04-08",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 102.933606,
+   "importe": 1000.0,
+   "nota": "MyInvestor",
+   "id": "m27"
+  },
+  {
+   "fecha": "2025-04-30",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 17.325018,
+   "importe": 100.0,
+   "nota": "MyInvestor",
+   "id": "m28"
+  },
+  {
+   "fecha": "2025-04-30",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 85.836093,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m29"
+  },
+  {
+   "fecha": "2025-06-04",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 16.485328,
+   "importe": 100.0,
+   "nota": "MyInvestor",
+   "id": "m30"
+  },
+  {
+   "fecha": "2025-06-04",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 80.645886,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m31"
+  },
+  {
+   "fecha": "2025-06-25",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 16.09917,
+   "importe": 100.0,
+   "nota": "MyInvestor",
+   "id": "m32"
+  },
+  {
+   "fecha": "2025-06-25",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 80.963645,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m33"
+  },
+  {
+   "fecha": "2025-08-05",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 15.583363,
+   "importe": 100.0,
+   "nota": "MyInvestor",
+   "id": "m34"
+  },
+  {
+   "fecha": "2025-08-05",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 78.280611,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m35"
+  },
+  {
+   "fecha": "2025-08-11",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 3.102603,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m36"
+  },
+  {
+   "fecha": "2025-08-11",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 3.102603,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m37"
+  },
+  {
+   "fecha": "2025-08-12",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 3.114295,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m38"
+  },
+  {
+   "fecha": "2025-08-13",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 3.236446,
+   "importe": 21.0,
+   "nota": "MyInvestor",
+   "id": "m39"
+  },
+  {
+   "fecha": "2025-08-18",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 6.308178,
+   "importe": 41.0,
+   "nota": "MyInvestor",
+   "id": "m40"
+  },
+  {
+   "fecha": "2025-08-28",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 3.106941,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m41"
+  },
+  {
+   "fecha": "2025-08-29",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 3.122268,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m42"
+  },
+  {
+   "fecha": "2025-09-01",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 6.207228,
+   "importe": 40.0,
+   "nota": "MyInvestor",
+   "id": "m43"
+  },
+  {
+   "fecha": "2025-09-02",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 77.332878,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m44"
+  },
+  {
+   "fecha": "2025-09-17",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 9.144813,
+   "importe": 62.0,
+   "nota": "MyInvestor",
+   "id": "m45"
+  },
+  {
+   "fecha": "2025-09-24",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.915197,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m46"
+  },
+  {
+   "fecha": "2025-09-29",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.934918,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m47"
+  },
+  {
+   "fecha": "2025-10-01",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 74.561334,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m48"
+  },
+  {
+   "fecha": "2025-10-22",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.962963,
+   "importe": 21.0,
+   "nota": "MyInvestor",
+   "id": "m49"
+  },
+  {
+   "fecha": "2025-10-28",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 5.715481,
+   "importe": 41.0,
+   "nota": "MyInvestor",
+   "id": "m50"
+  },
+  {
+   "fecha": "2025-10-29",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 72.318784,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m51"
+  },
+  {
+   "fecha": "2025-11-10",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.764225,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m52"
+  },
+  {
+   "fecha": "2025-11-13",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.769776,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m53"
+  },
+  {
+   "fecha": "2025-11-21",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.890842,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m54"
+  },
+  {
+   "fecha": "2025-11-28",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.846448,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m55"
+  },
+  {
+   "fecha": "2025-12-01",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 72.790801,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m56"
+  },
+  {
+   "fecha": "2025-12-09",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.824699,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m57"
+  },
+  {
+   "fecha": "2025-12-23",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 14.204343,
+   "importe": 100.0,
+   "nota": "MyInvestor",
+   "id": "m58"
+  },
+  {
+   "fecha": "2025-12-23",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 72.255495,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m59"
+  },
+  {
+   "fecha": "2026-01-19",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.619755,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m60"
+  },
+  {
+   "fecha": "2026-01-22",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 5.241708,
+   "importe": 40.0,
+   "nota": "MyInvestor",
+   "id": "m61"
+  },
+  {
+   "fecha": "2026-02-02",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 13.199404,
+   "importe": 100.0,
+   "nota": "MyInvestor",
+   "id": "m62"
+  },
+  {
+   "fecha": "2026-02-02",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 71.124879,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m63"
+  },
+  {
+   "fecha": "2026-02-03",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.698466,
+   "importe": 21.0,
+   "nota": "MyInvestor",
+   "id": "m64"
+  },
+  {
+   "fecha": "2026-02-05",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.618864,
+   "importe": 20.0,
+   "nota": "MyInvestor",
+   "id": "m65"
+  },
+  {
+   "fecha": "2026-02-06",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 35,
+   "importe": 488.59,
+   "comision": 1,
+   "nota": "Mejor de mercado",
+   "id": "m66"
+  },
+  {
+   "fecha": "2026-02-06",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 2.751789,
+   "importe": 21.0,
+   "nota": "MyInvestor",
+   "id": "m67"
+  },
+  {
+   "fecha": "2026-02-23",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 10,
+   "importe": 134.0,
+   "comision": 1,
+   "nota": "Limitada",
+   "id": "m68"
+  },
+  {
+   "fecha": "2026-02-24",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 30,
+   "importe": 385.45,
+   "comision": 1,
+   "nota": "Limitada",
+   "id": "m69"
+  },
+  {
+   "fecha": "2026-03-09",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 39.937167,
+   "importe": 300.0,
+   "nota": "MyInvestor",
+   "id": "m70"
+  },
+  {
+   "fecha": "2026-03-09",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 71.750309,
+   "importe": 900.0,
+   "nota": "MyInvestor",
+   "id": "m71"
+  },
+  {
+   "fecha": "2026-03-31",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 41.178247,
+   "importe": 300.0,
+   "nota": "MyInvestor",
+   "id": "m72"
+  },
+  {
+   "fecha": "2026-03-31",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 82.066771,
+   "importe": 1000.0,
+   "nota": "MyInvestor",
+   "id": "m73"
+  },
+  {
+   "fecha": "2026-04-17",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 36.964477,
+   "importe": 300.0,
+   "nota": "MyInvestor",
+   "id": "m74"
+  },
+  {
+   "fecha": "2026-04-17",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 23.101802,
+   "importe": 300.0,
+   "nota": "MyInvestor",
+   "id": "m75"
+  },
+  {
+   "fecha": "2026-05-01",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 61.003508,
+   "importe": 800.0,
+   "nota": "MyInvestor",
+   "id": "m76"
+  },
+  {
+   "fecha": "2026-05-04",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 23.607734,
+   "importe": 200.0,
+   "nota": "MyInvestor",
+   "id": "m77"
+  },
+  {
+   "fecha": "2026-05-15",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 34.724636,
+   "importe": 300.0,
+   "nota": "MyInvestor",
+   "id": "m78"
+  },
+  {
+   "fecha": "2026-05-15",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 22.266094,
+   "importe": 300.0,
+   "nota": "MyInvestor",
+   "id": "m79"
+  },
+  {
+   "fecha": "2026-05-26",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 7,
+   "importe": 111.3,
+   "comision": 1,
+   "nota": "Mejor de mercado",
+   "id": "m80"
+  },
+  {
+   "fecha": "2026-05-27",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 33.282671,
+   "importe": 300.0,
+   "nota": "MyInvestor",
+   "id": "m81"
+  },
+  {
+   "fecha": "2026-05-27",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 72.824195,
+   "importe": 1000.0,
+   "nota": "MyInvestor",
+   "id": "m82"
+  },
+  {
+   "fecha": "2026-06-04",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 15,
+   "importe": 198.13,
+   "comision": 1,
+   "nota": "Limitada",
+   "id": "m83"
+  },
+  {
+   "fecha": "2026-06-12",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 55.892777,
+   "importe": 500.0,
+   "nota": "MyInvestor",
+   "id": "m84"
+  },
+  {
+   "fecha": "2026-06-12",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 36.533684,
+   "importe": 500.0,
+   "nota": "MyInvestor",
+   "id": "m85"
+  },
+  {
+   "fecha": "2026-06-25",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 40,
+   "importe": 501.0,
+   "comision": 1,
+   "nota": "Limitada",
+   "id": "m86"
+  },
+  {
+   "fecha": "2026-06-25",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 53.68724,
+   "importe": 500.0,
+   "nota": "MyInvestor",
+   "id": "m87"
+  },
+  {
+   "fecha": "2026-06-29",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 55.436672,
+   "importe": 500.0,
+   "nota": "MyInvestor",
+   "id": "m88"
+  },
+  {
+   "fecha": "2026-06-29",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 72.051302,
+   "importe": 1000.0,
+   "nota": "MyInvestor",
+   "id": "m89"
+  },
+  {
+   "fecha": "2026-07-10",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 20,
+   "importe": 267.66,
+   "comision": 1,
+   "nota": "Mejor de mercado",
+   "id": "m90"
+  },
+  {
+   "fecha": "2026-07-15",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 56.038108,
+   "importe": 500.0,
+   "nota": "MyInvestor",
+   "id": "m91"
+  },
+  {
+   "fecha": "2026-07-15",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 35.422053,
+   "importe": 500.0,
+   "nota": "MyInvestor",
+   "id": "m92"
+  },
+  {
+   "fecha": "2026-07-27",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 19,
+   "importe": 260.84,
+   "comision": 1,
+   "nota": "Mejor de mercado",
+   "id": "m93"
+  },
+  {
+   "fecha": "2026-07-28",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 29.739247,
+   "importe": 250.0,
+   "nota": "MyInvestor",
+   "id": "m94"
+  },
+  {
+   "fecha": "2026-07-28",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 71.654281,
+   "importe": 1000.0,
+   "nota": "MyInvestor",
+   "id": "m95"
+  },
+  {
+   "fecha": "2026-08-18",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 19,
+   "importe": 252.81,
+   "comision": 1,
+   "nota": "Mejor de mercado",
+   "id": "m96"
+  },
+  {
+   "fecha": "2026-08-19",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 57.702071,
+   "importe": 500.0,
+   "nota": "MyInvestor",
+   "id": "m97"
+  },
+  {
+   "fecha": "2026-08-19",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 35.377944,
+   "importe": 500.0,
+   "nota": "MyInvestor",
+   "id": "m98"
+  },
+  {
+   "fecha": "2026-08-26",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "unidades": 16,
+   "importe": 258.1,
+   "comision": 1,
+   "nota": "Mejor de mercado",
+   "id": "m99"
+  },
+  {
+   "fecha": "2026-08-27",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "unidades": 55.805568,
+   "importe": 499.99,
+   "nota": "MyInvestor",
+   "id": "m100"
+  },
+  {
+   "fecha": "2026-08-27",
+   "producto": "world",
+   "tipo": "compra",
+   "unidades": 70.38763,
+   "importe": 999.99,
+   "nota": "MyInvestor",
+   "id": "m101"
+  }
+ ],
+ "valoraciones": [
+  {
+   "fecha": "2026-09-02",
+   "producto": "pension_jubilacion",
+   "valor": 3131.02,
+   "aportado": null,
+   "id": "v1"
+  },
+  {
+   "fecha": "2026-09-02",
+   "producto": "seguro_ahorro",
+   "valor": 558.65,
+   "aportado": null,
+   "id": "v2"
+  },
+  {
+   "fecha": "2026-09-02",
+   "producto": "efectivo_myinvestor",
+   "valor": 2913,
+   "aportado": null,
+   "id": "v3"
+  },
+  {
+   "fecha": "2026-09-13",
+   "producto": "efectivo_myinvestor",
+   "valor": 2612,
+   "aportado": null,
+   "id": "v4"
+  },
+  {
+   "fecha": "2026-09-02",
+   "producto": "efectivo_bbva",
+   "valor": 682,
+   "aportado": null,
+   "id": "v5"
+  },
+  {
+   "fecha": "2026-09-13",
+   "producto": "efectivo_bbva",
+   "valor": 549.4,
+   "aportado": null,
+   "id": "v6"
+  }
+ ],
+ "comparador": [
+  {
+   "id": "real",
+   "nombre": "Mi cartera real",
+   "real": true
+  },
+  {
+   "id": "world100",
+   "nombre": "100% MSCI World",
+   "pesos": {
+    "world": 100
+   }
+  },
+  {
+   "id": "sinBitcoin",
+   "nombre": "Sin bitcoin",
+   "pesos": {
+    "world": 64,
+    "emergentes": 15,
+    "monetario": 21
+   }
+  },
+  {
+   "id": "sinMonetario",
+   "nombre": "Sin monetario",
+   "pesos": {
+    "world": 75,
+    "emergentes": 17,
+    "bitcoin": 8
+   }
+  },
+  {
+   "id": "rv8020",
+   "nombre": "80/20 World-Emergentes",
+   "pesos": {
+    "world": 80,
+    "emergentes": 20
+   }
+  },
+  {
+   "id": "agresiva",
+   "nombre": "70/20/10 con bitcoin",
+   "pesos": {
+    "world": 70,
+    "emergentes": 20,
+    "bitcoin": 10
+   }
+  }
+ ],
+ "hitos": [
+  10000,
+  25000,
+  50000,
+  100000,
+  250000,
+  500000,
+  1000000
+ ],
+ "objetivo": {
+  "activo": true,
+  "importe": 100000,
+  "etiqueta": "Proximo objetivo"
+ }
+}

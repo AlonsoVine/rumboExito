@@ -1,0 +1,9 @@
+# Tus datos: nunca se suben
+mis_datos/
+
+# Entornos de Python que crean los lanzadores
+.venv/
+.venv-pip/
+__pycache__/
+*.pyc
+*.tmp

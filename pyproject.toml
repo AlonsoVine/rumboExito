@@ -1,0 +1,12 @@
+[project]
+name = "patrimonio-dashboard"
+version = "0.1.0"
+description = "Panel local de tu patrimonio neto: fondos, ETFs, acciones, cripto y más"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0",
+    "openpyxl>=3.1",
+]
+
+[tool.uv]
+package = false
