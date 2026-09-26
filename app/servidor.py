@@ -196,6 +196,27 @@ def api_empezar():
     return jsonify(ok=True)
 
 
+@app.post("/api/reiniciar")
+def api_reiniciar():
+    """Empieza de cero o vuelve a la demo. Lo que había se guarda antes en mis_datos/copias."""
+    if modo() != "propio":
+        return jsonify(ok=False, errores=["Ahora mismo no tienes ninguna cartera propia."]), 400
+    a = (request.get_json(silent=True) or {}).get("a")
+    with cerrojo:
+        ruta = os.path.join(DATOS, "cartera.json")
+        copias = os.path.join(DATOS, "copias")
+        os.makedirs(copias, exist_ok=True)
+        sello = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+        os.replace(ruta, os.path.join(copias, f"antes_de_reiniciar_{sello}.json"))
+        for viejo in ("calculado_propio.json", "historico.json"):
+            if os.path.exists(os.path.join(DATOS, viejo)):
+                os.remove(os.path.join(DATOS, viejo))
+        if a == "vacia":
+            almacen.guarda(ruta, json.loads(json.dumps(almacen.CARTERA_VACIA)))
+        recalcula(descargar="faltan")
+    return jsonify(ok=True)
+
+
 @app.get("/api/ping")
 def api_ping():
     return jsonify(app="patrimonio")

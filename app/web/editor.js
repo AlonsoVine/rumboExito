@@ -118,6 +118,20 @@
     }, "Empezar");
     return f;
   }
+  function reiniciar() {
+    abreModal("Empezar de nuevo", `
+      <p>¿Qué quieres hacer con la cartera que tienes ahora?</p>
+      <label class="opcion"><input type="radio" name="a" value="vacia" checked>
+        <span><b>Empezar de cero</b><br>Una cartera vacía para meter lo tuyo.</span></label>
+      <label class="opcion"><input type="radio" name="a" value="demo">
+        <span><b>Volver a ver la cartera de ejemplo</b><br>Luego podrás empezar otra vez con «Empezar con mis datos».</span></label>
+      <p class="ayuda">No se pierde nada: tu cartera actual se guarda en <code>mis_datos/copias</code> por si quieres recuperarla.</p>`,
+    async f => {
+      await api("POST", "api/reiniciar", { a: campos(f).a });
+      recuerda.guarda("patrimonio.tab", "datos");
+      location.reload();
+    }, "Continuar");
+  }
   function soloPropio(fn) {
     return (...a) => (E.modo === "demo" ? empezar() : fn(...a));
   }
@@ -138,7 +152,8 @@
         <button class="btn prim" data-acc="nuevoProducto">+ Añadir mi primer producto</button></section>`;
     }
     html += `<div class="edBarra"><div class="segm" id="edVistas"></div><span class="sp"></span>
-      ${!D && E.cfg.productos.length ? '<button class="btn" data-acc="verPanel">Ver mi panel →</button>' : ""}</div>
+      ${!D && E.cfg.productos.length ? '<button class="btn" data-acc="verPanel">Ver mi panel →</button>' : ""}
+      ${E.modo === "propio" ? '<button class="btn" data-acc="reiniciar">Empezar de nuevo…</button>' : ""}</div>
       <div id="edAvisos" class="avisos"></div><div id="edCuerpo"></div>`;
     cont.innerHTML = html;
 
@@ -476,6 +491,7 @@
   /* ---------------------------------------------- acciones */
   const ACC = {
     empezar,
+    reiniciar,
     verPanel() { recuerda.guarda("patrimonio.tab", "patrimonio"); location.reload(); },
     nuevoProducto: soloPropio(() => formProducto(null)),
     editarProducto: soloPropio(id => formProducto(prod(id))),
