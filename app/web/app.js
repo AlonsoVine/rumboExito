@@ -24,7 +24,7 @@
   if (!D) {
     $("#btnTema").onclick = cambiaTema;
     // Cartera vacía: solo se enseña «Mis datos», para empezar a meter productos.
-    document.body.classList.add("vacio");
+    document.body.classList.add("sinDatos");
     document.querySelectorAll("#tabs button").forEach(b =>
       b.setAttribute("aria-selected", String(b.dataset.tab === "datos")));
     document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-datos"; });

@@ -188,6 +188,12 @@ def leer_tabla(nombre, contenido):
     if faltan:
         return [], ("No encuentro las columnas " + ", ".join(faltan) + ". La primera fila tiene que ser la "
                     "cabecera de la plantilla: " + ";".join(COLUMNAS))
+    if len(filas) < 2:
+        if nombre and nombre.lower().endswith((".xlsx", ".xlsm")):
+            return [], ("La hoja «Movimientos» está vacía: solo tiene la cabecera. Las filas de la hoja "
+                        "«Ejemplo» son de muestra y no se importan; escribe tus operaciones en «Movimientos», "
+                        "debajo de la cabecera, guarda el archivo y vuelve a subirlo.")
+        return [], "Solo hay cabecera: escribe tus operaciones debajo, una por fila."
     salida = []
     for n, f in filas[1:]:
         salida.append((n, {col: (f[i] if i < len(f) else None) for col, i in idx.items()}))

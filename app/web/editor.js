@@ -152,7 +152,8 @@
       html += `<section class="tarjeta bienvenida"><h2>Tu cartera está vacía</h2><ol>
         <li><b>Añade tus productos</b>: fondos, acciones, cripto, tu cuenta del banco, tu plan de pensiones…
           Usa el buscador para encontrarlos por ISIN o ticker.</li>
-        <li><b>Anota tus compras</b> en «Movimientos», o <b>los saldos</b> de tus cuentas en «Saldos y valores».</li>
+        <li><b>Anota tus compras</b> en «Movimientos», o <b>los saldos</b> de tus cuentas en «Saldos y valores».
+          ¿Tienes muchas? Tráelas de golpe desde <b>«Importar»</b>: MyInvestor, una hoja de Excel o con ayuda de una IA.</li>
         <li>Vuelve a la pestaña <b>Patrimonio</b> y mira tu panel.</li></ol>
         <button class="btn prim" data-acc="nuevoProducto">+ Añadir mi primer producto</button></section>`;
     }
@@ -586,6 +587,7 @@
         ${op("ia", "Con ayuda de una IA", "Convierte el extracto de tu banco")}
       </div>
       <div class="imPaso">${paso}
+        <div class="imErr" id="imFallo" hidden></div>
         <div class="imAcc"><span class="sp"></span>
           <button class="btn prim" data-acc="imRevisar" id="imRevisarBtn">Revisar antes de importar</button></div>
       </div></section>`;
@@ -621,7 +623,8 @@
     if (inp) [...inp.files].forEach(f => fd.append("archivos", f));
     const txt = $("#imTexto");
     if (txt) fd.append("texto", txt.value);
-    const b = $("#imRevisarBtn");
+    const b = $("#imRevisarBtn"), fallo = $("#imFallo");
+    fallo.hidden = true;
     b.disabled = true;
     b.textContent = "Revisando y buscando precios…";
     try {
@@ -633,7 +636,8 @@
       IMP.hecho = null;
       pinta();
     } catch (x) {
-      alert(x.message);
+      fallo.textContent = x.message;
+      fallo.hidden = false;
       b.disabled = false;
       b.textContent = "Revisar antes de importar";
     }
