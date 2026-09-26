@@ -16,10 +16,10 @@ import threading
 import urllib.request
 import webbrowser
 
-from flask import Flask, Response, jsonify, send_from_directory
+from flask import Flask, Response, jsonify, request, send_from_directory
 from werkzeug.serving import make_server
 
-from . import motor
+from . import almacen, buscar, motor
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(RAIZ, "app", "web")
@@ -29,7 +29,7 @@ PUERTO = 8765
 HORAS_PRECIOS = 6          # al arrancar, se actualizan si tienen más de esto
 
 app = Flask(__name__, static_folder=None)
-cerrojo = threading.Lock()  # el motor no admite dos cálculos a la vez
+cerrojo = threading.RLock()  # el motor no admite dos cálculos (ni dos escrituras) a la vez
 
 
 # ---------------------------------------------------------------- archivos
@@ -71,11 +71,12 @@ def estado():
 # ---------------------------------------------------------------- cálculo
 
 def recalcula(descargar):
-    """Recalcula el panel. Con descargar=True baja antes los precios nuevos."""
+    """Recalcula el panel. Con descargar=True baja antes los precios nuevos;
+    con "faltan", solo los de productos que aún no tienen precios guardados."""
     with cerrojo:
         datos = motor.construir(cartera(), DATOS, descargar=descargar)
         est = estado()
-        if descargar:
+        if descargar is True:
             est["preciosActualizados"] = dt.datetime.now().replace(microsecond=0).isoformat()
             escribe_json(os.path.join(DATOS, "estado.json"), est)
         if datos is not None:
@@ -119,6 +120,82 @@ def api_actualizar():
     return jsonify(ok=True, avisos=(datos or {}).get("avisos", []))
 
 
+@app.get("/api/cartera")
+def api_cartera():
+    return jsonify(modo=modo(), cartera=cartera(), tipos=motor.TIPOS, fuentes=motor.FUENTES,
+                   tiposMovimiento=almacen.TIPOS_MOV)
+
+
+@app.get("/api/buscar")
+def api_buscar():
+    return jsonify(resultados=buscar.buscar(request.args.get("q", "")))
+
+
+GUARDAR = {"productos": almacen.guarda_producto, "movimientos": almacen.guarda_movimiento,
+           "valoraciones": almacen.guarda_valoracion}
+BORRAR = {"productos": almacen.borra_producto, "movimientos": almacen.borra_movimiento,
+          "valoraciones": almacen.borra_valoracion}
+AVISO_DEMO = ("Estás viendo la cartera de ejemplo. Pulsa «Empezar con mis datos» "
+              "para crear la tuya y poder guardar cambios.")
+
+
+def cambia(fn):
+    """Aplica un cambio a la cartera, la guarda (con copia automática) y recalcula."""
+    if modo() == "demo":
+        return jsonify(ok=False, errores=[AVISO_DEMO]), 403
+    with cerrojo:
+        ruta = os.path.join(DATOS, "cartera.json")
+        cfg = almacen.carga(ruta)
+        try:
+            item = fn(cfg)
+        except almacen.ErrorValidacion as e:
+            return jsonify(ok=False, errores=e.errores), 400
+        almacen.guarda(ruta, cfg)
+        datos = recalcula(descargar="faltan")
+    return jsonify(ok=True, item=item, cartera=cfg, avisos=(datos or {}).get("avisos", []))
+
+
+@app.post("/api/<coleccion>")
+def api_guardar(coleccion):
+    if coleccion not in GUARDAR:
+        return jsonify(ok=False, errores=["No sé guardar eso."]), 404
+    datos = request.get_json(silent=True) or {}
+
+    def fn(cfg):
+        if coleccion != "productos":
+            return GUARDAR[coleccion](cfg, datos)
+        prod, cambio = almacen.guarda_producto(cfg, datos)
+        # Antes de guardar un producto con precio online, se comprueba que lo hay.
+        if cambio and prod["fuente"] != "manual" and not buscar.probar(prod["fuente"], prod["codigo"]):
+            raise almacen.ErrorValidacion([
+                f"No encuentro precio para «{prod['codigo']}» en {motor.FUENTES[prod['fuente']]}. "
+                "Revisa el código con el buscador o elige «a mano» y anota tú su valor."])
+        return prod
+    return cambia(fn)
+
+
+@app.delete("/api/<coleccion>/<ident>")
+def api_borrar(coleccion, ident):
+    if coleccion not in BORRAR:
+        return jsonify(ok=False, errores=["No sé borrar eso."]), 404
+    return cambia(lambda cfg: BORRAR[coleccion](cfg, ident))
+
+
+@app.post("/api/empezar")
+def api_empezar():
+    """Sale de la demo: crea tu cartera, vacía o como copia del ejemplo para practicar."""
+    if modo() != "demo":
+        return jsonify(ok=False, errores=["Ya tienes tu propia cartera."]), 400
+    with cerrojo:
+        if (request.get_json(silent=True) or {}).get("desde") == "ejemplo":
+            cfg = dict(lee_json(DEMO, {}), titular="Mi patrimonio (copia del ejemplo)")
+        else:
+            cfg = json.loads(json.dumps(almacen.CARTERA_VACIA))
+        almacen.guarda(os.path.join(DATOS, "cartera.json"), cfg)
+        recalcula(descargar="faltan")
+    return jsonify(ok=True)
+
+
 @app.get("/api/ping")
 def api_ping():
     return jsonify(app="patrimonio")
@@ -149,20 +226,24 @@ def main():
     # Si la app ya está abierta (otra ventana), basta con enseñarla.
     if ya_abierta(PUERTO):
         print("La app ya estaba abierta: te la enseño en el navegador.")
-        webbrowser.open(f"http://127.0.0.1:{PUERTO}/")
+        if not os.environ.get("PATRIMONIO_NO_ABRIR"):
+            webbrowser.open(f"http://127.0.0.1:{PUERTO}/")
         return
 
     print("\n  MI PATRIMONIO")
     print("  " + "-" * 40)
     if modo() == "demo":
         print("  Modo demostración: estás viendo una cartera de ejemplo.")
-    if precios_viejos():
+    # Siempre se recalcula al arrancar (sin internet es un momento): así, tras
+    # actualizar la app a una versión nueva, el panel nunca usa cálculos viejos.
+    viejos = precios_viejos()
+    if viejos:
         print("  Actualizando precios (tarda unos segundos)...")
-        try:
-            recalcula(descargar=True)
-        except Exception as e:
-            print(f"\n  [!] No he podido actualizar los precios: {e}")
-            print("      Abro la app con los últimos datos guardados.")
+    try:
+        recalcula(descargar=viejos or "faltan")
+    except Exception as e:
+        print(f"\n  [!] No he podido actualizar los precios: {e}")
+        print("      Abro la app con los últimos datos guardados.")
 
     srv = None
     for puerto in range(PUERTO, PUERTO + 10):
@@ -175,7 +256,8 @@ def main():
         print("  [!] No encuentro ningún puerto libre para abrir la app.")
         return
     url = f"http://127.0.0.1:{srv.server_port}/"
-    threading.Timer(0.8, webbrowser.open, [url]).start()
+    if not os.environ.get("PATRIMONIO_NO_ABRIR"):   # para pruebas: no abre el navegador
+        threading.Timer(0.8, webbrowser.open, [url]).start()
     print(f"\n  App abierta en {url}")
     print("  Deja esta ventana abierta mientras la uses. Para salir, ciérrala.\n")
     try:

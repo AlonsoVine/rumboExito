@@ -27,6 +27,7 @@ except Exception:
 
 CACHE = "cache"      # lo fija construir() dentro de la carpeta de datos
 SIN_RED = False      # True: recalcula solo con los precios guardados
+SOLO_FALTAN = False  # True: descarga solo las series que no estan en la cache
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"}
 
@@ -98,7 +99,7 @@ def descargar_serie(simbolo, anos=6):
     os.makedirs(CACHE, exist_ok=True)
     ruta = os.path.join(CACHE, re.sub(r"[^A-Za-z0-9._-]", "_", simbolo) + ".json")
     previo = lee_cache(ruta)
-    if SIN_RED:
+    if SIN_RED or (SOLO_FALTAN and previo):
         return previo
 
     url = ("https://query1.finance.yahoo.com/v8/finance/chart/"
@@ -134,7 +135,7 @@ def descargar_morningstar(secid, universo="]2]0]FOESP$$ALL", anos=6):
     os.makedirs(CACHE, exist_ok=True)
     ruta = os.path.join(CACHE, "MS_" + re.sub(r"[^A-Za-z0-9]", "_", secid) + ".json")
     previo = lee_cache(ruta)
-    if SIN_RED:
+    if SIN_RED or (SOLO_FALTAN and previo):
         return mover_fin_de_semana(previo)
     hoy_ = dt.date.today()
     q = {"currencyId": "EUR", "idtype": "Morningstar", "frequency": "daily",
@@ -387,7 +388,7 @@ def descargar_coingecko(coin, dias=365):
     os.makedirs(CACHE, exist_ok=True)
     ruta = os.path.join(CACHE, "CG_" + re.sub(r"[^A-Za-z0-9._-]", "_", coin) + ".json")
     previo = lee_cache(ruta)
-    if SIN_RED:
+    if SIN_RED or (SOLO_FALTAN and previo):
         return previo
     url = (f"https://api.coingecko.com/api/v3/coins/{urllib.parse.quote(coin)}/market_chart"
            f"?vs_currency=eur&days={dias}&interval=daily")
@@ -442,25 +443,26 @@ def aplicar_movimientos(p, movs):
     Devuelve eventos (fecha, +-unidades, +-aportado) para las series diarias y flujos
     (fecha, importe) para la TIR, en negativo lo que sale de tu cuenta.
     """
-    lotes, eventos, flujos = [], [], []
+    lotes, eventos, flujos, vendidas = [], [], [], set()
     realizado = comisiones = 0.0
     for m in sorted(movs, key=lambda x: (x["fecha"], ORDEN_TIPO.get(x.get("tipo"), 9))):
         f, t = m["fecha"], m.get("tipo")
         u, imp = float(m.get("unidades") or 0), float(m.get("importe") or 0)
         if t == "compra":
-            lotes.append([u, imp])
+            lotes.append([u, imp, id(m)])
             eventos.append((f, u, imp))
             flujos.append((f, -imp))
             comisiones += float(m.get("comision") or 0)
         elif t == "venta":
             quedan, coste = u, 0.0
             while quedan > 1e-9 and lotes:
-                lu, lc = lotes[0]
+                lu, lc, ref = lotes[0]
                 toma = min(lu, quedan)
                 parte = lc * toma / lu if lu else 0.0
                 coste += parte
                 quedan -= toma
-                lotes[0] = [lu - toma, lc - parte]
+                vendidas.add(ref)
+                lotes[0] = [lu - toma, lc - parte, ref]
                 if lotes[0][0] <= 1e-9:
                     lotes.pop(0)
             if quedan > 1e-6:
@@ -475,7 +477,8 @@ def aplicar_movimientos(p, movs):
             realizado -= imp
             comisiones += imp
             flujos.append((f, -imp))
-    return {"eventos": eventos, "flujos": flujos, "realizado": realizado, "comisiones": comisiones}
+    return {"eventos": eventos, "flujos": flujos, "realizado": realizado, "comisiones": comisiones,
+            "vendidas": vendidas}
 
 
 # ---------------------------------------------------------------- construccion
@@ -484,11 +487,13 @@ def construir(cfg, carpeta, descargar=True):
     """
     Calcula todo lo que pinta el panel a partir de la cartera (productos, movimientos
     y valoraciones) y devuelve el diccionario DATOS. Con descargar=False no sale a
-    internet: recalcula con los precios guardados en la cache.
+    internet: recalcula con los precios guardados en la cache. Con descargar="faltan"
+    solo descarga los precios de productos nuevos.
     """
-    global CACHE, SIN_RED
+    global CACHE, SIN_RED, SOLO_FALTAN
     CACHE = os.path.join(carpeta, "cache")
     SIN_RED = not descargar
+    SOLO_FALTAN = descargar == "faltan"
     AVISOS.clear()
     _COTIZACIONES.clear()
 
@@ -497,7 +502,7 @@ def construir(cfg, carpeta, descargar=True):
         p.setdefault("fuente", "manual")
         p.setdefault("corto", (p.get("nombre") or p["id"])[:24])
 
-    print("\n=== 1. Precios ===" if descargar else "\n=== 1. Precios guardados ===")
+    print("\n=== 1. Precios ===" if descargar is True else "\n=== 1. Precios guardados ===")
     series = {}
 
     def pide(clave, fn, *args):
@@ -601,7 +606,8 @@ def construir(cfg, carpeta, descargar=True):
                     "fecha": m["fecha"], "importe": round(imp, 2),
                     "participaciones": round(u, 6), "precio": r4((imp - com) / u) if u else None,
                     "comision": com, "tipoOrden": m.get("nota") or None,
-                    "valor": round(u * nav_hoy, 2),
+                    # De una compra ya vendida (toda o en parte) no se enseña "cuánto vale hoy".
+                    "valor": None if id(m) in mv["vendidas"] else round(u * nav_hoy, 2),
                 })
         else:
             p["origen"] = "manual"
@@ -726,6 +732,7 @@ def construir(cfg, carpeta, descargar=True):
         val, ap = p.get("valor") or 0.0, p.get("aportado")
         p["valor"] = round(val, 2)
         flujos = [(d(f), v) for f, v in p["_mv"]["flujos"]]
+        p["flujos"] = [[f, round(v, 2)] for f, v in p["_mv"]["flujos"]]   # para la TIR del panel
         if flujos:
             flujos_globales.extend(flujos)
             valor_tir += val

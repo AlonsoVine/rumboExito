@@ -300,6 +300,70 @@ body.video .topFila,body.video #seccionTabla,body.video .pie,body.video #seccion
 .banner b{color:var(--tinta)}
 .aviso-legal{margin-top:10px;color:var(--tinta3);font-size:11.5px}
 .btn:disabled{opacity:.55;cursor:progress}
+[hidden]{display:none !important}
+.btn.prim{background:var(--s1);border-color:var(--s1);color:#fff}
+.btn.prim:hover{filter:brightness(1.08);color:#fff}
+body.vacio #tabs button:not([data-tab="datos"]),body.vacio #btnPrecios,body.vacio #metaFecha{display:none}
+/* ---- Mis datos ---- */
+.sp{flex:1}
+.edBarra{display:flex;align-items:center;gap:12px;margin:22px 0 14px;flex-wrap:wrap}
+#editor .tarjeta + .tarjeta,#editor .saldos{margin-top:16px}
+#editor select,.mForm input,.mForm select,.mForm textarea{
+  font:inherit;font-size:14px;color:var(--tinta);background:var(--plano);border:1px solid var(--borde);
+  border-radius:8px;padding:8px 10px;width:100%;box-sizing:border-box}
+#editor select{width:auto;font-size:13px;padding:6px 9px}
+.mForm input:focus,.mForm select:focus,.mForm textarea:focus{outline:2px solid color-mix(in srgb,var(--s1) 55%,transparent);outline-offset:0}
+table.dt td small{color:var(--tinta3);font-size:11.5px}
+table.dt td .idp{display:block;margin-left:17px}
+table.dt td.acc button{font:inherit;font-size:12.5px;background:none;border:0;color:var(--s1);cursor:pointer;padding:2px 5px}
+table.dt td.acc button:hover{text-decoration:underline}
+table.dt td.acc button[data-acc^="borrar"]{color:var(--mal)}
+table.dt td.nota{max-width:220px;overflow:hidden;text-overflow:ellipsis;text-align:left;color:var(--tinta3)}
+.saldos{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.saldos .tarjeta + .tarjeta{margin-top:0}
+.tarjeta.saldo h2 .pt{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:8px}
+.bienvenida{margin-top:18px}
+.bienvenida h2{font-size:18px;margin-bottom:8px}
+.bienvenida ol{margin:0 0 16px 18px;line-height:1.7;color:var(--tinta2)}
+.modal{border:1px solid var(--borde);border-radius:var(--radio);background:var(--sup);color:var(--tinta);
+  padding:0;width:min(680px,calc(100vw - 32px));max-height:calc(100vh - 40px)}
+.modal::backdrop{background:rgba(0,0,0,.55)}
+.mForm{display:flex;flex-direction:column;max-height:calc(100vh - 42px)}
+.mForm > header{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--borde)}
+.mForm > header h2{font-size:16px;font-weight:650;flex:1}
+.mForm .x{font-size:22px;background:none;border:0;color:var(--tinta3);cursor:pointer;line-height:1}
+.mCuerpo{padding:16px 20px;overflow-y:auto;font-size:14px;line-height:1.5}
+.mForm > footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--borde)}
+.mErr{margin:0 20px 4px;padding:10px 12px;border-radius:8px;white-space:pre-line;font-size:13.5px;
+  background:color-mix(in srgb,var(--mal) 14%,transparent);color:var(--tinta);border:1px solid color-mix(in srgb,var(--mal) 45%,transparent)}
+.rejilla{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.rejilla .ancho{grid-column:1/-1}
+.rejilla label,.mCuerpo > label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--tinta2)}
+.rejilla label small,.mCuerpo label small{font-weight:400;color:var(--tinta3)}
+.rejilla label.check{flex-direction:row;align-items:center;gap:8px;flex-wrap:wrap}
+.rejilla label.check input{width:auto}
+.mForm [hidden]{display:none}
+.lbl{font-size:13px;font-weight:600;color:var(--tinta2)}
+.colores{display:flex;gap:8px;margin-top:6px}
+.color input{position:absolute;opacity:0;width:0}
+.color i{display:block;width:24px;height:24px;border-radius:7px;background:var(--c);cursor:pointer;border:2px solid transparent}
+.color input:checked + i{border-color:var(--tinta);box-shadow:0 0 0 2px var(--sup) inset}
+.ayuda{font-size:12.5px;color:var(--tinta3);margin-top:8px;line-height:1.5}
+.buscador{background:var(--sup2);border:1px solid var(--borde);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+.buscador > label{font-size:13px;font-weight:600;color:var(--tinta2)}
+.buscador .fila{display:flex;gap:8px;margin-top:6px}
+.bRes{display:grid;gap:6px;margin-top:10px;max-height:260px;overflow-y:auto}
+.bItem{display:flex;justify-content:space-between;gap:12px;text-align:left;font:inherit;font-size:13px;color:var(--tinta);
+  background:var(--sup);border:1px solid var(--borde);border-radius:8px;padding:8px 10px;cursor:pointer}
+.bItem:hover{border-color:var(--tinta3)}
+.bItem.sel{border-color:var(--s1);background:color-mix(in srgb,var(--s1) 12%,var(--sup))}
+.bItem small{color:var(--tinta3)}
+.bPre{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.avanzado{margin-top:16px}
+.avanzado summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--tinta2);margin-bottom:10px}
+.opcion{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--borde);border-radius:10px;padding:12px;margin-top:10px;cursor:pointer;font-weight:400}
+.opcion input{width:auto;margin-top:4px}
+@media(max-width:640px){.rejilla{grid-template-columns:1fr}.saldos{grid-template-columns:1fr}.buscador .fila{flex-wrap:wrap}}
 body.video .hCifra{font-size:clamp(58px,10vw,124px)}
 body.video .kpi .v{font-size:28px}
 body.video .tarjeta{padding:22px 24px}
@@ -328,6 +392,7 @@ body.video .tarjeta{padding:22px 24px}
       <button data-tab="mes" role="tab" aria-selected="false">El mes</button>
       <button data-tab="fondos" role="tab" aria-selected="false">Productos</button>
       <button data-tab="rendimiento" role="tab" aria-selected="false">Rendimiento</button>
+      <button data-tab="datos" role="tab" aria-selected="false">Mis datos</button>
     </nav>
   </div>
 </div>
@@ -337,6 +402,7 @@ body.video .tarjeta{padding:22px 24px}
 <div class="banner" id="bannerDemo" hidden>
   <span><b>Estás viendo una cartera de ejemplo:</b> es la cartera real del autor del canal, con fines
   divulgativos. No es una recomendación de inversión.</span>
+  <button class="btn prim" id="btnEmpezar">Empezar con mis datos</button>
 </div>
 <p class="aviso-legal">Herramienta informativa. No es asesoramiento financiero. No se garantiza la exactitud de los datos ni de los precios.</p>
 
@@ -488,9 +554,13 @@ body.video .tarjeta{padding:22px 24px}
   </section>
 </div>
 
+<div class="panel" id="tab-datos" role="tabpanel" hidden><div id="editor"></div></div>
+
   <div class="avisos" id="avisos"></div>
   <footer class="pie" id="pie"></footer>
 </div>
+
+<dialog class="modal" id="modal"></dialog>
 
 <script>
 /* Carga los scripts con un sello temporal para que, al recargar despues de
@@ -500,7 +570,7 @@ body.video .tarjeta{padding:22px 24px}
   // Con file:// no se puede anadir "?v=": algunos navegadores no encuentran
   // el archivo. Ahi basta con la revalidacion por fecha de modificacion.
   var sello = location.protocol === "file:" ? "" : "?v=" + Date.now();
-  ["datos.js", "graficos.js", "app.js"].forEach(function (archivo) {
+  ["datos.js", "graficos.js", "app.js", "editor.js"].forEach(function (archivo) {
     var s = document.createElement("script");
     s.src = archivo + sello;
     s.async = false;

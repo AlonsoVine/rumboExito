@@ -9,9 +9,12 @@
   const raiz = document.documentElement;
 
   if (!D) {
-    document.body.innerHTML =
-      '<div style="max-width:640px;margin:80px auto;padding:0 24px;font:15px/1.6 system-ui">' +
-      '<h1>Todavía no hay datos</h1><p>Cierra esta pestaña y vuelve a abrir la app con <b>Iniciar</b> (doble clic).</p></div>';
+    // Cartera vacía: solo se enseña «Mis datos», para empezar a meter productos.
+    document.body.classList.add("vacio");
+    document.querySelectorAll("#tabs button").forEach(b =>
+      b.setAttribute("aria-selected", String(b.dataset.tab === "datos")));
+    document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-datos"; });
+    document.querySelectorAll(".aviso-legal, #bannerDemo").forEach(el => { el.hidden = true; });
     return;
   }
 
@@ -114,7 +117,7 @@
     const n = D.fechas.length;
     const serie = new Array(n).fill(0);
     const serieAp = new Array(n).fill(0);
-    let valor = 0, aportado = 0, valorConCoste = 0, nAp = 0;
+    let valor = 0, aportado = 0, valorConCoste = 0, valorTir = 0, nAp = 0;
     const flujos = [];
 
     lista.forEach(p => {
@@ -127,15 +130,19 @@
       if (p.aportado != null && p.aportado > 0) {
         aportado += p.aportado;
         valorConCoste += valorDe(p);
-        (p.aportaciones || []).forEach(a => {
-          if (a.importe) { flujos.push({ t: Date.parse(a.fecha), v: -a.importe }); nAp++; }
-        });
+        nAp += (p.aportaciones || []).filter(a => a.importe).length;
+      }
+      // La TIR usa todo el dinero que entró y salió (compras, ventas, dividendos y
+      // comisiones), y solo el valor de los productos que tienen esos movimientos.
+      if (p.flujos && p.flujos.length) {
+        p.flujos.forEach(([f, v]) => flujos.push({ t: Date.parse(f), v }));
+        valorTir += valorDe(p);
       }
     });
 
     const plusvalia = aportado ? valorConCoste - aportado : null;
     const tir = flujos.length
-      ? xirr(flujos.concat([{ t: Date.parse(D.fechaExtracto), v: valorConCoste }]))
+      ? xirr(flujos.concat([{ t: Date.parse(D.fechaExtracto), v: valorTir }]))
       : null;
 
     const am = D.aportacionesMensuales;
@@ -973,6 +980,12 @@
 
   /* ---------------------------------------------- pestañas */
   function irA(tab) {
+    // Si has cambiado datos en «Mis datos», el panel se recarga con las cifras nuevas.
+    if (window.EDITOR_SUCIO && tab !== "datos") {
+      recuerda.guarda("patrimonio.tab", tab);
+      location.reload();
+      return;
+    }
     estado.tab = tab;
     document.querySelectorAll("#tabs button").forEach(b =>
       b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
@@ -989,6 +1002,7 @@
     else if (estado.tab === "mes") pintaMes();
     else if (estado.tab === "fondos") pintaFondos();
     else if (estado.tab === "rendimiento") pintaRendimiento();
+    else if (estado.tab === "datos" && window.Editor) window.Editor.mostrar();
   }
   function pintar() { pintaComun(); pintarTab(); }
 
@@ -1044,8 +1058,8 @@
       estado.ocultos = filtrando() ? new Set() : new Set(idsCorto());
       pintaPatrimonio();
     }
-    const n = "1234".indexOf(e.key);
-    if (n >= 0) irA(["patrimonio", "mes", "fondos", "rendimiento"][n]);
+    const n = "12345".indexOf(e.key);
+    if (n >= 0) irA(["patrimonio", "mes", "fondos", "rendimiento", "datos"][n]);
   });
 
   let t = null;
