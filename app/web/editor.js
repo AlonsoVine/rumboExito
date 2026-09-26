@@ -561,7 +561,7 @@
           <li>Arrastra aquí todos los archivos a la vez.</li></ol>
         ${zona(".csv", true, "Arrastra aquí los CSV de MyInvestor")}
         <p class="ayuda">Cada importación sustituye lo que importaste antes de ese mismo fondo: repítela cada mes sin miedo a duplicar.
-          Las compras de ETF o acciones de MyInvestor, anótalas a mano o con la plantilla.</p>`;
+          MyInvestor no permite descargar las órdenes de ETF o acciones: haz capturas y usa la opción «Con ayuda de una IA».</p>`;
     } else if (IMP.origen === "plantilla") {
       paso = `<ol class="pasos">
           <li>Descarga la plantilla: <a class="btn" href="api/plantilla.xlsx" download>Excel</a>
@@ -573,8 +573,9 @@
       paso = `<ol class="pasos">
           <li><b>Copia el prompt</b>: <button class="btn" data-acc="imCopiar" id="imCopiarBtn">Copiar prompt</button>
             <details class="verPrompt"><summary>Ver el prompt</summary><pre id="imPrompt">${esc(IMP.prompt || "Cargando…")}</pre></details></li>
-          <li>Abre ChatGPT, Gemini o la IA que uses. Pega el prompt y, debajo, tu extracto (o adjunta el PDF).
-            <span class="alerta">Antes, borra tu nombre, DNI, IBAN, números de cuenta y cualquier dato personal.</span></li>
+          <li>Abre ChatGPT, Gemini o la IA que uses. Pega el prompt y, debajo, tu extracto, o adjunta el PDF o
+            <b>capturas de pantalla</b> de tus órdenes (así se importan, por ejemplo, las compras de ETF o acciones de MyInvestor).
+            <span class="alerta">Antes, borra (o tapa en las capturas) tu nombre, DNI, IBAN, números de cuenta y cualquier dato personal.</span></li>
           <li>Copia su respuesta y pégala aquí:</li></ol>
         <textarea id="imTexto" class="imTexto" rows="8" spellcheck="false"
           placeholder="fecha;identificador;nombre;tipo_producto;tipo_movimiento;unidades;importe;moneda;comision;nota"></textarea>`;

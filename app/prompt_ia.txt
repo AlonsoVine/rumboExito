@@ -1,4 +1,4 @@
-Convierte el extracto de mi banco o bróker que pego al final en una tabla para importarla en mi app de patrimonio.
+Convierte el extracto de mi banco o bróker (el texto que pego al final, o los PDF o capturas de pantalla que adjunto) en una tabla para importarla en mi app de patrimonio. En las capturas de órdenes, lee con cuidado la fecha de ejecución, los títulos, el precio y el importe de cada una.
 
 Devuélveme SOLO un CSV dentro de un bloque de código, sin explicaciones, separado por punto y coma (;) y con esta cabecera exacta:
 fecha;identificador;nombre;tipo_producto;tipo_movimiento;unidades;importe;moneda;comision;nota
@@ -21,4 +21,4 @@ Importante:
 - No incluyas nóminas, recibos, gastos del día a día ni transferencias entre mis propias cuentas.
 
 EXTRACTO:
-[Pega aquí tu extracto. ANTES, BORRA tu nombre, DNI, IBAN, números de cuenta y tarjeta, dirección y cualquier dato personal: solo hacen falta fechas, productos e importes.]
+[Pega aquí tu extracto o adjunta los PDF o capturas. ANTES, BORRA o tapa tu nombre, DNI, IBAN, números de cuenta y tarjeta, dirección y cualquier dato personal: solo hacen falta fechas, productos e importes.]
