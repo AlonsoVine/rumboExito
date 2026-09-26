@@ -179,7 +179,7 @@ def guarda_producto(cfg, datos):
         destino = {"id": slug(nuevo["corto"], {p["id"] for p in cfg["productos"]})}
         if nuevo["slot"] is None:
             # Sin color elegido (por ejemplo, al importar): el que menos se use.
-            usos = [sum(1 for p in cfg["productos"] if p.get("slot") == s) for s in range(1, 9)]
+            usos = [sum(1 for p in cfg["productos"] if p.get("slot") == s) for s in range(1, 13)]
             nuevo["slot"] = usos.index(min(usos)) + 1
         cfg["productos"].append(destino)
     # Se conservan los campos que el formulario no toca (la exposición del índice, etc.).
@@ -189,6 +189,15 @@ def guarda_producto(cfg, datos):
         else:
             destino[k] = v
     return destino, cambio
+
+
+def reparte_colores(cfg, orden=None):
+    """Un color distinto para cada producto (los primeros de 'orden', los más grandes,
+    se quedan los colores más fáciles de distinguir). Con más de 12, se repiten."""
+    ids = [p["id"] for p in cfg["productos"]]
+    orden = [i for i in (orden or []) if i in ids] + [i for i in ids if i not in (orden or [])]
+    for n, pid in enumerate(orden):
+        producto(cfg, pid)["slot"] = n % 12 + 1
 
 
 def borra_producto(cfg, pid):

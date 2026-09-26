@@ -693,19 +693,19 @@
       ["Entidad", p.entidad], ["Gestora", p.gestora],
       ["Política", p.politica], ["Mercado", p.mercado],
       [p.origen ? "Primera aportación" : "Primer dato anotado", p.desde ? G.fmtFecha(p.desde) : null],
-      [p.origen === "ordenes" ? "Títulos" : "Participaciones",
+      [p.etqUnidades || "Participaciones",
         p.titulos != null ? G.nfNum.format(p.titulos)
           : p.participaciones != null ? G.nfNum.format(p.participaciones) : null],
       ["Precio medio de compra", p.precioMedio != null ? G.fmtEur(p.precioMedio) : null],
-      [p.origen === "ordenes" ? "Precio actual" : "Valor liquidativo",
+      [p.etqPrecio || "Valor liquidativo",
         p.nav != null ? G.fmtEur(p.nav) + (p.navFecha ? " · cierre del " + G.fmtFechaCorta(p.navFecha) : "") : null],
-      ["Fuente del precio", p.fuentePrecio ? p.fuentePrecio + (p.codigo ? " · " + p.codigo : "") : null],
+      ["Fuente del precio", p.fuenteTexto || p.fuentePrecio],
       ["Plusvalía ya materializada", p.realizado ? G.fmtEur(p.realizado) : null],
       ["Peso en el patrimonio", p.peso != null ? G.fmtPct(p.peso, 1) : null],
     ].filter(c => c[0] && c[1]);
 
     const hayVL = !!(p.navSerie && p.navSerie.some(v => v));
-    const etqVL = p.origen === "ordenes" ? "Precio del ETP" : "Valor liquidativo";
+    const etqVL = p.etqPrecio || "Valor liquidativo";
     const pocos = (p.serie || []).filter(v => v != null).length < 5;
 
     sec.innerHTML = `
@@ -748,8 +748,7 @@
         .map(k => `<div class="ventana"><div class="e">${et[k]}</div>
           <div class="v ${p.ventanas[k] >= 0 ? "pos" : "neg"}">${G.fmtPctSigno(p.ventanas[k], 1)}</div></div>`).join("");
       if (celdas) {
-        html += `<div class="ventanas"><span class="grupoEtq">${p.origen === "ordenes"
-          ? "El precio del ETP" : "El valor liquidativo del fondo"}, lo tuvieras o no</span>${celdas}</div>`;
+        html += `<div class="ventanas"><span class="grupoEtq">${p.etqVentanas || "El precio"}, lo tuvieras o no</span>${celdas}</div>`;
       }
     }
     $("#ventanas").innerHTML = html;
@@ -835,11 +834,11 @@
         <p class="vacio">Este componente no tiene aportaciones registradas: solo anotas su valor.</p>`;
       return;
     }
-    const esETP = p.origen === "ordenes";
+    const esFondo = p.tipoClave === "fondo" || p.tipoClave === "pension";
     const paleta = tonos(color(p));
     const hoy = new Date(D.fechaExtracto);
-    const cab = ["Fecha", "Aportado", esETP ? "Títulos" : "Participaciones",
-      esETP ? "Precio" : "VL de compra", "Vale hoy", "Plusvalía", "Rent.", "Días"];
+    const cab = ["Fecha", "Aportado", p.etqUnidades || "Participaciones",
+      esFondo ? "VL de compra" : "Precio de compra", "Vale hoy", "Plusvalía", "Rent.", "Días"];
     sec.innerHTML = `<header><h2>Aportaciones a este producto</h2>
         <span class="subt">${filas.length} en total · ${G.fmtEur(p.aportado, 0)}</span></header>
       <div class="tablaEnv alto"><table class="dt">

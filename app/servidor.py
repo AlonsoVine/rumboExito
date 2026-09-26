@@ -184,6 +184,14 @@ def api_borrar(coleccion, ident):
     return cambia(lambda cfg: BORRAR[coleccion](cfg, ident))
 
 
+@app.post("/api/repartir-colores")
+def api_repartir_colores():
+    calc = lee_json(ruta_calculado()) or {}
+    grandes = [p["id"] for p in sorted(calc.get("productos", []) + calc.get("otrosActivos", []),
+                                       key=lambda p: -(p.get("valor") or 0))]
+    return cambia(lambda cfg: almacen.reparte_colores(cfg, grandes))
+
+
 @app.post("/api/empezar")
 def api_empezar():
     """Sale de la demo: crea tu cartera, vacía o como copia del ejemplo para practicar."""

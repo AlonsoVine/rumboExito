@@ -205,17 +205,18 @@
     }).join("");
     return `<section class="tarjeta"><header><h2>Productos</h2>
         <span class="subt">Todo lo que tienes: fondos, acciones, cripto, cuentas, planes, inmuebles…</span>
-        <span class="sp"></span><button class="btn prim" data-acc="nuevoProducto">+ Añadir producto</button></header>
+        <span class="sp"></span>${E.cfg.productos.length > 1 ? '<button class="btn" data-acc="repartirColores" title="Da a cada producto un color distinto">Repartir colores</button>' : ""}
+        <button class="btn prim" data-acc="nuevoProducto">+ Añadir producto</button></header>
       ${filas ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Producto</th><th>Tipo</th><th>Último precio</th>
         <th>Fuente del precio</th><th>Datos</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
         : '<p class="subt">Todavía no has añadido ningún producto.</p>'}</section>`;
   }
 
   function siguienteColor() {
-    const usos = Array(9).fill(0);
+    const usos = Array(13).fill(0);
     E.cfg.productos.forEach(p => { usos[p.slot || 1]++; });
     let mejor = 1;
-    for (let i = 1; i <= 8; i++) if (usos[i] < usos[mejor]) mejor = i;
+    for (let i = 1; i <= 12; i++) if (usos[i] < usos[mejor]) mejor = i;
     return mejor;
   }
 
@@ -231,7 +232,7 @@
     const nuevo = !p;
     p = p || { tipo: "fondo", fuente: "morningstar", moneda: "EUR", largoPlazo: true, slot: siguienteColor() };
     const clases = [...new Set(E.cfg.productos.map(x => x.clase).filter(Boolean))];
-    const colores = Array.from({ length: 8 }, (_, i) =>
+    const colores = Array.from({ length: 12 }, (_, i) =>
       `<label class="color" style="--c:var(--s${i + 1})" title="Color ${i + 1}"><input type="radio" name="slot" value="${i + 1}"><i></i></label>`).join("");
     const f = abreModal(nuevo ? "Añadir producto" : "Editar " + esc(nombre(p)), `
       <div class="buscador">
@@ -807,6 +808,14 @@
     editarValor: soloPropio(id => formValor(E.cfg.valoraciones.find(v => v.id === id))),
     borrarValor: soloPropio(borrarValor),
     todosValores: soloPropio(todosValores),
+    repartirColores: soloPropio(async () => {
+      try {
+        const j = await api("POST", "api/repartir-colores");
+        E.cfg = j.cartera;
+        window.EDITOR_SUCIO = true;
+        pinta();
+      } catch (x) { alert(x.message); }
+    }),
     imOrigen(id) { IMP.origen = id; IMP.hecho = null; pinta(); },
     imRevisar: soloPropio(imRevisar),
     imCancelar() { IMP.informe = null; IMP.token = null; pinta(); },

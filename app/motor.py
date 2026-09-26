@@ -41,6 +41,10 @@ PALETA = {
     6: ("#008300", "#008300"),   # verde
     7: ("#4a3aa7", "#9085e9"),   # violeta
     8: ("#e34948", "#e66767"),   # rojo
+    9: ("#0e8fb0", "#2bb0d1"),   # cian
+    10: ("#9a6a3a", "#c08a55"),  # marrón
+    11: ("#5d6b8a", "#93a1c2"),  # gris azulado
+    12: ("#7c9a00", "#9cc21a"),  # oliva
 }
 
 AVISOS = []
@@ -430,6 +434,17 @@ CLASE_DEFECTO = {
 FUENTES = {"morningstar": "Morningstar", "yahoo": "Yahoo Finance",
            "coingecko": "CoinGecko", "manual": "Valor anotado a mano"}
 ORDEN_TIPO = {"compra": 0, "comision": 1, "dividendo": 2, "venta": 3}
+# Cómo se llama el precio y las unidades de cada tipo de producto en el panel:
+# (precio, unidades, "... lo tuvieras o no").
+ETIQUETAS = {
+    "fondo": ("Valor liquidativo", "Participaciones", "El valor liquidativo del fondo"),
+    "pension": ("Valor liquidativo", "Participaciones", "El valor liquidativo del plan"),
+    "etf": ("Precio del ETF", "Participaciones", "El precio del ETF"),
+    "accion": ("Precio de la acción", "Acciones", "El precio de la acción"),
+    "cripto": ("Precio", "Unidades", "El precio de la criptomoneda"),
+    "commodity": ("Precio por unidad", "Unidades", "El precio"),
+    "bono": ("Precio del bono", "Títulos", "El precio del bono"),
+}
 
 
 def clave_serie(p):
@@ -585,6 +600,14 @@ def construir(cfg, carpeta, descargar=True):
         p["tipo"] = p.get("tipoDetalle") or TIPOS[clave]
         p.setdefault("clase", CLASE_DEFECTO[clave])
         p["fuentePrecio"] = FUENTES.get(p["fuente"], p["fuente"])
+        etq = ETIQUETAS.get(clave, ("Precio", "Unidades", "El precio"))
+        if "ETP" in (p.get("tipoDetalle") or "").upper():
+            etq = ("Precio del ETP", "Títulos", "El precio del ETP")
+        p["etqPrecio"], p["etqUnidades"], p["etqVentanas"] = etq
+        p["fuenteTexto"] = " · ".join(x for x in (
+            p["fuentePrecio"], p.get("codigo"),
+            f"convertido de {p.get('moneda')}" if p["fuente"] == "yahoo" and
+            (p.get("moneda") or "EUR").upper() != "EUR" else None) if x)
         p["aportaciones"] = []
         movs = movs_por.get(p["id"], [])
         snaps = [[v["fecha"], float(v["valor"]), v.get("aportado")]
