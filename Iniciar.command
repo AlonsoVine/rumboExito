@@ -11,6 +11,12 @@
 #  actualiza los precios y abre la app en tu navegador.
 # ==========================================================================
 cd "$(dirname "$0")" || exit 1
+if [ ! -f app/__main__.py ]; then
+  echo "Parece que estás abriendo Rumbo sin descomprimir la carpeta."
+  echo "Haz doble clic en el ZIP de Rumbo para descomprimirlo y abre Iniciar.command desde la carpeta que se crea."
+  read -r -p "Pulsa Intro para cerrar esta ventana..." _
+  exit 1
+fi
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 pausa() { echo; read -r -p "Pulsa Intro para cerrar esta ventana..." _; }

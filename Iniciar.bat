@@ -15,6 +15,21 @@ setlocal
 cd /d "%~dp0"
 title Rumbo
 
+rem Si falta la carpeta "app" al lado de este archivo, casi seguro que se esta
+rem abriendo desde dentro del ZIP sin descomprimirlo: se explica que hacer.
+if not exist "%~dp0app\__main__.py" (
+  echo.
+  echo  Parece que estas abriendo Rumbo desde dentro del archivo ZIP, sin descomprimirlo.
+  echo.
+  echo  Cierra esta ventana y haz esto:
+  echo    1. Ve a tu carpeta de Descargas.
+  echo    2. Haz clic derecho sobre el ZIP de Rumbo y elige "Extraer todo".
+  echo    3. Entra en la carpeta que se crea y haz doble clic en Iniciar.bat.
+  echo.
+  pause
+  exit /b 1
+)
+
 :buscar_uv
 set "UV="
 for %%U in (uv.exe) do if not "%%~$PATH:U"=="" set "UV=%%~$PATH:U"
