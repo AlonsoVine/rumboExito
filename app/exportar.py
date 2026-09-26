@@ -12,12 +12,12 @@ mire el código fuente, solo puede sacar proporciones (que ya se ven en los
 porcentajes), nunca tu patrimonio real.
 """
 
+import base64
 import datetime as dt
 import json
 import os
 import random
 import re
-import urllib.parse
 
 # Campos con euros (o unidades, que multiplicadas por el precio darían euros).
 CAMPOS_DINERO = {
@@ -105,13 +105,15 @@ def pagina(web, datos, ocultar=False, titulo="Mi patrimonio"):
     if not n:
         raise RuntimeError("No encuentro el cargador de scripts en index.html.")
 
-    # Icono y tarjeta al compartir el enlace; noindex para que no salga en Google.
-    icono = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
-             '<text y=".9em" font-size="90">&#128200;</text></svg>')
-    desc = "Panel de patrimonio neto e inversiones." + (" Importes ocultos." if ocultar else "")
+    # El icono va dentro del archivo (la web es un solo .html); noindex para que no salga en Google.
+    with open(os.path.join(web, "icono-64.png"), "rb") as f:
+        icono = "data:image/png;base64," + base64.b64encode(f.read()).decode()
+    html = html.replace('src="icono-64.png"', f'src="{icono}"')
+    html = re.sub(r'\s*<link rel="(icon|apple-touch-icon)"[^>]*>', "", html)
+    desc = "Panel de patrimonio neto e inversiones hecho con Rumbo." + (" Importes ocultos." if ocultar else "")
     cabeceras = ('<meta name="robots" content="noindex, nofollow">\n'
-                 '<link rel="icon" href="data:image/svg+xml,' + urllib.parse.quote(icono) + '">\n'
-                 f'<meta property="og:title" content="{titulo}">\n'
+                 f'<link rel="icon" type="image/png" href="{icono}">\n'
+                 f'<meta property="og:title" content="{titulo} · Rumbo">\n'
                  f'<meta property="og:description" content="{desc}">\n'
                  f'<meta name="description" content="{desc}">\n'
                  f'<!-- Exportado el {dt.datetime.now():%d/%m/%Y %H:%M} -->')

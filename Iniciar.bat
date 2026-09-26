@@ -1,6 +1,6 @@
 @echo off
 rem ==========================================================================
-rem  Iniciar.bat  -  Abre la app "Mi patrimonio" en Windows (doble clic)
+rem  Iniciar.bat  -  Abre Rumbo, la app de tu patrimonio, en Windows (doble clic)
 rem
 rem  Este archivo es texto plano: puedes abrirlo con el Bloc de notas y leer
 rem  todo lo que hace. No instala nada sin preguntarte. Pasos:
@@ -13,7 +13,7 @@ rem  actualiza los precios y abre la app en tu navegador.
 rem ==========================================================================
 setlocal
 cd /d "%~dp0"
-title Mi patrimonio
+title Rumbo
 
 :buscar_uv
 set "UV="

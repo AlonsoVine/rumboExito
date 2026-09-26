@@ -1,6 +1,6 @@
 [project]
-name = "patrimonio-dashboard"
-version = "1.0.0"
+name = "rumbo"
+version = "1.1.0"
 description = "Panel local de tu patrimonio neto: fondos, ETFs, acciones, cripto y más"
 requires-python = ">=3.10"
 dependencies = [

@@ -466,7 +466,7 @@ def main():
             webbrowser.open(f"http://127.0.0.1:{PUERTO}/")
         return
 
-    print("\n  MI PATRIMONIO")
+    print("\n  RUMBO  ·  tu patrimonio neto")
     print("  " + "-" * 40)
     if modo() == "demo":
         print("  Modo demostración: estás viendo una cartera de ejemplo.")

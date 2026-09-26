@@ -1099,7 +1099,7 @@
   function pintar() { pintaComun(); pintarTab(); }
 
   /* ---------------------------------------------- arranque */
-  document.title = D.titular || "Mi patrimonio";
+  document.title = "Rumbo · " + (D.titular || "Mi patrimonio");
   $("#marcaTexto").textContent = D.titular || "Mi patrimonio";
   $("#metaFecha").textContent = "Datos a " + G.fmtFecha(D.fechaExtracto);
 

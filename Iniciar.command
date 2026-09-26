@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==========================================================================
-#  Iniciar.command  -  Abre la app "Mi patrimonio" en Mac (doble clic)
+#  Iniciar.command  -  Abre Rumbo, la app de tu patrimonio, en Mac (doble clic)
 #
 #  Este archivo es texto plano: puedes abrirlo con TextEdit y leer todo lo
 #  que hace. No instala nada sin preguntarte. Pasos:

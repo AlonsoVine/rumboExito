@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mi patrimonio</title>
+<title>Rumbo</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="icono-32.png">
+<link rel="apple-touch-icon" href="icono-180.png">
 <style>
 /* ============================ tokens ============================ */
 :root{
@@ -530,7 +533,7 @@ body.video .tarjeta{padding:22px 24px}
 .imProd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--borde);font-size:13.5px}
 .imProd .meta{display:flex;gap:5px;flex-wrap:wrap}
 .imProd .meta span{font-size:11.5px;color:var(--tinta3);background:var(--sup2);border-radius:6px;padding:1px 8px}
-.marca{display:inline-block;font-size:11px;color:var(--tinta3);background:var(--sup2);border-radius:6px;padding:1px 7px;margin-right:4px}
+.etqImp{display:inline-block;font-size:11px;color:var(--tinta3);background:var(--sup2);border-radius:6px;padding:1px 7px;margin-right:4px}
 .estado{display:inline-block;font-size:11.5px;font-weight:600;border-radius:6px;padding:2px 8px}
 .est-nuevo .estado{color:var(--bien);background:color-mix(in srgb,var(--bien) 13%,transparent)}
 .est-repetido .estado{color:var(--tinta3);background:var(--sup2)}
@@ -601,6 +604,12 @@ body.video .tarjeta{padding:22px 24px}
 .tarjetaCanal .ahoraNo{border:0;background:none;color:var(--tinta3);font:inherit;font-size:13px;cursor:pointer}
 body.video .tarjetaCanal{display:none}
 @media(max-width:640px){.tarjetaCanal{right:16px;left:16px;bottom:16px;width:auto}}
+/* ---- Marca ---- */
+.marca .logoIcono{width:24px;height:24px;border-radius:6px;display:block}
+.marca .nombreApp{font-weight:780;letter-spacing:.02em;text-transform:uppercase;font-size:14.5px}
+.marca .marcaSep{width:1px;height:15px;background:var(--borde)}
+.marca #marcaTexto{font-weight:500;color:var(--tinta2);font-size:13.5px}
+@media(max-width:720px){.marca .marcaSep,.marca #marcaTexto{display:none}}
 </style>
 </head>
 <body>
@@ -608,7 +617,7 @@ body.video .tarjetaCanal{display:none}
 <div class="top">
   <div class="env">
     <div class="topFila">
-      <div class="marca"><span class="pt"></span><span id="marcaTexto">Mi patrimonio</span></div>
+      <div class="marca"><img class="logoIcono" src="icono-64.png" alt="" width="24" height="24"><span class="nombreApp">Rumbo</span><span class="marcaSep"></span><span id="marcaTexto">Mi patrimonio</span></div>
       <div class="sep"></div>
       <span class="meta" id="metaFecha"></span>
       <button class="btn" id="btnPrecios" title="Descarga los precios de hoy de cada producto">↻ Actualizar precios</button>

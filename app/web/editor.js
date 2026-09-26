@@ -662,7 +662,7 @@
     const filas = inf.filas.map(f => `<tr class="est-${f.estado}"><td>${fecha(f.fecha)}</td>
       <td style="text-align:left">${esc(f.productoNombre)}</td><td style="text-align:left">${esc(E.tiposMov[f.tipo] || "Saldo")}</td>
       <td>${f.unidades ? num(f.unidades) : "—"}</td><td>${eur(f.importe)}</td>
-      <td style="text-align:left">${f.marcas.map(m => `<span class="marca">${esc(m)}</span>`).join("")}</td>
+      <td style="text-align:left">${f.marcas.map(m => `<span class="etqImp">${esc(m)}</span>`).join("")}</td>
       <td><span class="estado">${ESTADO[f.estado]}</span></td></tr>`).join("");
     return `<section class="tarjeta"><header><h2>Vista previa</h2>
         <span class="subt">Todavía no se ha guardado nada.</span></header>

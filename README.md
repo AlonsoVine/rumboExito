@@ -1,8 +1,13 @@
-# Mi patrimonio
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo/rumbo-oscuro.png">
+    <img src="docs/logo/rumbo-claro.png" alt="Rumbo" width="420">
+  </picture>
+</p>
 
-**Tu patrimonio neto en un panel bonito, claro y privado, que funciona en tu propio ordenador.**
+<h3 align="center">Tu patrimonio neto en un panel bonito, claro y privado, que funciona en tu propio ordenador.</h3>
 
-Fondos, ETF, acciones, criptomonedas, oro, planes de pensiones, cuentas del banco, un piso… Metes lo que tienes una vez y la app descarga los precios sola, calcula cuánto has ganado, tu rentabilidad real (TIR) y te dice si lo estás haciendo mejor o peor que un indexado.
+Fondos, ETF, acciones, criptomonedas, oro, planes de pensiones, cuentas del banco, un piso… Metes lo que tienes una vez y **Rumbo** descarga los precios solo, calcula cuánto has ganado, tu rentabilidad real (TIR) y te dice si lo estás haciendo mejor o peor que un indexado.
 
 ![El panel de patrimonio](docs/capturas/01_panel.png)
 
