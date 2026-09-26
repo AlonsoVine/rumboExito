@@ -78,6 +78,8 @@ def num_es(txt):
         t = t.replace(".", "").replace(",", ".")
     elif "," in t:
         t = t.replace(",", ".")
+    elif re.fullmatch(r"-?\d{1,3}(\.\d{3})+", t):
+        t = t.replace(".", "")        # "1.000" en castellano es mil, no uno
     try:
         return float(t)
     except ValueError:

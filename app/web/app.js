@@ -8,7 +8,21 @@
   const $ = s => document.querySelector(s);
   const raiz = document.documentElement;
 
+  const recuerda = {
+    lee(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    guarda(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* da igual */ } },
+  };
+
+  // El tema (claro u oscuro) se aplica siempre, también con la cartera vacía.
+  const temaGuardado = recuerda.lee("patrimonio.tema");
+  if (temaGuardado) raiz.dataset.tema = temaGuardado;
+  const cambiaTema = () => {
+    raiz.dataset.tema = raiz.dataset.tema === "claro" ? "oscuro" : "claro";
+    recuerda.guarda("patrimonio.tema", raiz.dataset.tema);
+  };
+
   if (!D) {
+    $("#btnTema").onclick = cambiaTema;
     // Cartera vacía: solo se enseña «Mis datos», para empezar a meter productos.
     document.body.classList.add("vacio");
     document.querySelectorAll("#tabs button").forEach(b =>
@@ -31,11 +45,6 @@
     ordenTabla: { col: "fecha", desc: true },
     btcVivo: null,
     ocultos: new Set(),
-  };
-
-  const recuerda = {
-    lee(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-    guarda(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* da igual */ } },
   };
 
   /* ---------------------------------------------- tema y colores */
@@ -1011,13 +1020,7 @@
   $("#marcaTexto").textContent = D.titular || "Mi patrimonio";
   $("#metaFecha").textContent = "Datos a " + G.fmtFecha(D.fechaExtracto);
 
-  const temaGuardado = recuerda.lee("patrimonio.tema");
-  if (temaGuardado) raiz.dataset.tema = temaGuardado;
-  $("#btnTema").onclick = () => {
-    raiz.dataset.tema = temaOscuro() ? "claro" : "oscuro";
-    recuerda.guarda("patrimonio.tema", raiz.dataset.tema);
-    pintar();
-  };
+  $("#btnTema").onclick = () => { cambiaTema(); pintar(); };
   $("#btnPrecios").onclick = async () => {
     const b = $("#btnPrecios");
     b.disabled = true;

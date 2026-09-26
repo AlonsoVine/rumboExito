@@ -17,7 +17,12 @@
   const num = (v, d = 4) => v == null ? "—" : Number(v).toLocaleString("es-ES", { maximumFractionDigits: d });
   const fecha = iso => iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}` : "—";
   const hoy = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
-  const leeNum = t => { t = String(t || "").replace(/[€\s]/g, ""); if (t.includes(",")) t = t.replace(/\./g, "").replace(",", "."); return parseFloat(t); };
+  const leeNum = t => {
+    t = String(t || "").replace(/[€\s]/g, "");
+    // "1.234,56" y "1.000" (mil) en castellano; "1234.5" también vale.
+    if (t.includes(",") || /^-?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "").replace(",", ".");
+    return parseFloat(t);
+  };
   const nombre = p => p ? (p.corto || p.nombre) : "¿?";
   const prod = id => E.cfg.productos.find(p => p.id === id);
   const soloSaldo = p => SOLO_SALDO.includes(p.tipo);
@@ -209,46 +214,70 @@
     return mejor;
   }
 
+  /* Piezas de formulario: todas las cajas iguales, con su etiqueta encima. */
+  const campo = (et, control, pista = "", clase = "") =>
+    `<label class="campo ${clase}"><span class="et">${et}${pista ? ` <em>${pista}</em>` : ""}</span>${control}</label>`;
+  const seccion = t => `<div class="secc">${t}</div>`;
+  const LUPA = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
+  const COLOR_FUENTE = { morningstar: "var(--s3)", yahoo: "var(--s7)", coingecko: "var(--s4)" };
+  const decimal = v => v == null || v === "" ? "" : String(v).replace(".", ",");
+
   function formProducto(p) {
     const nuevo = !p;
     p = p || { tipo: "fondo", fuente: "morningstar", moneda: "EUR", largoPlazo: true, slot: siguienteColor() };
     const clases = [...new Set(E.cfg.productos.map(x => x.clase).filter(Boolean))];
     const colores = Array.from({ length: 8 }, (_, i) =>
-      `<label class="color" style="--c:var(--s${i + 1})"><input type="radio" name="slot" value="${i + 1}"><i></i></label>`).join("");
+      `<label class="color" style="--c:var(--s${i + 1})" title="Color ${i + 1}"><input type="radio" name="slot" value="${i + 1}"><i></i></label>`).join("");
     const f = abreModal(nuevo ? "Añadir producto" : "Editar " + esc(nombre(p)), `
       <div class="buscador">
-        <label for="bq">Búscalo por ISIN, ticker o nombre</label>
-        <div class="fila"><input id="bq" placeholder="Ej.: IE00BYX5NX33, AAPL, bitcoin, oro" autocomplete="off">
-          <button type="button" class="btn" id="bBuscar">Buscar</button></div>
+        <div class="tit">Busca tu producto</div>
+        <div class="sub">Por ISIN, ticker o nombre. Comprobamos que tiene precio antes de proponerlo.</div>
+        <div class="fila"><div class="caja">${LUPA}<input id="bq" placeholder="IE00BYX5NX33, AAPL, bitcoin, oro…" autocomplete="off"></div>
+          <button type="button" class="btn prim" id="bBuscar">Buscar</button></div>
         <div id="bRes" class="bRes"></div>
-        <p class="ayuda">¿No aparece, o no tiene precio en internet (un piso, oro físico, un plan de pensiones)?
-          Elige <b>«Valor anotado a mano»</b> como fuente del precio y anota tú su valor cuando quieras.</p>
+        <p class="ayuda">¿No aparece o no tiene precio en internet (un piso, oro físico, un plan de pensiones)?
+          Rellénalo abajo y elige <b>«Valor anotado a mano»</b> como fuente del precio.</p>
       </div>
+
+      ${seccion("El producto")}
       <div class="rejilla">
-        <label class="ancho">Nombre<input name="nombre" required></label>
-        <label>Nombre corto <small>para los gráficos</small><input name="corto" maxlength="24"></label>
-        <label>Tipo<select name="tipo">${opciones(E.tipos, p.tipo)}</select></label>
-        <label>ISIN o ticker <small>opcional</small><input name="identificador"></label>
-        <label class="siCotiza">Fuente del precio<select name="fuente">${opciones(E.fuentes, p.fuente)}</select></label>
-        <label class="siOnline">Código en esa fuente<input name="codigo"></label>
-        <label class="siOnline">Moneda en que cotiza<input name="moneda" maxlength="3"></label>
-        <label>Banco o bróker<input name="entidad"></label>
-        <label>Clase de activo <small>opcional</small><input name="clase" list="edClases" placeholder="Ej.: Renta variable global">
-          <datalist id="edClases">${clases.map(c => `<option value="${esc(c)}">`).join("")}</datalist></label>
-        <label class="check ancho"><input type="checkbox" name="largoPlazo"> Es una inversión a largo plazo
-          <small>el botón «Solo largo plazo» del panel quita los que no lo son (colchón, cuentas…)</small></label>
-        <div class="ancho"><span class="lbl">Color en los gráficos</span><div class="colores">${colores}</div></div>
+        ${campo("Nombre", '<input name="nombre" required>', "", "ancho")}
+        ${campo("Nombre corto", '<input name="corto" maxlength="24">', "para los gráficos")}
+        ${campo("Tipo", `<select name="tipo">${opciones(E.tipos, p.tipo)}</select>`)}
+        ${campo("ISIN o ticker", '<input name="identificador">', "opcional")}
+        ${campo("Banco o bróker", '<input name="entidad">', "opcional")}
       </div>
-      <details class="avanzado"><summary>Opciones avanzadas</summary><div class="rejilla">
-        <label>Comisión anual (TER) en %<input name="ter" inputmode="decimal" placeholder="Ej.: 0,12"></label>
-        <label>Riesgo, de 1 a 7<input name="riesgo" inputmode="numeric"></label>
-        <label>Línea de respaldo en Yahoo<input name="respaldo" placeholder="Ej.: BTCW.SW"></label>
-        <label>Moneda del respaldo<input name="respaldoMoneda" maxlength="3" placeholder="Ej.: CHF"></label>
-        <label>Precio en vivo: id de CoinGecko<input name="vivo" placeholder="Ej.: bitcoin"></label>
-        <label class="ancho">Descripción <small>para qué lo tienes</small><textarea name="papel" rows="2"></textarea></label>
-        </div><p class="ayuda">El <b>respaldo</b> contrasta cada día el precio con otra línea del mismo producto y
-        usa esa cuando no coinciden: útil si una cotización trae datos raros. El <b>precio en vivo</b> mueve el valor
-        minuto a minuto con una criptomoneda (para cripto o ETP de cripto).</p></details>`,
+
+      <div class="siCotiza">${seccion("De dónde sale el precio")}
+      <div class="rejilla tres">
+        ${campo("Fuente", `<select name="fuente">${opciones(E.fuentes, p.fuente)}</select>`)}
+        ${campo("Código", '<input name="codigo">', "", "siOnline")}
+        ${campo("Moneda", '<input name="moneda" maxlength="3">', "", "siOnline")}
+      </div></div>
+
+      ${seccion("Cómo se muestra")}
+      <div class="rejilla">
+        ${campo("Clase de activo", `<input name="clase" list="edClases" placeholder="Renta variable global">
+          <datalist id="edClases">${clases.map(c => `<option value="${esc(c)}">`).join("")}</datalist>`, "opcional")}
+        ${campo("Color en los gráficos", `<div class="colores">${colores}</div>`)}
+        <label class="interruptor ancho"><input type="checkbox" name="largoPlazo"><span class="pista"></span>
+          <span><b>Inversión a largo plazo</b><small>El botón «Solo largo plazo» del panel quita lo que no lo es: colchón, cuentas…</small></span></label>
+      </div>
+      <p class="relleno" id="bRelleno" hidden></p>
+
+      <details class="avanzado"><summary>Ficha y opciones avanzadas</summary>
+        <div class="rejilla tres">
+          ${campo("Comisión anual", '<input name="ter" inputmode="decimal" placeholder="0,12">', "TER, %")}
+          ${campo("Riesgo", '<input name="riesgo" inputmode="numeric" placeholder="1 a 7">', "de 1 a 7")}
+          ${campo("Gestora", '<input name="gestora">')}
+          ${campo("Línea de respaldo", '<input name="respaldo" placeholder="BTCW.SW">', "Yahoo")}
+          ${campo("Moneda respaldo", '<input name="respaldoMoneda" maxlength="3" placeholder="CHF">')}
+          ${campo("Precio en vivo", '<input name="vivo" placeholder="bitcoin">', "id CoinGecko")}
+          ${campo("Descripción", '<textarea name="papel" rows="2" placeholder="Para qué tienes este producto"></textarea>', "opcional", "ancho")}
+        </div>
+        <p class="ayuda">El <b>respaldo</b> contrasta cada día el precio con otra línea del mismo producto y usa esa
+          cuando no coinciden. El <b>precio en vivo</b> mueve el valor minuto a minuto con una criptomoneda.</p>
+      </details>`,
     async f => {
       const d = campos(f);
       d.largoPlazo = f.elements.largoPlazo.checked;
@@ -259,12 +288,13 @@
       return manual(item) ? () => formValor(null, item.id) : () => formMovimiento(null, item.id);
     }, nuevo ? "Guardar producto" : "Guardar cambios");
 
-    rellena(f, { ...p, ter: p.ter != null ? String(+(p.ter * 100).toFixed(4)).replace(".", ",") : "" });
+    rellena(f, { ...p, ter: p.ter != null ? decimal(+(p.ter * 100).toFixed(4)) : "" });
     const ajusta = () => {
       const saldo = SOLO_SALDO.includes(f.elements.tipo.value);
       const online = !saldo && f.elements.fuente.value !== "manual";
-      f.querySelectorAll(".siCotiza").forEach(el => { el.hidden = saldo; });
+      f.querySelector(".siCotiza").hidden = saldo;
       f.querySelectorAll(".siOnline").forEach(el => { el.hidden = !online; });
+      f.querySelector(".rejilla.tres").classList.toggle("una", !online);
       f.querySelector(".buscador").hidden = saldo;
     };
     f.elements.tipo.onchange = ajusta;
@@ -275,27 +305,35 @@
       const q = $("#bq").value.trim();
       const res = $("#bRes");
       if (!q) return;
-      res.innerHTML = '<p class="subt">Buscando y comprobando precios… (unos segundos)</p>';
+      res.innerHTML = '<p class="cargando">Buscando y comprobando precios…</p>';
       try {
         const j = await api("GET", "api/buscar?q=" + encodeURIComponent(q));
         if (!j.resultados.length) {
           res.innerHTML = `<p class="neg">No encuentro «${esc(q)}» con precio en internet. Prueba con el ISIN
-            (lo tienes en la ficha del producto en tu banco) o elige «Valor anotado a mano».</p>`;
+            (viene en la ficha del producto en tu banco) o elige «Valor anotado a mano».</p>`;
           return;
         }
-        res.innerHTML = j.resultados.map((r, i) => `<button type="button" class="bItem" data-i="${i}">
-          <span><b>${esc(r.nombre || r.codigo)}</b><br><small>${esc(r.codigo)} · ${esc(r.mercado || "")} ·
-          ${esc(E.fuentes[r.fuente])}</small></span>
-          <span class="bPre">${num(r.precio)} ${esc(r.moneda)}<br><small>${fecha(r.fecha)}</small></span></button>`).join("");
+        res.innerHTML = j.resultados.map((r, i) => `<button type="button" class="bItem" data-i="${i}" style="--c:${COLOR_FUENTE[r.fuente]}">
+          <span class="franja"></span>
+          <span><span class="nm">${esc(r.nombre || r.codigo)}</span>
+            <span class="meta"><span>${esc(r.codigo)}</span>${r.mercado && r.mercado !== E.fuentes[r.fuente] ? `<span>${esc(r.mercado)}</span>` : ""}<span>${esc(E.fuentes[r.fuente])}</span></span></span>
+          <span class="pre">${num(r.precio)} ${esc(r.moneda)}<small>${fecha(r.fecha)}</small></span></button>`).join("");
         res.querySelectorAll(".bItem").forEach(b => {
           b.onclick = () => {
             const r = j.resultados[+b.dataset.i];
             const n = r.nombre || r.codigo;
+            const fi = r.ficha || {};
             rellena(f, {
               nombre: n, corto: n.slice(0, 24).trim(), tipo: r.tipo, identificador: r.identificador,
               fuente: r.fuente, codigo: r.codigo, moneda: r.moneda || "EUR", vivo: r.vivo || "",
+              ter: decimal(fi.ter), riesgo: fi.riesgo || "", gestora: fi.gestora || "",
             });
-            if (r.tipo === "cripto") f.elements.largoPlazo.checked = true;
+            if (fi.clase) f.elements.clase.value = fi.clase;
+            const rell = [fi.ter != null && `comisión ${decimal(fi.ter)} %`, fi.riesgo && `riesgo ${fi.riesgo}/7`,
+              fi.clase && "categoría", fi.gestora && "gestora"].filter(Boolean);
+            const aviso = $("#bRelleno");
+            aviso.hidden = !rell.length;
+            aviso.textContent = rell.length ? `✓ Ficha rellenada desde Morningstar: ${rell.join(", ")}.` : "";
             res.querySelectorAll(".bItem").forEach(x => x.classList.toggle("sel", x === b));
             ajusta();
           };
@@ -358,18 +396,20 @@
     if (!cotizables.length) { alert("Primero añade un producto en «Productos»."); return; }
     const nuevo = !m;
     m = m || { fecha: hoy(), tipo: "compra", producto: productoId || (E.filtro !== "todos" ? E.filtro : cotizables[0].id) };
+    const pildoras = Object.entries(E.tiposMov).map(([k, v]) =>
+      `<label><input type="radio" name="tipo" value="${esc(k)}"><span>${esc(k === "dividendo" ? "Dividendo" : v)}</span></label>`).join("");
     const f = abreModal(nuevo ? "Añadir movimiento" : "Editar movimiento", `
-      <div class="rejilla">
-        <label class="ancho">Producto<select name="producto">${cotizables.map(p =>
-          `<option value="${esc(p.id)}">${esc(nombre(p))}</option>`).join("")}</select></label>
-        <label>Tipo<select name="tipo">${opciones(E.tiposMov, m.tipo)}</select></label>
-        <label>Fecha<input type="date" name="fecha" max="${hoy()}"></label>
-        <label class="siUnid">Unidades <small>participaciones, acciones, onzas…</small><input name="unidades" inputmode="decimal"></label>
-        <label>Importe total en €<input name="importe" inputmode="decimal"></label>
-        <label class="siCom">Comisión en € <small>opcional, ya incluida en el importe</small><input name="comision" inputmode="decimal"></label>
-        <label class="ancho">Nota <small>opcional</small><input name="nota" maxlength="200"></label>
+      <div class="pildoras">${pildoras}</div>
+      <div class="rejilla" style="margin-top:18px">
+        ${campo("Producto", `<select name="producto">${cotizables.map(p =>
+          `<option value="${esc(p.id)}">${esc(nombre(p))}</option>`).join("")}</select>`, "", "ancho")}
+        ${campo("Fecha", `<input type="date" name="fecha" max="${hoy()}">`)}
+        ${campo("Unidades", '<input name="unidades" inputmode="decimal" placeholder="0">', "participaciones, acciones…", "siUnid")}
+        ${campo("Importe total", '<div class="conSufijo"><input name="importe" inputmode="decimal" placeholder="0,00"><span>€</span></div>')}
+        ${campo("Comisión", '<div class="conSufijo"><input name="comision" inputmode="decimal" placeholder="0,00"><span>€</span></div>', "ya incluida en el importe", "siCom")}
+        ${campo("Nota", '<input name="nota" maxlength="200" placeholder="Por ejemplo: aportación mensual">', "opcional", "ancho")}
       </div>
-      <p class="ayuda" id="mAyuda"></p><p class="ayuda" id="mPrecio"></p>`,
+      <div class="resumen"><span id="mAyuda"></span><b id="mPrecio"></b></div>`,
     async f => {
       const d = campos(f);
       if (!nuevo) d.id = m.id;
@@ -378,20 +418,22 @@
       recuerda.guarda("patrimonio.editor", "movimientos");
       return null;
     }, nuevo ? "Guardar movimiento" : "Guardar cambios");
-    rellena(f, m);
+    rellena(f, { ...m, unidades: decimal(m.unidades || ""), importe: decimal(m.importe), comision: decimal(m.comision) });
     const ajusta = () => {
       const t = f.elements.tipo.value;
       const p = prod(f.elements.producto.value);
-      f.querySelector(".siUnid").hidden = t === "dividendo" || t === "comision";
-      f.querySelector(".siCom").hidden = t !== "compra" && t !== "venta";
+      const conUnid = t === "compra" || t === "venta";
+      f.querySelector(".siUnid").hidden = !conUnid;
+      f.querySelector(".siCom").hidden = !conUnid;
+      // Con la caja de unidades oculta, la del importe ocupa su hueco sin descuadrar la rejilla.
       $("#mAyuda").textContent = AYUDA_IMPORTE[t] + (p && manual(p) && t === "compra"
         ? " Como este producto se valora a mano, las unidades son opcionales." : "");
       const u = leeNum(f.elements.unidades.value), imp = leeNum(f.elements.importe.value);
       const com = leeNum(f.elements.comision.value) || 0;
-      $("#mPrecio").textContent = (t === "compra" || t === "venta") && u > 0 && imp > 0
-        ? `Sale a ${num((imp - com) / u)} € por unidad.` : "";
+      $("#mPrecio").textContent = conUnid && u > 0 && imp > 0 ? `${num((imp - com) / u)} € / unidad` : "";
     };
     f.oninput = ajusta;
+    f.onchange = ajusta;
     ajusta();
   }
 
@@ -438,13 +480,13 @@
     const conAportado = !soloSaldo(p);
     const f = abreModal(`${nuevo ? "Anotar" : "Editar"} ${etiquetaValor(p).toLowerCase()} · ${esc(nombre(p))}`, `
       <div class="rejilla">
-        <label>Fecha<input type="date" name="fecha" max="${hoy()}"></label>
-        <label>${etiquetaValor(p)} en €<input name="valor" inputmode="decimal"></label>
-        ${conAportado ? `<label class="ancho">Aportado hasta esa fecha en € <small>opcional</small>
-          <input name="aportado" inputmode="decimal"></label>` : ""}
+        ${campo("Fecha", `<input type="date" name="fecha" max="${hoy()}">`)}
+        ${campo(etiquetaValor(p), '<div class="conSufijo"><input name="valor" inputmode="decimal" placeholder="0,00"><span>€</span></div>')}
+        ${conAportado ? campo("Aportado hasta esa fecha", '<div class="conSufijo"><input name="aportado" inputmode="decimal" placeholder="0,00"><span>€</span></div>', "opcional", "ancho") : ""}
       </div>
-      ${conAportado ? '<p class="ayuda">Lo aportado es el dinero que llevas metido en total. Si lo anotas, el panel calcula su rentabilidad.</p>' : ""}
-      <p class="ayuda">Si ya había un valor anotado ese mismo día, se sustituye.</p>`,
+      <div class="resumen"><span>${conAportado
+        ? "Lo aportado es el dinero que llevas metido en total. Si lo anotas, el panel calcula su rentabilidad."
+        : "Copia el saldo que ves hoy en tu banco."} Si ya había un valor ese mismo día, se sustituye.</span></div>`,
     async f => {
       const d = { ...campos(f), producto: p.id };
       if (!nuevo) d.id = v.id;
@@ -453,8 +495,7 @@
       recuerda.guarda("patrimonio.editor", "saldos");
       return null;
     });
-    rellena(f, v ? { ...v, valor: String(v.valor).replace(".", ","), aportado: v.aportado != null ? String(v.aportado).replace(".", ",") : "" }
-      : { fecha: hoy() });
+    rellena(f, v ? { ...v, valor: decimal(v.valor), aportado: decimal(v.aportado) } : { fecha: hoy() });
     f.elements.valor.focus();
   }
 
@@ -462,13 +503,14 @@
     const lista = E.cfg.productos.filter(manual);
     const ultimo = id => E.cfg.valoraciones.filter(v => v.producto === id).sort((a, b) => a.fecha < b.fecha ? 1 : -1)[0];
     abreModal("Anotar todos los saldos", `
-      <label>Fecha<input type="date" name="fecha" max="${hoy()}" value="${hoy()}"></label>
-      <div class="rejilla" style="margin-top:12px">${lista.map(p => {
+      <div class="rejilla">${campo("Fecha", `<input type="date" name="fecha" max="${hoy()}" value="${hoy()}">`)}</div>
+      <div class="listaValores">${lista.map(p => {
         const u = ultimo(p.id);
-        return `<label>${esc(nombre(p))} <small>${u ? "antes " + eur(u.valor) : ""}</small>
-          <input name="v_${esc(p.id)}" inputmode="decimal" placeholder="${etiquetaValor(p)} en €"></label>`;
+        return `<label class="filaValor"><span><span class="nm"><i class="pt" style="background:var(--s${p.slot || 1})"></i>${esc(nombre(p))}</span>
+          <small>${u ? `Último: ${eur(u.valor)} el ${fecha(u.fecha)}` : "Sin valores todavía"}</small></span>
+          <span class="conSufijo"><input name="v_${esc(p.id)}" inputmode="decimal" placeholder="${u ? decimal(u.valor) : "0,00"}"><span>€</span></span></label>`;
       }).join("")}</div>
-      <p class="ayuda">Deja en blanco los que no quieras tocar. Es el gesto de cada mes: abre tu banco y copia los saldos.</p>`,
+      <div class="resumen"><span>Deja en blanco los que no quieras tocar. Es el gesto de cada mes: abre tu banco y copia los saldos.</span></div>`,
     async f => {
       const d = campos(f);
       const pendientes = lista.filter(p => String(d["v_" + p.id] || "").trim());

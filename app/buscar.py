@@ -63,7 +63,8 @@ def yahoo_buscar(q, n=8):
 def ms_buscar(isin):
     q = {"page": 1, "pageSize": 10, "outputType": "json", "version": 1, "languageId": "es-ES",
          "currencyId": "EUR", "universeIds": "FOESP$$ALL|ETEUR$$ALL",
-         "securityDataPoints": "SecId|Name|isin|Universe|PriceCurrency|ExchangeId|Ticker",
+         "securityDataPoints": "SecId|Name|isin|Universe|PriceCurrency|ExchangeId|Ticker|"
+                               "OngoingCharge|CollectedSRRI|CategoryName|BrandingCompanyName",
          "term": isin}
     return _get(MS_BUSCA + urllib.parse.urlencode(q)).get("rows", [])
 
@@ -188,6 +189,15 @@ def buscar(texto):
             for c in [c for c in monedas if c.get("market_cap_rank")][:3]:
                 añade("coingecko", c["id"], c.get("name"), "cripto",
                       (c.get("symbol") or "").upper(), vivo=c["id"])
+
+    # Ficha del fondo o ETF según Morningstar: comisión anual, riesgo, categoría y gestora.
+    if ES_ISIN.match(q.upper()):
+        f = next((f for f in filas if f.get("OngoingCharge") is not None or f.get("CollectedSRRI")), None)
+        if f:
+            ficha = {"ter": f.get("OngoingCharge"), "riesgo": f.get("CollectedSRRI"),
+                     "clase": f.get("CategoryName"), "gestora": f.get("BrandingCompanyName")}
+            for c in cands:
+                c["ficha"] = {k: v for k, v in ficha.items() if v not in (None, "")}
 
     cands = cands[:12]
     with ThreadPoolExecutor(max_workers=8) as ex:
