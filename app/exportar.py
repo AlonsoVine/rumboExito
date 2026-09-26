@@ -24,7 +24,7 @@ CAMPOS_DINERO = {
     "valor", "aportado", "plusvalia", "serie", "serieAportado", "importe", "valorExtracto",
     "realizado", "participaciones", "titulos", "valorConCoste", "patrimonio", "ritmoMensual",
     "anual", "base", "compraventaPagada", "inicio", "fin", "mercado", "nuevo",
-    "comision", "min", "max", "mediana", "p33", "p67", "snapshots", "flujos",
+    "comision", "min", "max", "mediana", "p33", "p67", "snapshots", "flujos", "tuya", "tuValor",
 }
 # «total» y «porProducto» significan cosas distintas según dónde estén (en
 # rentabilidadAnual son porcentajes): solo se escalan en aportacionesMensuales.

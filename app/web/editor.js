@@ -33,7 +33,7 @@
     lee(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     guarda(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* da igual */ } },
   };
-  E.vista = recuerda.lee("patrimonio.editor") || "productos";
+  E.vista = new URLSearchParams(location.search).get("vista") || recuerda.lee("patrimonio.editor") || "productos";
 
   async function api(metodo, url, cuerpo) {
     const r = await fetch(url, {

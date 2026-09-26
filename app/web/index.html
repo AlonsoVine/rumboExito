@@ -566,6 +566,19 @@ body.video .tarjeta{padding:22px 24px}
   .topFila .btn{padding:6px 9px;font-size:12px;white-space:nowrap}
   .topFila .meta{display:none}
 }
+.compTitular{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:4px 0 18px}
+.compCaja{background:var(--sup2);border:1px solid var(--borde);border-radius:13px;padding:14px 16px}
+.compCaja span{display:block;font-size:12px;color:var(--tinta3)}
+.compCaja b{display:block;font-size:24px;font-weight:700;letter-spacing:-.025em;margin-top:4px;font-variant-numeric:tabular-nums}
+.compCaja small{display:block;font-size:12.5px;color:var(--tinta3);margin-top:2px}
+.compCaja.veredicto{background:color-mix(in srgb,var(--s1) 10%,var(--sup2))}
+.compCaja.veredicto b{font-size:17px;line-height:1.35;letter-spacing:-.01em}
+.leyComp{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:8px;color:var(--tinta2)}
+.leyItem{display:inline-flex;align-items:center;gap:7px}
+.leyItem i{width:14px;height:3px;border-radius:2px;display:inline-block}
+.compDetalles{margin-top:18px;border-top:1px solid var(--borde);padding-top:14px}
+.compDetalles summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--tinta2)}
+.compDetalles summary:hover{color:var(--tinta)}
 </style>
 </head>
 <body>
@@ -733,14 +746,23 @@ body.video .tarjeta{padding:22px 24px}
     <div class="tablaEnv"><table class="dt" id="tablaAnual"></table></div>
   </section>
 
-  <section class="tarjeta">
+  <section class="tarjeta" id="seccionComparar">
     <header>
-      <h2>Tu cartera contra otras que podrías haber montado</h2>
-      <span class="subt" id="notaComparador"></span>
+      <h2>¿Y si lo hubieras metido todo en un indexado?</h2>
+      <span class="subt">Las mismas compras y ventas que tú, en las mismas fechas, pero en otra cartera</span>
+      <span class="sp"></span>
+      <div class="segm" id="compRef"></div>
     </header>
-    <div class="envGraf" id="grafComparador"></div>
-    <div class="tablaEnv" style="margin-top:16px"><table class="dt" id="tablaComparador"></table></div>
-    <p class="subt" id="notaRiesgo" style="margin:14px 0 0"></p>
+    <div class="compTitular" id="compTitular"></div>
+    <div class="envGraf" id="grafComparacion"></div>
+    <p class="subt" id="compNota" style="margin:10px 0 0"></p>
+    <details class="compDetalles" id="compDetalles">
+      <summary>Ver más detalles: volatilidad, Sharpe y caídas</summary>
+      <p class="subt" id="notaComparador" style="margin:12px 0 0"></p>
+      <div class="envGraf" id="grafComparador"></div>
+      <div class="tablaEnv" style="margin-top:16px"><table class="dt" id="tablaComparador"></table></div>
+      <p class="subt" id="notaRiesgo" style="margin:14px 0 0"></p>
+    </details>
   </section>
 
   <section class="tarjeta">

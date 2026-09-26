@@ -100,7 +100,7 @@ def r4(x):
 
 # ---------------------------------------------------------------- Yahoo
 
-def descargar_serie(simbolo, anos=6):
+def descargar_serie(simbolo, anos=None):
     """Devuelve {fecha_iso: cierre} descargando de Yahoo, con cache en disco."""
     os.makedirs(CACHE, exist_ok=True)
     ruta = os.path.join(CACHE, re.sub(r"[^A-Za-z0-9._-]", "_", simbolo) + ".json")
@@ -109,7 +109,7 @@ def descargar_serie(simbolo, anos=6):
         return previo
 
     url = ("https://query1.finance.yahoo.com/v8/finance/chart/"
-           f"{urllib.parse.quote(simbolo)}?range={anos}y&interval=1d")
+           f"{urllib.parse.quote(simbolo)}?range={f'{anos}y' if anos else 'max'}&interval=1d")
     try:
         req = urllib.request.Request(url, headers=UA)
         with urllib.request.urlopen(req, timeout=30) as resp:
@@ -136,7 +136,7 @@ def descargar_serie(simbolo, anos=6):
     return previo
 
 
-def descargar_morningstar(secid, universo="]2]0]FOESP$$ALL", anos=6):
+def descargar_morningstar(secid, universo="]2]0]FOESP$$ALL", anos=30):
     """Serie diaria de valores liquidativos de Morningstar, con cache en disco."""
     os.makedirs(CACHE, exist_ok=True)
     ruta = os.path.join(CACHE, "MS_" + re.sub(r"[^A-Za-z0-9]", "_", secid) + ".json")
@@ -434,6 +434,23 @@ CLASE_DEFECTO = {
 FUENTES = {"morningstar": "Morningstar", "yahoo": "Yahoo Finance",
            "coingecko": "CoinGecko", "manual": "Valor anotado a mano"}
 ORDEN_TIPO = {"compra": 0, "comision": 1, "dividendo": 2, "venta": 3}
+
+# Carteras de referencia para «¿y si lo hubieras metido en un indexado?». Son ETF
+# reales que cotizan en euros; las piezas son (ticker de Yahoo, peso).
+REFERENCIAS = {
+    "mundo": {"nombre": "MSCI World",
+              "detalle": "ETF iShares Core MSCI World (IWDA), en euros: unas 1.400 empresas de 23 países desarrollados.",
+              "piezas": [("IWDA.AS", 1.0)]},
+    "sp500": {"nombre": "S&P 500",
+              "detalle": "ETF iShares Core S&P 500 (SXR8), en euros: las 500 mayores empresas de EE. UU.",
+              "piezas": [("SXR8.DE", 1.0)]},
+    "6040": {"nombre": "Cartera 60/40",
+             "detalle": "60 % MSCI World (IWDA) y 40 % bonos globales cubiertos a euros (EUNA), sin rebalancear.",
+             "piezas": [("IWDA.AS", 0.6), ("EUNA.DE", 0.4)]},
+    "sinriesgo": {"nombre": "Sin riesgo",
+                  "detalle": "ETF monetario del euro (XEON): lo que da el dinero aparcado, sin sustos.",
+                  "piezas": [("XEON.DE", 1.0)]},
+}
 # Cómo se llama el precio y las unidades de cada tipo de producto en el panel:
 # (precio, unidades, "... lo tuvieras o no").
 ETIQUETAS = {
@@ -575,6 +592,10 @@ def construir(cfg, carpeta, descargar=True):
 
     print("\n=== 1. Precios ===" if descargar is True else "\n=== 1. Precios guardados ===")
     series = descarga_series(productos_cfg)
+    if cfg.get("movimientos"):
+        for sim in {s for r in REFERENCIAS.values() for s, _ in r["piezas"]}:
+            if sim not in series:
+                series[sim] = descargar_serie(sim)
 
     movs_por, vals_por = defaultdict(list), defaultdict(list)
     for m in cfg.get("movimientos", []):
@@ -1166,6 +1187,46 @@ def construir(cfg, carpeta, descargar=True):
             "porProducto": detalle,
         })
 
+    # ---- ¿y si lo hubieras metido todo en un indexado? ----
+    # Las mismas entradas y salidas de dinero que tú, en los mismos días, pero en una
+    # cartera de referencia. Se compara con lo que valen hoy tus productos con movimientos.
+    con_flujos = [p for p in productos if p["_mv"]["flujos"]]
+    comparacion = None
+    if con_flujos and any(flujo_dia):
+        tuya = [round(sum((p["serie"][i] or 0) for p in con_flujos), 2) for i in range(n)]
+        i0 = next(i for i in range(n) if flujo_dia[i] or tuya[i])
+        acum, aportado_c = 0.0, []
+        for i in range(n):
+            acum += flujo_dia[i]
+            aportado_c.append(round(acum, 2) if i >= i0 else None)
+        flujos_c = [(d(eje_iso[i]), -flujo_dia[i]) for i in range(n) if flujo_dia[i]]
+
+        refs = []
+        for rid, ref in REFERENCIAS.items():
+            precios = [rellenar(series.get(sim, {}), eje) for sim, _ in ref["piezas"]]
+            primeros = [next((v for v in pr if v), None) for pr in precios]
+            if not all(primeros):
+                continue
+            unidades, serie_r, antes = [0.0] * len(precios), [], False
+            for i in range(n):
+                pr_hoy = [precios[k][i] or primeros[k] for k in range(len(precios))]
+                if flujo_dia[i]:
+                    antes = antes or any(precios[k][i] is None for k in range(len(precios)))
+                    for k, (_, peso) in enumerate(ref["piezas"]):
+                        unidades[k] += flujo_dia[i] * peso / pr_hoy[k]
+                valor_r = sum(unidades[k] * pr_hoy[k] for k in range(len(precios)))
+                serie_r.append(round(valor_r, 2) if i >= i0 else None)
+            refs.append({"id": rid, "nombre": ref["nombre"], "detalle": ref["detalle"],
+                         "serie": serie_r, "valor": serie_r[-1],
+                         "tir": r4(xirr(flujos_c + [(fecha_extracto, serie_r[-1])])),
+                         "aviso": ("Tienes aportaciones anteriores a los precios de esta referencia: "
+                                   "para esas se usa su primer precio conocido.") if antes else None})
+        if refs:
+            comparacion = {"desde": eje_iso[i0], "tuya": [v if i >= i0 else None for i, v in enumerate(tuya)],
+                           "aportado": aportado_c, "tuValor": tuya[-1],
+                           "tuTir": r4(xirr(flujos_c + [(fecha_extracto, tuya[-1])])),
+                           "referencias": refs}
+
     # ---- datos para el ticker en vivo ----
     # Una cripto (o un ETP que la replica, con "vivo": id de CoinGecko) se mueve
     # minuto a minuto en el panel en proporcion al precio de la cripto.
@@ -1218,6 +1279,7 @@ def construir(cfg, carpeta, descargar=True):
         "rentabilidadAnual": rent_anual,
         "resumenMensual": resumen_mensual,
         "comparador": comparador,
+        "comparacion": comparacion,
         "indiceCartera": [r2(v) for v in idx_cartera],
         "vivo": vivo,
         "avisos": AVISOS,

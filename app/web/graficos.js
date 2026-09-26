@@ -608,7 +608,7 @@
       if (v < min) min = v;
     }));
     const margen = (max - min) * 0.08 || 1;
-    const esc = escalaBonita(max + margen, min - margen);
+    const esc = escalaBonita(max + margen, cfg.desdeCero ? 0 : min - margen);
     const x = i => P.l + (n === 1 ? iw / 2 : i * iw / (n - 1));
     const y = v => P.t + ih - ((v - esc.min) / (esc.max - esc.min)) * ih;
 

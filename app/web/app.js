@@ -13,6 +13,11 @@
     guarda(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* da igual */ } },
   };
 
+  // ?tab=rendimiento&tema=claro abre directamente esa pestaña con ese tema.
+  const qs = new URLSearchParams(location.search);
+  if (qs.get("tab")) recuerda.guarda("patrimonio.tab", qs.get("tab"));
+  if (qs.get("tema")) recuerda.guarda("patrimonio.tema", qs.get("tema"));
+
   // El tema (claro u oscuro) se aplica siempre, también con la cartera vacía.
   const temaGuardado = recuerda.lee("patrimonio.tema");
   if (temaGuardado) raiz.dataset.tema = temaGuardado;
@@ -50,8 +55,60 @@
     tablaFiltro: "todos",
     ordenTabla: { col: "fecha", desc: true },
     btcVivo: null,
+    compRef: recuerda.lee("patrimonio.compRef") || "mundo",
     ocultos: new Set(),
   };
+
+  /* ---------------------------------------------- ¿y si lo hubieras metido en un indexado? */
+  function pintaComparacion() {
+    const C = D.comparacion, sec = $("#seccionComparar");
+    if (!sec) return;
+    if (!C || !C.referencias.length) {
+      $("#compTitular").innerHTML = '<p class="vacio">Aparecerá cuando tengas compras anotadas.</p>';
+      $("#compRef").innerHTML = "";
+      $("#grafComparacion").innerHTML = "";
+      return;
+    }
+    if (!C.referencias.some(r => r.id === estado.compRef)) estado.compRef = C.referencias[0].id;
+    const r = C.referencias.find(x => x.id === estado.compRef);
+    const segm = $("#compRef");
+    segm.innerHTML = "";
+    C.referencias.forEach(x => {
+      const b = document.createElement("button");
+      b.textContent = x.nombre;
+      b.setAttribute("aria-pressed", String(x.id === r.id));
+      b.onclick = () => { estado.compRef = x.id; recuerda.guarda("patrimonio.compRef", x.id); pintaComparacion(); };
+      segm.appendChild(b);
+    });
+    const dif = C.tuValor - r.valor;
+    const pct = r.valor ? dif / r.valor : 0;
+    const igual = Math.abs(pct) < 0.005;
+    const veredicto = igual ? `Vas prácticamente igual que el ${r.nombre}.`
+      : dif > 0 ? `Vas ${G.fmtEur(Math.abs(dif), 0)} por delante del ${r.nombre} (${G.fmtPctSigno(pct, 1)}).`
+      : `Con el ${r.nombre} tendrías ${G.fmtEur(Math.abs(dif), 0)} más (${G.fmtPctSigno(-dif / C.tuValor, 1)}).`;
+    const caja = (et, v, extra, cls = "") => `<div class="compCaja ${cls}"><span>${et}</span><b>${v}</b>${extra ? `<small>${extra}</small>` : ""}</div>`;
+    $("#compTitular").innerHTML =
+      caja("Tú tienes hoy", G.fmtEur(C.tuValor, 0), `TIR ${G.fmtPctSigno(C.tuTir, 1)}`) +
+      caja(`Con el ${r.nombre} tendrías`, G.fmtEur(r.valor, 0), `TIR ${G.fmtPctSigno(r.tir, 1)}`) +
+      caja("Has puesto de tu bolsillo", G.fmtEur(C.aportado[C.aportado.length - 1], 0), "compras menos ventas") +
+      caja("Veredicto", veredicto, "", "veredicto");
+    G.multiLinea($("#grafComparacion"), {
+      fechas: D.fechas, alto: 300,
+      series: [
+        { nombre: "Tu cartera", valores: C.tuya, color: G.css("--s1"), destacado: true },
+        { nombre: "Con el " + r.nombre, valores: r.serie, color: G.css("--s2") },
+        { nombre: "Tu dinero puesto", valores: C.aportado, color: G.css("--tinta3") },
+      ],
+      formatoY: v => G.fmtEurCorto(v),
+      formatoValor: v => G.fmtEur(v, 0),
+      desdeCero: true,
+    });
+    const ley = (c, t) => `<span class="leyItem"><i style="background:${G.css(c)}"></i>${t}</span>`;
+    $("#compNota").innerHTML = `<span class="leyComp">${ley("--s1", "Tu cartera")}${ley("--s2", "Con el " + r.nombre)}${ley("--tinta3", "Tu dinero puesto")}</span>
+      ${r.detalle} Solo cuenta los productos con compras anotadas (no las cuentas ni lo
+      que valoras a mano sin movimientos), desde el ${G.fmtFecha(C.desde)}. Sin impuestos ni comisiones de compra.
+      ${r.aviso ? "<br>" + r.aviso : ""}`;
+  }
 
   /* ---------------------------------------------- tema y colores */
   function temaOscuro() { return raiz.dataset.tema !== "claro"; }
@@ -718,7 +775,7 @@
       ${p.indiceDetalle ? `<p style="color:var(--tinta2);font-size:13.5px;margin:0 0 16px">${p.indiceDetalle}</p>` : ""}
       <div class="ficha">${campos.map(c => `<div><dt>${c[0]}</dt><dd>${c[1]}</dd></div>`).join("")}</div>
       <div id="ventanas"></div>
-      ${pocos ? '<p class="subt" style="margin:0 0 12px">Solo hay un dato anotado, así que aún no hay curva. Añade más líneas a <code>snapshots</code> en cartera.json.</p>' : ""}
+      ${pocos ? '<p class="subt" style="margin:0 0 12px">Solo hay un valor anotado, así que aún no hay curva. Anota más en «Mis datos → Saldos y valores».</p>' : ""}
       <div class="envGraf" id="grafFondo"></div>
       <div class="tramos" id="tramosLey"></div>`;
 
@@ -813,7 +870,7 @@
         <div class="sep"></div>
         <span class="expoNota ${viejo ? "viejo" : ""}">${viejo ? "⚠ " : ""}Datos a ${G.fmtFecha(e.actualizado)}${viejo ? " · conviene refrescarlos" : ""}</span>
       </header>
-      <p class="subt" style="margin:0 0 18px">${e.constituyentes ? e.constituyentes.toLocaleString("es-ES") + " empresas. " : ""}${e.fuente}. Se actualiza a mano en <code>cartera.json</code>.</p>
+      <p class="subt" style="margin:0 0 18px">${e.constituyentes ? e.constituyentes.toLocaleString("es-ES") + " empresas. " : ""}${e.fuente}. Datos del índice a la fecha indicada.</p>
       <div class="expo">
         <div><h3>Por país</h3><div class="envGraf" id="expoPaises"></div></div>
         <div><h3>Por sector</h3><div class="envGraf" id="expoSectores"></div></div>
@@ -877,7 +934,7 @@
       // Solo TU rentabilidad, por producto y año.
       $("#notaTablaAnual").textContent =
         "Tu rentabilidad en cada producto y año, desde el precio real al que compraste y con comisiones. "
-        + "En un año completo coincide con la del fondo en Finect; el primer año cuenta desde tu primera compra.";
+        + "En un año completo coincide con la rentabilidad publicada del producto; el primer año cuenta desde tu primera compra.";
       const verProducto = false;
       const tabla = ra.porProducto;
       const desde = ra.desde || {};
@@ -899,8 +956,16 @@
           `<td class="${v == null ? "" : v >= 0 ? "pos" : "neg"}">${G.fmtPctSigno(v, 1)}</td>`).join("")}</tr></tfoot>`);
     }
 
+    pintaComparacion();
+
     const comp = D.comparador || [];
-    if (comp.length) {
+    const detalles = $("#compDetalles");
+    // Los detalles solo se dibujan al abrirlos: un SVG dentro de algo cerrado no tiene ancho.
+    if (detalles && !detalles.dataset.conectado) {
+      detalles.dataset.conectado = "1";
+      detalles.addEventListener("toggle", () => { if (detalles.open) pintaRendimiento(); });
+    }
+    if (comp.length && (!detalles || detalles.open)) {
       const met0 = comp[0].metricas;
       const paleta = [G.css("--s1"), G.css("--s2"), G.css("--s3"), G.css("--s4"), G.css("--s5"), G.css("--s7"), G.css("--s6")];
       const series = comp.map((c, i) => ({
@@ -929,13 +994,12 @@
         }).join("")}</tbody>`;
       $("#notaRiesgo").innerHTML =
         `<b>Cómo leerlo.</b> La volatilidad mide cuánto se mueve la cartera; el Sharpe, cuánta rentabilidad
-         sacas por cada unidad de ese meneo (más alto, mejor). El tipo sin riesgo sale de tu propio fondo
-         monetario, no de una tabla externa. Ojo: son solo
+         sacas por cada unidad de ese meneo (más alto, mejor). El tipo sin riesgo sale de tu fondo
+         monetario, si tienes uno. Ojo: son solo
          ${((Date.parse(met0.hasta) - Date.parse(met0.desde)) / 3.1536e10).toFixed(1)} años de datos,
          así que valen para comparar entre ellas, no como pronóstico. Tu cartera real cambia de pesos
          con el tiempo y cada producto solo cuenta desde que lo compraste; las alternativas son
-         hipotéticas y llevan sus pesos desde el primer día, por eso las que tienen bitcoin
-         lo incluyen desde agosto de 2024.`;
+         hipotéticas y llevan sus pesos fijos desde el primer día.`;
     }
 
     const c = D.comisiones;
@@ -1091,7 +1155,7 @@
     console.error(e);
     document.querySelector(".env").insertAdjacentHTML("afterbegin",
       '<div class="av" style="margin:20px 0"><span>⚠</span><span><b>Algo ha fallado al pintar el panel.</b> ' +
-      String(e && e.message || e) + '<br>Vuelve a ejecutar actualizar.bat; si sigue igual, mira la consola del navegador (F12).</span></div>');
+      String(e && e.message || e) + '<br>Cierra la app y vuelve a abrirla con «Iniciar»; si sigue igual, pulsa F12 y mira la consola del navegador.</span></div>');
   }
   actualizaVivo();
   setInterval(actualizaVivo, 60000);

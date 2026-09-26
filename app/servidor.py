@@ -25,9 +25,10 @@ from . import almacen, buscar, exportar, importar, motor, plantilla
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(RAIZ, "app", "web")
-DATOS = os.path.join(RAIZ, "mis_datos")
+# Otra carpeta de datos, solo para pruebas o capturas: PATRIMONIO_DATOS=ruta
+DATOS = os.environ.get("PATRIMONIO_DATOS") or os.path.join(RAIZ, "mis_datos")
 DEMO = os.path.join(RAIZ, "demo", "cartera.json")
-PUERTO = 8765
+PUERTO = int(os.environ.get("PATRIMONIO_PUERTO") or 8765)
 HORAS_PRECIOS = 6          # al arrancar, se actualizan si tienen más de esto
 
 app = Flask(__name__, static_folder=None)
