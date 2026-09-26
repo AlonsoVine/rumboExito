@@ -64,7 +64,10 @@
     const C = D.comparacion, sec = $("#seccionComparar");
     if (!sec) return;
     if (!C || !C.referencias.length) {
-      $("#compTitular").innerHTML = '<p class="vacio">Aparecerá cuando tengas compras anotadas.</p>';
+      // Sin el campo, los datos los calculó una versión anterior de la app (que sigue abierta).
+      $("#compTitular").innerHTML = "comparacion" in D
+        ? '<p class="vacio">Aparecerá cuando tengas compras anotadas.</p>'
+        : '<p class="vacio">Cierra la ventana negra de la app y vuelve a abrirla para calcular esta sección.</p>';
       $("#compRef").innerHTML = "";
       $("#grafComparacion").innerHTML = "";
       return;
