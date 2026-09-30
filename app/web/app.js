@@ -601,9 +601,16 @@
         ? "Hubo días por debajo de lo aportado: ahí la banda verde desaparece."
         : "La banda verde es rentabilidad, no dinero tuyo.";
     } else if (estado.vista === "reparto") {
-      const series = prods.map(p => ({ id: p.id, nombre: p.corto || p.nombre, color: color(p), valores: corta(p.serie) }));
-      const tot = fechas.map((_, i) => series.reduce((a, s) => a + (s.valores[i] || 0), 0));
-      series.forEach(s => { s.valores = s.valores.map((v, i) => tot[i] ? (v || 0) / tot[i] * 100 : 0); });
+      // El reparto % es la composición de los ACTIVOS (lo que tienes). Las deudas
+      // (pasivos) tienen serie negativa: si se colaran, los activos sumarían más
+      // del 100 % y el área se saldría por arriba. Se excluyen y se toma solo lo
+      // positivo, de modo que cada día suma exactamente 100 %.
+      const idsPasivo = new Set((D.pasivos || []).map(p => p.id));
+      const series = prods
+        .filter(p => !idsPasivo.has(p.id))
+        .map(p => ({ id: p.id, nombre: p.corto || p.nombre, color: color(p), valores: corta(p.serie) }));
+      const tot = fechas.map((_, i) => series.reduce((a, s) => a + Math.max(0, s.valores[i] || 0), 0));
+      series.forEach(s => { s.valores = s.valores.map((v, i) => tot[i] ? Math.max(0, v || 0) / tot[i] * 100 : 0); });
       G.areaApilada(cont, {
         fechas, series, alto: 330, maxForzado: 100,
         formatoY: v => Math.round(v) + " %",

@@ -8,7 +8,7 @@
   const $ = s => document.querySelector(s);
   const D = window.DATOS;
   const SOLO_SALDO = ["efectivo", "deuda"];
-  const E = { cfg: null, modo: "demo", tipos: {}, fuentes: {}, tiposMov: {}, vista: "activos", filtro: "todos" };
+  const E = { cfg: null, modo: "demo", tipos: {}, fuentes: {}, tiposMov: {}, vista: "activos", filtro: "todos", tablas: {} };
 
   /* ---------------------------------------------- utilidades */
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
@@ -144,6 +144,111 @@
     return (...a) => (E.modo === "demo" ? empezar() : fn(...a));
   }
 
+  /* ---------------------------------------------- buscar y ordenar en tablas */
+  // Estas utilidades trabajan sobre las filas ya pintadas (no vuelven a pedir datos):
+  // filtran u ordenan el DOM en el sitio. El estado (búsqueda y orden) se guarda por
+  // tabla en E.tablas para que sobreviva a los re-render de pinta().
+  const _norm = s => String(s == null ? "" : s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  function _clave(txt) {
+    const t = String(txt || "").trim();
+    const m = t.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);          // fecha dd/mm/aaaa
+    if (m) return { n: true, v: +(m[3] + m[2] + m[1]) };
+    const limpio = t.replace(/[€%\s]/g, "").replace(/−/g, "-").replace(/\./g, "").replace(",", ".");
+    if (limpio !== "" && /\d/.test(limpio) && !isNaN(Number(limpio))) return { n: true, v: Number(limpio) };
+    return { n: false, v: _norm(t) };
+  }
+  function _compara(a, b) {
+    const ca = _clave(a), cb = _clave(b);
+    if (ca.n && cb.n) return ca.v - cb.v;
+    return String(ca.v).localeCompare(String(cb.v), "es");
+  }
+  function _tablaDe(bloque) { return bloque.querySelector("table"); }
+  function filtraBloque(bloque, q) {
+    const tabla = _tablaDe(bloque);
+    if (!tabla || !tabla.tBodies[0]) return;
+    const nq = _norm(q);
+    [...tabla.tBodies[0].rows].forEach(r => {
+      r.style.display = (!nq || _norm(r.textContent).includes(nq)) ? "" : "none";
+    });
+  }
+  function ordenaTabla(tabla, col, dir) {
+    const tb = tabla.tBodies[0];
+    if (!tb) return;
+    [...tb.rows]
+      .sort((ra, rb) => _compara(
+        ra.cells[col] ? ra.cells[col].textContent : "",
+        rb.cells[col] ? rb.cells[col].textContent : "") * dir)
+      .forEach(r => tb.appendChild(r));
+  }
+  function marcaFlechas(tabla, col, dir) {
+    if (!tabla.tHead) return;
+    [...tabla.tHead.rows[0].cells].forEach((th, i) => {
+      const vieja = th.querySelector(".flecha");
+      if (vieja) vieja.remove();
+      if (i === col) {
+        const s = document.createElement("span");
+        s.className = "flecha";
+        s.textContent = dir > 0 ? " ▲" : " ▼";
+        th.appendChild(s);
+      }
+    });
+  }
+  function aplicaTablas() {
+    document.querySelectorAll("[data-tabla]").forEach(bloque => {
+      const st = E.tablas[bloque.dataset.tabla];
+      const tabla = _tablaDe(bloque);
+      const inp = bloque.querySelector("[data-buscar]");
+      if (inp && st) inp.value = st.q || "";
+      if (!tabla) return;
+      if (st && st.q) filtraBloque(bloque, st.q);
+      if (st && st.col != null && tabla.tHead) { ordenaTabla(tabla, st.col, st.dir); marcaFlechas(tabla, st.col, st.dir); }
+    });
+  }
+  const _estTabla = key => (E.tablas[key] || (E.tablas[key] = { q: "", col: null, dir: 1 }));
+  // Caja de búsqueda + tabla ordenable, envuelta con su clave para conservar el estado.
+  function envTabla(key, thead, filas, alto) {
+    return `<div class="tablaBloque" data-tabla="${esc(key)}">
+      <div class="tablaTools"><label class="buscaTabla">${LUPA}<input type="search" data-buscar
+        placeholder="Buscar…" aria-label="Buscar en la tabla" autocomplete="off"></label></div>
+      <div class="tablaEnv${alto ? " alto" : ""}"><table class="dt orden"><thead>${thead}</thead>
+        <tbody>${filas}</tbody></table></div></div>`;
+  }
+  // Listeners únicos (delegados): buscar al teclear y ordenar al pulsar una cabecera.
+  document.addEventListener("input", e => {
+    const inp = e.target.closest("[data-buscar]");
+    const bloque = inp && inp.closest("[data-tabla]");
+    if (!bloque) return;
+    _estTabla(bloque.dataset.tabla).q = inp.value;
+    filtraBloque(bloque, inp.value);
+  });
+  document.addEventListener("click", e => {
+    const th = e.target.closest("table.dt.orden th");
+    if (!th || th.classList.contains("nosort") || !th.textContent.trim()) return;
+    const tabla = th.closest("table");
+    const bloque = th.closest("[data-tabla]");
+    const col = th.cellIndex;
+    const st = bloque ? _estTabla(bloque.dataset.tabla) : { col: null, dir: 1 };
+    st.dir = st.col === col ? -st.dir : 1;
+    st.col = col;
+    ordenaTabla(tabla, col, st.dir);
+    marcaFlechas(tabla, col, st.dir);
+    if (bloque) filtraBloque(bloque, st.q);   // mantiene el filtro tras ordenar
+  });
+  // Estilos propios (se inyectan una vez; usan las variables de tema ya existentes).
+  (function estilosTablas() {
+    const css = `
+      .tablaTools{margin:0 0 10px}
+      .buscaTabla{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--borde);
+        border-radius:9px;padding:6px 11px;background:var(--sup);max-width:280px;color:var(--tinta3)}
+      .buscaTabla input{border:0;background:transparent;font:inherit;font-size:14px;color:var(--tinta);outline:none;width:100%}
+      table.dt.orden thead th{cursor:pointer;user-select:none}
+      table.dt.orden thead th.nosort{cursor:default}
+      table.dt.orden thead th .flecha{color:var(--tinta3);font-size:11px}`;
+    const s = document.createElement("style");
+    s.textContent = css;
+    document.head.appendChild(s);
+  })();
+
   /* ---------------------------------------------- pintado general */
   function pinta() {
     const cont = $("#editor");
@@ -181,6 +286,7 @@
     if (E.vista === "importar" || E.vista === "copias") conectaImportar();
     const filtro = $("#edFiltro");
     if (filtro) filtro.onchange = e => { E.filtro = e.target.value; pinta(); };
+    aplicaTablas();   // restaura búsqueda y orden de cada tabla tras el re-render
   }
 
   /* ---------------------------------------------- productos */
@@ -212,8 +318,8 @@
         <span class="subt">Todo lo que suma: fondos, acciones, cripto, cuentas, planes, inmuebles… Desde la ficha de cada uno anotas sus compras o su saldo.</span>
         <span class="sp"></span>${lista.length > 1 ? '<button class="btn" data-acc="repartirColores" title="Da a cada activo un color distinto">Repartir colores</button>' : ""}
         <button class="btn prim" data-acc="nuevoProducto">+ Añadir activo</button></header>
-      ${filas ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Activo</th><th>Tipo</th><th>Último precio</th>
-        <th>Fuente del precio</th><th>Datos</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
+      ${filas ? envTabla("activos", `<tr><th>Activo</th><th>Tipo</th><th>Último precio</th>
+        <th>Fuente del precio</th><th>Datos</th><th class="nosort"></th></tr>`, filas)
         : '<p class="subt">Todavía no has añadido ningún activo.</p>'}</section>`;
   }
 
@@ -223,8 +329,8 @@
     return `<section class="tarjeta"><header><h2>Deudas</h2>
         <span class="subt">Préstamos, hipoteca, tarjetas… El capital pendiente lo anotas cada mes en «Saldos y movimientos».</span>
         <span class="sp"></span><button class="btn prim" data-acc="nuevaDeuda">+ Añadir deuda</button></header>
-      ${filas ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Deuda</th><th>Tipo</th><th>Último saldo</th>
-        <th>Fuente</th><th>Datos</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
+      ${filas ? envTabla("deudas", `<tr><th>Deuda</th><th>Tipo</th><th>Último saldo</th>
+        <th>Fuente</th><th>Datos</th><th class="nosort"></th></tr>`, filas)
         : '<p class="subt">No tienes deudas registradas.</p>'}</section>`;
   }
 
@@ -423,8 +529,8 @@
     return `<section class="tarjeta"><header><h2>Apartados</h2>
         <span class="subt">Dinero reservado para un fin (impuestos, obras, fianzas…): no resta del patrimonio, pero sí del dinero libre para invertir</span>
         <span class="sp"></span><button class="btn prim" data-acc="nuevoApartado">+ Añadir apartado</button></header>
-      ${filasAp ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Apartado</th><th>Finalidad</th><th>Titular</th>
-        <th>Importe</th><th>Fecha prevista</th><th></th></tr></thead><tbody>${filasAp}</tbody></table></div>`
+      ${filasAp ? envTabla("apartados", `<tr><th>Apartado</th><th>Finalidad</th><th>Titular</th>
+        <th>Importe</th><th>Fecha prevista</th><th class="nosort"></th></tr>`, filasAp)
         : '<p class="subt">Todavía no has creado ningún apartado.</p>'}</section>`;
   }
 
@@ -439,6 +545,7 @@
         <span class="subt">Titulares, categorías, monedas y umbrales de aviso (como la hoja «Configuración» del Excel)</span>
         <span class="sp"></span><button class="btn prim" data-acc="editarConfig">Editar</button></header>
       <table class="leyenda">
+        ${fila("Nombre de la cartera", esc(E.cfg.titular || "Mi patrimonio"))}
         ${fila("Titulares", tits.length ? tits.map(esc).join(", ") : '<span class="subt">ninguno</span>')}
         ${fila("Colchón deseado", eur(conf.colchon || 0))}
         ${fila("Objetivos de asignación", objN ? objN + " tipos con objetivo" : '<span class="subt">sin objetivos</span>')}
@@ -500,6 +607,10 @@
     const objInputs = Object.entries(E.tipos).map(([clave, label]) =>
       `<label class="campo"><span class="et">${esc(label)} <em>%</em></span><input name="obj_${clave}" inputmode="decimal" placeholder="0"></label>`).join("");
     const f = abreModal("Configuración", `
+      ${seccion("Esta cartera")}
+      <div class="rejilla">
+        ${campo("Nombre de esta cartera", '<input name="nombreCartera" maxlength="60" required>', "aparece arriba, en el selector")}
+      </div>
       ${seccion("Colchón de seguridad")}
       <div class="rejilla">
         ${campo("Colchón deseado", '<input name="colchon" inputmode="decimal" placeholder="3000">', "€, liquidez mínima")}
@@ -545,6 +656,7 @@
       const categorias = lineas("catIng").map(n => ({ nombre: n, tipo: "ingreso" }))
         .concat(lineas("catGas").map(n => ({ nombre: n, tipo: "gasto" })));
       await guardaConfig({
+        titular: (d.nombreCartera || "").trim(),
         colchon: d.colchon,
         titulares: (d.titulares || "").split(/\n+/).map(s => s.trim()).filter(Boolean),
         umbralConcentracion: d.umbralConcentracion,
@@ -552,7 +664,10 @@
         diasAviso: d.diasAviso,
         objetivos, monedas, categorias,
       });
+      // El nombre sale en el selector de arriba: recargar para que se vea al momento.
+      location.reload();
     }, "Guardar");
+    f.elements.nombreCartera.value = E.cfg.titular || "";
     f.elements.colchon.value = conf.colchon || "";
     f.elements.titulares.value = (E.cfg.titulares || []).join("\n");
     const pct = v => v != null ? +(v * 100).toFixed(2) : "";
@@ -583,8 +698,8 @@
     return `<section class="tarjeta"><header><h2>Ingresos y gastos</h2>
         <span class="subt">Flujo de caja del hogar: nóminas, alquileres, gastos… No incluye compras de inversión ni traspasos entre tus cuentas.</span>
         <span class="sp"></span><button class="btn prim" data-acc="nuevoFlujo">+ Añadir apunte</button></header>
-      ${filas ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th>
-        <th>Titular</th><th style="text-align:right">Importe</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
+      ${filas ? envTabla("flujos", `<tr><th>Fecha</th><th>Tipo</th><th>Categoría</th>
+        <th>Titular</th><th style="text-align:right">Importe</th><th class="nosort"></th></tr>`, filas)
         : '<p class="subt">Todavía no has anotado ingresos ni gastos.</p>'}
     </section>`;
   }
@@ -646,10 +761,10 @@
         <select id="edFiltro" aria-label="Filtrar por producto"><option value="todos">Todos los productos</option>
           ${cotizables.map(p => `<option value="${esc(p.id)}"${p.id === E.filtro ? " selected" : ""}>${esc(nombre(p))}</option>`).join("")}</select>
         <button class="btn prim" data-acc="nuevoMov">+ Añadir movimiento</button></header>
-      ${filas ? `<div class="tablaEnv alto"><table class="dt"><thead><tr><th>Fecha</th><th style="text-align:left">Producto</th>
+      ${filas ? envTabla("movimientos", `<tr><th>Fecha</th><th style="text-align:left">Producto</th>
         <th style="text-align:left">Tipo</th><th>Unidades</th><th>Importe</th><th>Precio por unidad</th>
-        <th style="text-align:left">Nota</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>
-        <p class="subt" style="margin-top:10px">${movs.length} movimientos.</p>`
+        <th style="text-align:left">Nota</th><th class="nosort"></th></tr>`, filas, true)
+        + `<p class="subt" style="margin-top:10px">${movs.length} movimientos.</p>`
         : '<p class="subt">No hay movimientos todavía.</p>'}</section>`;
   }
 
@@ -732,8 +847,8 @@
       return `<section class="tarjeta saldo"><header><h2><i class="pt" style="background:var(--s${p.slot || 1})"></i>${esc(nombre(p))}</h2>
           <span class="subt">${esc(E.tipos[p.tipo] || "")}${p.entidad ? " · " + esc(p.entidad) : ""}</span><span class="sp"></span>
           <button class="btn" data-acc="nuevoValor" data-id="${esc(p.id)}">+ Anotar</button></header>
-        ${filas ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Fecha</th><th>${etiquetaValor(p)}</th>
-          ${conAportado ? "<th>Aportado</th>" : ""}<th></th></tr></thead><tbody>${filas}</tbody></table></div>`
+        ${filas ? `<div class="tablaEnv"><table class="dt orden"><thead><tr><th>Fecha</th><th>${etiquetaValor(p)}</th>
+          ${conAportado ? "<th>Aportado</th>" : ""}<th class="nosort"></th></tr></thead><tbody>${filas}</tbody></table></div>`
           : '<p class="neg">Todavía no tiene ningún valor anotado.</p>'}</section>`;
     }).join("");
     return `<section class="tarjeta"><header><h2>Saldos y valores</h2>

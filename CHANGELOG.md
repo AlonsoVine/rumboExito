@@ -6,6 +6,19 @@ del Excel `Gestor_Patrimonial`), manteniéndose 100 % local. Ver
 
 ## No publicado — rama `feat/gestor-patrimonial-f0`
 
+### Tablas, renombrar, restaurar y reparto %
+- **Buscar, ordenar y filtrar** en las tablas de Mis datos (Activos, Deudas,
+  Apartados, Ingresos y gastos, Movimientos y Saldos): buscador por tabla y
+  cabeceras clicables (▲/▼), con el estado conservado entre re-renders.
+- **Renombrar la cartera** activa desde «Configuración» (campo «Nombre de esta
+  cartera»); se refleja en el selector de arriba.
+- **Restaurar una copia** conserva el nombre de la cartera destino cuando tienes
+  varias (ya no quedan dos con el mismo nombre); las copias siguen incluyendo
+  todo (apartados, deudas, ingresos y gastos, configuración y titulares).
+- **Corrección del «Reparto %»** en Evolución: representaba mal (se salía del
+  100 %) porque incluía las deudas (serie negativa); ahora es la composición de
+  los activos y suma 100 % en todo el eje.
+
 ### Varias carteras y correcciones
 - **Multi-cartera:** puedes tener varias carteras y cambiar entre ellas desde el
   selector de la barra superior; «＋ Nueva cartera…» crea una vacía con el nombre

@@ -59,3 +59,32 @@ def test_nueva_sin_nombre_falla(tmp_path, monkeypatch):
     servidor = _base(tmp_path, monkeypatch)
     r = servidor.app.test_client().post("/api/cartera/nueva", json={"nombre": "  "})
     assert r.status_code == 400
+
+
+def test_copia_conserva_colecciones_nuevas(tmp_path, monkeypatch):
+    # Una copia (descarga/restauración) debe conservar todo lo nuevo: apartados,
+    # flujos, config y titulares, no solo productos/movimientos/valoraciones.
+    from app import servidor
+    monkeypatch.setattr(servidor, "DATOS", str(tmp_path))
+    cfg = {"version": 1, "titular": "X", "productos": [], "movimientos": [], "valoraciones": [],
+           "titulares": ["Mar"], "apartados": [{"id": "a1", "nombre": "Impuestos", "importe": 100}],
+           "flujos": [{"id": "f1", "tipo": "gasto", "fecha": "2024-06-30", "importe": 10}],
+           "config": {"colchon": 3000, "categorias": [{"nombre": "Vivienda", "tipo": "gasto"}]}}
+    out = servidor.valida_copia(cfg)
+    assert out["apartados"] and out["flujos"] and out["titulares"] == ["Mar"]
+    assert out["config"]["colchon"] == 3000 and out["config"]["categorias"]
+
+
+def test_restaurar_conserva_el_nombre_de_la_cartera_destino(tmp_path, monkeypatch):
+    import io
+    servidor = _base(tmp_path, monkeypatch)   # cartera "Uno" (modo antiguo)
+    cli = servidor.app.test_client()
+    cli.post("/api/cartera/nueva", json={"nombre": "Dos"})   # ahora multi, activa "Dos"
+
+    copia = {"version": 1, "titular": "Otro nombre", "productos": [], "movimientos": [], "valoraciones": []}
+    contenido = io.BytesIO(json.dumps(copia).encode("utf-8"))
+    r = cli.post("/api/copia/subir", data={"archivo": (contenido, "copia.json")},
+                 content_type="multipart/form-data")
+    assert r.get_json()["ok"] is True
+    # La cartera activa (Dos) conserva su nombre, no adopta el de la copia.
+    assert servidor.cartera().get("titular") == "Dos"

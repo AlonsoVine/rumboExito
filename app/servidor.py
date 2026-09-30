@@ -433,8 +433,14 @@ def valida_copia(cfg):
 
 
 def restaura(cfg):
-    """Pone cfg como cartera. Lo que hubiera antes queda en las copias automáticas."""
+    """Pone cfg como cartera activa. Lo que hubiera antes queda en las copias.
+    Con varias carteras, conserva el NOMBRE de la cartera en la que restauras, para
+    no acabar con dos carteras con el mismo nombre (la copia trae su propio titular)."""
     with cerrojo:
+        if len(carteras()) > 1:
+            actual = cartera().get("titular")
+            if actual:
+                cfg = dict(cfg, titular=actual)
         almacen.guarda(os.path.join(carpeta(), "cartera.json"), cfg)
         for viejo in ("calculado_propio.json", "historico.json"):
             if os.path.exists(os.path.join(carpeta(), viejo)):

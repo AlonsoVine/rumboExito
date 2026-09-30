@@ -392,6 +392,10 @@ def guarda_config(cfg, datos):
     """Ajusta los parámetros del hogar: colchón y lista de titulares."""
     errores = []
     conf = cfg.setdefault("config", {})
+    if "titular" in datos:   # renombrar la cartera activa
+        nombre = texto(datos.get("titular"), 60)
+        if nombre:
+            cfg["titular"] = nombre
     if "colchon" in datos:
         colchon = numero(datos.get("colchon"), "el colchón", errores, obligatorio=False, minimo=0)
         conf["colchon"] = round(colchon, 2) if colchon is not None else 0
