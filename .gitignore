@@ -7,3 +7,9 @@ mis_datos/
 __pycache__/
 *.pyc
 *.tmp
+
+# Herramientas de desarrollo
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/

@@ -10,3 +10,32 @@ dependencies = [
 
 [tool.uv]
 package = false
+
+# --- Herramientas de desarrollo (no afectan a quien solo usa la app) ---
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+# Reglas prudentes: errores (E/F), bugs (B), imports (I), modernización (UP).
+select = ["E", "F", "B", "I", "UP"]
+# El código existente usa nombres y estilo propios en castellano; no lo peleamos.
+# UP009: el proyecto mantiene la cabecera `# -*- coding: utf-8 -*-` a propósito.
+ignore = ["E501", "E741", "UP009"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E402"]

@@ -1,0 +1,39 @@
+name: CI
+
+# Integración continua: linter + tests en cada push y pull request.
+# No descarga precios: los tests son deterministas y funcionan sin red.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install flask openpyxl pytest ruff
+
+      - name: Linter (estricto en el código nuevo)
+        run: ruff check tests/
+
+      - name: Linter (solo informe del código heredado)
+        run: ruff check app/ --exit-zero
+
+      - name: Tests
+        run: python -m pytest -q
