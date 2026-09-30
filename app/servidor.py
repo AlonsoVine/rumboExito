@@ -127,7 +127,7 @@ def api_actualizar():
 @app.get("/api/cartera")
 def api_cartera():
     return jsonify(modo=modo(), cartera=cartera(), tipos=motor.TIPOS, fuentes=motor.FUENTES,
-                   tiposMovimiento=almacen.TIPOS_MOV)
+                   tiposMovimiento=almacen.TIPOS_MOV, tiposFlujo=almacen.TIPOS_FLUJO)
 
 
 @app.get("/api/buscar")
@@ -136,9 +136,11 @@ def api_buscar():
 
 
 GUARDAR = {"productos": almacen.guarda_producto, "movimientos": almacen.guarda_movimiento,
-           "valoraciones": almacen.guarda_valoracion, "apartados": almacen.guarda_apartado}
+           "valoraciones": almacen.guarda_valoracion, "apartados": almacen.guarda_apartado,
+           "flujos": almacen.guarda_flujo}
 BORRAR = {"productos": almacen.borra_producto, "movimientos": almacen.borra_movimiento,
-          "valoraciones": almacen.borra_valoracion, "apartados": almacen.borra_apartado}
+          "valoraciones": almacen.borra_valoracion, "apartados": almacen.borra_apartado,
+          "flujos": almacen.borra_flujo}
 AVISO_DEMO = ("Estás viendo la cartera de ejemplo. Pulsa «Empezar con mis datos» "
               "para crear la tuya y poder guardar cambios.")
 

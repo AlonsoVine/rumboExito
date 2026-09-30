@@ -1305,12 +1305,62 @@ def construir(cfg, carpeta, descargar=True):
     interes_anual_total = round(interes_anual_total, 2)
     ratio_deuda_activos = r4(deudas_total / bruto) if bruto else None
 
+    # ---- ingresos y gastos del hogar (F3, versión ligera) ----
+    flujos_cfg = cfg.get("flujos", []) or []
+    ig_mes = defaultdict(lambda: {"ingreso": 0.0, "gasto": 0.0})
+    for fl in flujos_cfg:
+        t = fl.get("tipo")
+        if t in ("ingreso", "gasto"):
+            ig_mes[fl["fecha"][:7]][t] += float(fl.get("importe") or 0)
+
+    # Últimos 12 meses hasta el mes de la fecha de valoración.
+    mm = dt.date(fecha_extracto.year, fecha_extracto.month, 1)
+    meses_ig = []
+    for _ in range(12):
+        meses_ig.append(f"{mm.year:04d}-{mm.month:02d}")
+        mm = (mm.replace(day=1) - dt.timedelta(days=1)).replace(day=1)
+    meses_ig.reverse()
+
+    ser_ing = [round(ig_mes[m]["ingreso"], 2) for m in meses_ig]
+    ser_gas = [round(ig_mes[m]["gasto"], 2) for m in meses_ig]
+    ser_aho = [round(i - g, 2) for i, g in zip(ser_ing, ser_gas)]
+    ser_tasa = [r4((i - g) / i) if i else None for i, g in zip(ser_ing, ser_gas)]
+
+    def _bloque_ig(ing, gas):
+        aho = round(ing - gas, 2)
+        return {"ingresos": round(ing, 2), "gastos": round(gas, 2), "ahorro": aho,
+                "tasaAhorro": r4(aho / ing) if ing else None}
+
+    mes_ref_key = f"{fecha_extracto.year:04d}-{fecha_extracto.month:02d}"
+    este_mes_ig = _bloque_ig(ig_mes[mes_ref_key]["ingreso"], ig_mes[mes_ref_key]["gasto"])
+    ing_ano = sum(v["ingreso"] for k, v in ig_mes.items() if k[:4] == mes_ref_key[:4])
+    gas_ano = sum(v["gasto"] for k, v in ig_mes.items() if k[:4] == mes_ref_key[:4])
+    ano_ig = _bloque_ig(ing_ano, gas_ano)
+    media12_ig = _bloque_ig(sum(ser_ing) / 12, sum(ser_gas) / 12)
+
+    cat12 = defaultdict(float)
+    for fl in flujos_cfg:
+        t = fl.get("tipo")
+        if t in ("ingreso", "gasto") and fl["fecha"][:7] in meses_ig:
+            cat12[(fl.get("categoria") or "Sin categoría", t)] += float(fl.get("importe") or 0)
+    por_categoria = [{"categoria": c, "tipo": t, "total12": round(v, 2), "media": round(v / 12, 2)}
+                     for (c, t), v in sorted(cat12.items(), key=lambda x: -x[1])]
+
+    flujos_out = {"meses": meses_ig, "ingresos": ser_ing, "gastos": ser_gas,
+                  "ahorro": ser_aho, "tasaAhorro": ser_tasa, "esteMes": este_mes_ig,
+                  "anio": ano_ig, "media12": media12_ig, "porCategoria": por_categoria} if flujos_cfg else None
+
+    # Cuota de deudas sobre ingresos: del mes en curso, o de la media si el mes no tiene ingresos.
+    ing_ratio = este_mes_ig["ingresos"] or media12_ig["ingresos"]
+    cuota_sobre_ingresos = r4(cuota_total / ing_ratio) if (cuota_total and ing_ratio) else None
+
     datos = {
         "generado": dt.datetime.now().replace(microsecond=0).isoformat(),
         "titular": cfg.get("titular", "Mi patrimonio"),
         "titulares": cfg.get("titulares", []) or [],
         "apartados": apartados_out,
         "deudas": deudas_detalle,
+        "flujos": flujos_out,
         "moneda": cfg.get("moneda", "EUR"),
         "fechaExtracto": fecha_extracto.isoformat(),
         "fechas": eje_iso,
@@ -1331,6 +1381,8 @@ def construir(cfg, carpeta, descargar=True):
             "cuotaMensualDeudas": cuota_total,
             "interesAnualDeudas": interes_anual_total,
             "ratioDeudaActivos": ratio_deuda_activos,
+            "cuotaSobreIngresos": cuota_sobre_ingresos,
+            "tasaAhorro": media12_ig["tasaAhorro"],
             "aportado": aportado_total,
             "valorConCoste": round(valor_conocido, 2),
             "plusvalia": plusvalia_total,

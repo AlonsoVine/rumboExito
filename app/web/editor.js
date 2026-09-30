@@ -47,7 +47,7 @@
   }
   async function carga() {
     const j = await api("GET", "api/cartera");
-    Object.assign(E, { cfg: j.cartera, modo: j.modo, tipos: j.tipos, fuentes: j.fuentes, tiposMov: j.tiposMovimiento });
+    Object.assign(E, { cfg: j.cartera, modo: j.modo, tipos: j.tipos, fuentes: j.fuentes, tiposMov: j.tiposMovimiento, tiposFlujo: j.tiposFlujo });
   }
   async function guarda(coleccion, datos) {
     const j = await api("POST", "api/" + coleccion, datos);
@@ -165,7 +165,7 @@
       <div id="edAvisos" class="avisos"></div><div id="edCuerpo"></div>`;
     cont.innerHTML = html;
 
-    const vistas = [["productos", "Productos"], ["movimientos", "Movimientos"], ["saldos", "Saldos y valores"], ["hogar", "Hogar"], ["importar", "Importar"], ["copias", "Copias y web"]];
+    const vistas = [["productos", "Productos"], ["movimientos", "Movimientos"], ["saldos", "Saldos y valores"], ["hogar", "Hogar"], ["flujos", "Ingresos/Gastos"], ["importar", "Importar"], ["copias", "Copias y web"]];
     const seg = $("#edVistas");
     vistas.forEach(([id, et]) => {
       const b = document.createElement("button");
@@ -175,7 +175,7 @@
       seg.appendChild(b);
     });
     $("#edCuerpo").innerHTML = ({ productos: vistaProductos, movimientos: vistaMovimientos, saldos: vistaSaldos,
-      hogar: vistaHogar, importar: vistaImportar, copias: vistaCopias }[E.vista] || vistaProductos)();
+      hogar: vistaHogar, flujos: vistaFlujos, importar: vistaImportar, copias: vistaCopias }[E.vista] || vistaProductos)();
     if (E.vista === "importar" || E.vista === "copias") conectaImportar();
     const filtro = $("#edFiltro");
     if (filtro) filtro.onchange = e => { E.filtro = e.target.value; pinta(); };
@@ -482,6 +482,56 @@
     f.elements.colchon.value = conf.colchon || "";
     f.elements.titulares.value = (E.cfg.titulares || []).join("\n");
     return f;
+  }
+
+  /* ---------------------------------------------- ingresos y gastos (flujos) */
+  function vistaFlujos() {
+    const fs = (E.cfg.flujos || []).slice().sort((a, b) => a.fecha < b.fecha ? 1 : -1);
+    const filas = fs.map(x => `<tr>
+      <td>${fecha(x.fecha)}</td>
+      <td class="${x.tipo === "ingreso" ? "pos" : "neg"}">${(E.tiposFlujo && E.tiposFlujo[x.tipo]) || x.tipo}</td>
+      <td>${esc(x.categoria || "")}</td><td>${esc(x.titular || "")}</td>
+      <td style="text-align:right" class="${x.tipo === "ingreso" ? "pos" : "neg"}">${x.tipo === "gasto" ? "−" : ""}${eur(x.importe)}</td>
+      <td class="acc"><button data-acc="editarFlujo" data-id="${esc(x.id)}">Editar</button>
+        <button data-acc="borrarFlujo" data-id="${esc(x.id)}">Borrar</button></td></tr>`).join("");
+    return `<section class="tarjeta"><header><h2>Ingresos y gastos</h2>
+        <span class="subt">Flujo de caja del hogar: nóminas, alquileres, gastos… No incluye compras de inversión ni traspasos entre tus cuentas.</span>
+        <span class="sp"></span><button class="btn prim" data-acc="nuevoFlujo">+ Añadir apunte</button></header>
+      ${filas ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th>
+        <th>Titular</th><th style="text-align:right">Importe</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
+        : '<p class="subt">Todavía no has anotado ingresos ni gastos.</p>'}
+    </section>`;
+  }
+
+  function formFlujo(x) {
+    const nuevo = !x;
+    x = x || { tipo: "gasto" };
+    const tits = E.cfg.titulares || [];
+    const cats = [...new Set((E.cfg.flujos || []).map(v => v.categoria).filter(Boolean))];
+    const f = abreModal(nuevo ? "Añadir apunte" : "Editar apunte", `
+      ${seccion("Ingreso o gasto")}
+      <div class="rejilla">
+        ${campo("Tipo", `<select name="tipo">${opciones(E.tiposFlujo, x.tipo)}</select>`)}
+        ${campo("Fecha", '<input name="fecha" type="date" required>')}
+        ${campo("Importe", '<input name="importe" inputmode="decimal" required>', "€")}
+        ${campo("Categoría", `<input name="categoria" list="flCats" placeholder="Nómina, Alimentación…">
+          <datalist id="flCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>`, "opcional")}
+        ${campo("Titular", `<input name="titular" list="flTits">
+          <datalist id="flTits">${tits.map(t => `<option value="${esc(t)}">`).join("")}</datalist>`, "opcional")}
+        ${campo("Nota", '<textarea name="nota" rows="2"></textarea>', "opcional", "ancho")}
+      </div>`,
+    async f => {
+      const d = campos(f);
+      if (!nuevo) d.id = x.id;
+      await guarda("flujos", d);
+    }, nuevo ? "Guardar apunte" : "Guardar cambios");
+    rellena(f, x);
+    return f;
+  }
+
+  async function borrarFlujo(id) {
+    if (!confirm("¿Borrar este apunte de ingreso/gasto?")) return;
+    try { await borra("flujos", id); pinta(); } catch (x) { alert(x.message); }
   }
 
   /* ---------------------------------------------- movimientos */
@@ -936,6 +986,9 @@
     editarApartado: soloPropio(id => formApartado((E.cfg.apartados || []).find(a => a.id === id))),
     borrarApartado: soloPropio(borrarApartado),
     editarHogar: soloPropio(formHogar),
+    nuevoFlujo: soloPropio(() => formFlujo(null)),
+    editarFlujo: soloPropio(id => formFlujo((E.cfg.flujos || []).find(x => x.id === id))),
+    borrarFlujo: soloPropio(borrarFlujo),
     repartirColores: soloPropio(async () => {
       try {
         const j = await api("POST", "api/repartir-colores");

@@ -17,13 +17,14 @@ from .motor import TIPOS, FUENTES, num_es
 COPIAS_MAX = 20
 TIPOS_MOV = {"compra": "Compra", "venta": "Venta", "dividendo": "Dividendo o cupón",
              "comision": "Comisión"}
+TIPOS_FLUJO = {"ingreso": "Ingreso", "gasto": "Gasto"}   # flujo de caja del hogar (F3)
 SOLO_SALDO = ("efectivo", "deuda")   # tipos que se siguen solo con saldos anotados
 
 CARTERA_VACIA = {
     "version": 1, "titular": "Mi patrimonio",
     "productos": [], "movimientos": [], "valoraciones": [],
-    "titulares": [], "apartados": [],
-    "config": {"colchon": 0},
+    "titulares": [], "apartados": [], "flujos": [],
+    "config": {"colchon": 0, "categorias": []},
     "comparador": [{"id": "real", "nombre": "Mi cartera real", "real": True}],
     "hitos": [10000, 25000, 50000, 100000, 250000, 500000, 1000000],
     "objetivo": {"activo": True, "importe": 100000, "etiqueta": "Próximo objetivo"},
@@ -404,3 +405,39 @@ def guarda_config(cfg, datos):
     if errores:
         raise ErrorValidacion(errores)
     return {"config": conf, "titulares": cfg.get("titulares", [])}
+
+
+# ---------------------------------------------------------------- flujos (ingresos/gastos)
+
+def guarda_flujo(cfg, datos):
+    """Registra un ingreso o un gasto del hogar (flujo de caja, F3)."""
+    errores = []
+    tipo = datos.get("tipo")
+    if tipo not in TIPOS_FLUJO:
+        errores.append("Elige si es un ingreso o un gasto.")
+    f = fecha(datos.get("fecha"), errores)
+    importe = numero(datos.get("importe"), "el importe", errores, mayor_que=0)
+    if errores:
+        raise ErrorValidacion(errores)
+    fl = {"fecha": f, "tipo": tipo, "importe": round(importe, 2),
+          "categoria": texto(datos.get("categoria")), "titular": texto(datos.get("titular")),
+          "nota": texto(datos.get("nota"))}
+    lista = cfg.setdefault("flujos", [])
+    existente = next((x for x in lista if x.get("id") == datos.get("id")), None) if datos.get("id") else None
+    if existente:
+        fid = existente["id"]
+        existente.clear()
+        existente.update(id=fid, **{k: v for k, v in fl.items() if v not in ("", None)})
+        lista.sort(key=lambda x: x["fecha"])
+        return existente
+    fl = {"id": siguiente_id(lista, "f"), **{k: v for k, v in fl.items() if v not in ("", None)}}
+    lista.append(fl)
+    lista.sort(key=lambda x: x["fecha"])
+    return fl
+
+
+def borra_flujo(cfg, fid):
+    antes = len(cfg.get("flujos", []))
+    cfg["flujos"] = [x for x in cfg.get("flujos", []) if x.get("id") != fid]
+    if len(cfg["flujos"]) == antes:
+        raise ErrorValidacion(["Ese apunte ya no existe."])

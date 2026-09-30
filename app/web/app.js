@@ -481,6 +481,40 @@
         <th style="text-align:right">Interés/año</th><th>Vence</th></tr></thead><tbody>${filas}</tbody>`;
   }
 
+  /* Ingresos, gastos y ahorro: mes en curso vs. media de 12 meses + tabla mensual. */
+  function pintaFlujos() {
+    const card = $("#tarjetaFlujos"), f = D.flujos;
+    if (!f) { card.hidden = true; return; }
+    card.hidden = false;
+    const em = f.esteMes, m12 = f.media12;
+    $("#flujosSub").textContent = "Últimos 12 meses hasta " + G.fmtFechaCorta(D.fechaExtracto);
+    const pct = v => v != null ? G.fmtPct(v, 0) : "—";
+    const tiles = [
+      { e: "Ingresos (mes)", v: G.fmtEur(em.ingresos, 0), n: "media 12m " + G.fmtEur(m12.ingresos, 0) },
+      { e: "Gastos (mes)", v: G.fmtEur(em.gastos, 0), n: "media 12m " + G.fmtEur(m12.gastos, 0) },
+      {
+        e: "Ahorro (mes)", v: G.fmtEur(em.ahorro, 0), n: "media 12m " + G.fmtEur(m12.ahorro, 0),
+        cl: em.ahorro >= 0 ? "pos" : "neg"
+      },
+      {
+        e: "Tasa de ahorro", v: pct(em.tasaAhorro), n: "media 12m " + pct(m12.tasaAhorro),
+        cl: (em.tasaAhorro || 0) >= 0 ? "pos" : "neg"
+      },
+    ];
+    $("#flujosKpis").innerHTML = tiles.map(k =>
+      `<div class="kpi"><div class="e">${k.e}</div>
+       <div class="v ${k.cl || ""}">${k.v}</div><div class="n">${k.n}</div></div>`).join("");
+
+    const filas = f.meses.map((m, i) => `<tr><td>${m}</td>
+      <td style="text-align:right" class="pos">${G.fmtEur(f.ingresos[i], 0)}</td>
+      <td style="text-align:right" class="neg">${G.fmtEur(f.gastos[i], 0)}</td>
+      <td style="text-align:right">${G.fmtEur(f.ahorro[i], 0)}</td>
+      <td style="text-align:right">${f.tasaAhorro[i] != null ? G.fmtPct(f.tasaAhorro[i], 0) : "—"}</td></tr>`).join("");
+    $("#flujosTabla").innerHTML =
+      `<thead><tr><th>Mes</th><th style="text-align:right">Ingresos</th><th style="text-align:right">Gastos</th>
+        <th style="text-align:right">Ahorro</th><th style="text-align:right">Tasa</th></tr></thead><tbody>${filas}</tbody>`;
+  }
+
   function pintaPrincipal(m) {
     const fechas = corta(D.fechas);
     const prods = visibles().filter(p => (p.serie || []).some(v => v));
@@ -679,6 +713,7 @@
     pintaKPIs(mVis);
     pintaHogar();
     pintaDeudas();
+    pintaFlujos();
     pintaPrincipal(mVis);
     pintaChips();
     pintaDistribucion();
