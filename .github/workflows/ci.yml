@@ -29,11 +29,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install flask openpyxl pytest ruff
 
-      - name: Linter (estricto en el código nuevo)
-        run: ruff check tests/
-
-      - name: Linter (solo informe del código heredado)
-        run: ruff check app/ --exit-zero
+      - name: Linter
+        run: ruff check .
 
       - name: Tests
         run: python -m pytest -q

@@ -40,7 +40,7 @@ cerrojo = threading.RLock()  # el motor no admite dos cálculos (ni dos escritur
 
 def lee_json(ruta, defecto=None):
     try:
-        with open(ruta, "r", encoding="utf-8") as f:
+        with open(ruta, encoding="utf-8") as f:
             return json.load(f)
     except (OSError, ValueError):
         return defecto
@@ -415,7 +415,8 @@ def api_version():
         except Exception:
             _VERSION.update(ultima=None, cuando=dt.datetime.now())
     ultima = _VERSION.get("ultima")
-    como_tupla = lambda v: tuple(int(x) for x in re.findall(r"\d+", v or "0"))
+    def como_tupla(v):
+        return tuple(int(x) for x in re.findall(r"\d+", v or "0"))
     return jsonify(actual=actual, ultima=ultima, repo=REPO,
                    hayNueva=bool(ultima) and como_tupla(ultima) > como_tupla(actual))
 

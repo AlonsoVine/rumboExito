@@ -12,7 +12,7 @@ import os
 import re
 import unicodedata
 
-from .motor import TIPOS, FUENTES, num_es
+from .motor import FUENTES, TIPOS, num_es
 
 COPIAS_MAX = 20
 TIPOS_MOV = {"compra": "Compra", "venta": "Venta", "dividendo": "Dividendo o cupón",
@@ -46,7 +46,7 @@ class ErrorValidacion(Exception):
 # ---------------------------------------------------------------- disco
 
 def carga(ruta):
-    with open(ruta, "r", encoding="utf-8") as f:
+    with open(ruta, encoding="utf-8") as f:
         return json.load(f)
 
 

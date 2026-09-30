@@ -10,6 +10,7 @@ panel: series diarias, aportado, plusvalias, TIR, rentabilidad por ano...
 Lo llama el servidor (servidor.py); no hace falta ejecutarlo a mano.
 """
 
+import datetime as dt
 import json
 import math
 import os
@@ -17,7 +18,6 @@ import re
 import sys
 import urllib.parse
 import urllib.request
-import datetime as dt
 from collections import defaultdict
 
 try:
@@ -117,7 +117,7 @@ def descargar_serie(simbolo, anos=None):
         res = bruto["chart"]["result"][0]
         cierres = res["indicators"]["quote"][0].get("close", [])
         nuevo = {}
-        for ts, c in zip(res.get("timestamp", []), cierres):
+        for ts, c in zip(res.get("timestamp", []), cierres, strict=False):
             if c is not None:
                 nuevo[dt.date.fromtimestamp(ts).isoformat()] = float(c)
         if nuevo:
@@ -259,7 +259,7 @@ def a_euros(serie, serie_fx):
 def lee_cache(ruta):
     if os.path.exists(ruta):
         try:
-            with open(ruta, "r", encoding="utf-8") as f:
+            with open(ruta, encoding="utf-8") as f:
                 return json.load(f)
         except Exception:
             pass
@@ -810,7 +810,7 @@ def construir(cfg, carpeta, descargar=True):
                 p["serieAportado"] = serie_ap
                 p["aportado"] = round(acum + sum(e[2] for e in pend), 2)
                 p["desde"] = min(p["desde"], min(e[0] for e in eventos))
-            for f, v, a in snaps:
+            for f, v, _a in snaps:
                 p["aportaciones"].append({"fecha": f.isoformat(), "importe": None,
                                           "valor": v, "tipo": "snapshot"})
 
@@ -1130,7 +1130,7 @@ def construir(cfg, carpeta, descargar=True):
     for c in cfg.get("comparador", []):
         idx = idx_cartera if c.get("real") else indice_pesos(c.get("pesos", {}))
         if not idx:
-            aviso("Comparador: no puedo construir '%s'." % c.get("nombre"))
+            aviso("Comparador: no puedo construir '{}'.".format(c.get("nombre")))
             continue
         met = metricas_indice(idx, rf)
         if not met:
@@ -1340,8 +1340,8 @@ def construir(cfg, carpeta, descargar=True):
 
     ser_ing = [round(ig_mes[m]["ingreso"], 2) for m in meses_ig]
     ser_gas = [round(ig_mes[m]["gasto"], 2) for m in meses_ig]
-    ser_aho = [round(i - g, 2) for i, g in zip(ser_ing, ser_gas)]
-    ser_tasa = [r4((i - g) / i) if i else None for i, g in zip(ser_ing, ser_gas)]
+    ser_aho = [round(i - g, 2) for i, g in zip(ser_ing, ser_gas, strict=False)]
+    ser_tasa = [r4((i - g) / i) if i else None for i, g in zip(ser_ing, ser_gas, strict=False)]
 
     def _bloque_ig(ing, gas):
         aho = round(ing - gas, 2)

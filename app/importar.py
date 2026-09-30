@@ -442,7 +442,8 @@ def aplicar(cfg, plan):
     for n in plan.productos_nuevos:
         prod, _ = almacen.guarda_producto(cfg, dict(n["datos"]))
         ids[n["ref"]] = prod["id"]
-    real = lambda ref: ids.get(ref, ref)
+    def real(ref):
+        return ids.get(ref, ref)
 
     sustituidos = 0
     for ref, origen in plan.reemplazar:

@@ -83,7 +83,7 @@ def probar(fuente, codigo):
             res = _get(url)["chart"]["result"][0]
             meta = res["meta"]
             cierres = [(ts, c) for ts, c in zip(res.get("timestamp", []),
-                                                 res["indicators"]["quote"][0].get("close", []))
+                                                 res["indicators"]["quote"][0].get("close", []), strict=False)
                        if c is not None]
             if not cierres:
                 return None
@@ -203,7 +203,7 @@ def buscar(texto):
     with ThreadPoolExecutor(max_workers=8) as ex:
         precios = list(ex.map(lambda c: probar(c["fuente"], c["codigo"]), cands))
     salida = []
-    for c, p in zip(cands, precios):
+    for c, p in zip(cands, precios, strict=False):
         if not p:
             continue
         c.update({k: v for k, v in p.items() if v is not None and (k != "nombre" or not c["nombre"])})
