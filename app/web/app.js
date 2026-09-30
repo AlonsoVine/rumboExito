@@ -522,6 +522,35 @@
     $("#flujosTabla").innerHTML =
       `<thead><tr><th>Mes</th><th style="text-align:right">Ingresos</th><th style="text-align:right">Gastos</th>
         <th style="text-align:right">Ahorro</th><th style="text-align:right">Tasa</th></tr></thead><tbody>${filas}</tbody>`;
+
+    // Presupuesto por categoría (mes en curso frente al presupuesto, si lo hay).
+    const cats = (f.porCategoria || []).filter(c => c.mes || c.anio || c.presupuesto);
+    const cont = $("#flujosCatEnv");
+    if (cont) {
+      const hayPres = cats.some(c => c.presupuesto != null);
+      const dif = c => {
+        if (c.presupuesto == null) return "—";
+        const d = c.diferencia;
+        const cl = d > 0 ? "neg" : "pos";   // gastar por encima del presupuesto es malo
+        return `<span class="${cl}">${G.fmtEurSigno(-d)}</span>`;   // +: te sobra; −: te pasas
+      };
+      const fil = cats.map(c => `<tr>
+        <td>${c.categoria}</td>
+        <td><span class="${c.tipo === "ingreso" ? "pos" : "neg"}">${c.tipo === "ingreso" ? "Ingreso" : "Gasto"}</span></td>
+        <td style="text-align:right">${G.fmtEur(c.mes, 0)}</td>
+        <td style="text-align:right">${G.fmtEur(c.anio, 0)}</td>
+        <td style="text-align:right">${c.presupuesto != null ? G.fmtEur(c.presupuesto, 0) : "—"}</td>
+        <td style="text-align:right">${dif(c)}</td>
+        <td style="text-align:right">${G.fmtEur(c.media, 0)}</td></tr>`).join("");
+      cont.innerHTML = cats.length
+        ? `<h3 style="font-size:13px;margin:0 0 8px;color:var(--tinta2)">Por categoría${hayPres ? " · presupuesto del mes" : ""}</h3>
+           <div class="tablaEnv"><table class="dt"><thead><tr><th>Categoría</th><th>Tipo</th>
+             <th style="text-align:right">Este mes</th><th style="text-align:right">Año</th>
+             <th style="text-align:right">Presupuesto</th><th style="text-align:right">Margen</th>
+             <th style="text-align:right">Media 12m</th></tr></thead><tbody>${fil}</tbody></table></div>
+           ${hayPres ? `<p class="subt" style="margin-top:8px">«Margen» = presupuesto − gasto del mes: en verde te sobra, en rojo te has pasado. Presupuesto mensual total de gastos: ${G.fmtEur(f.presupuestoMensual || 0, 0)}.</p>` : '<p class="subt" style="margin-top:8px">Pon un presupuesto por categoría en «Mis datos → Configuración» para ver si te pasas.</p>'}`
+        : "";
+    }
   }
 
   /* Banner de alertas del cuadro de control (F4). */

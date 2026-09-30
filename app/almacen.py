@@ -455,7 +455,12 @@ def guarda_config(cfg, datos):
             tipo = (it or {}).get("tipo")
             if nombre and tipo in TIPOS_FLUJO and nombre.lower() not in vistos:
                 vistos.add(nombre.lower())
-                cats.append({"nombre": nombre, "tipo": tipo})
+                cat = {"nombre": nombre, "tipo": tipo}
+                pres = numero((it or {}).get("presupuesto"), "el presupuesto", errores,
+                              obligatorio=False, minimo=0)
+                if pres:
+                    cat["presupuesto"] = round(pres, 2)
+                cats.append(cat)
         conf["categorias"] = cats
     if errores:
         raise ErrorValidacion(errores)

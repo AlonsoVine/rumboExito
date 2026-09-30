@@ -1355,17 +1355,43 @@ def construir(cfg, carpeta, descargar=True):
     ano_ig = _bloque_ig(ing_ano, gas_ano)
     media12_ig = _bloque_ig(sum(ser_ing) / 12, sum(ser_gas) / 12)
 
-    cat12 = defaultdict(float)
+    cat12 = defaultdict(float)          # últimos 12 meses por categoría
+    cat_mes = defaultdict(float)        # mes en curso por categoría
+    cat_ano = defaultdict(float)        # año en curso por categoría
     for fl in flujos_cfg:
         t = fl.get("tipo")
-        if t in ("ingreso", "gasto") and fl["fecha"][:7] in meses_ig:
-            cat12[(fl.get("categoria") or "Sin categoría", t)] += float(fl.get("importe") or 0)
-    por_categoria = [{"categoria": c, "tipo": t, "total12": round(v, 2), "media": round(v / 12, 2)}
-                     for (c, t), v in sorted(cat12.items(), key=lambda x: -x[1])]
+        if t not in ("ingreso", "gasto"):
+            continue
+        clave = (fl.get("categoria") or "Sin categoría", t)
+        imp = float(fl.get("importe") or 0)
+        if fl["fecha"][:7] in meses_ig:
+            cat12[clave] += imp
+        if fl["fecha"][:7] == mes_ref_key:
+            cat_mes[clave] += imp
+        if fl["fecha"][:4] == mes_ref_key[:4]:
+            cat_ano[clave] += imp
+    # Presupuesto mensual por categoría (F3+: A1), definido en Configuración.
+    cats_cfg = (cfg.get("config") or {}).get("categorias") or []
+    pres_map = {(c.get("nombre"), c.get("tipo")): c.get("presupuesto")
+                for c in cats_cfg if c.get("nombre")}
+    claves = set(cat12) | {(c["nombre"], c["tipo"]) for c in cats_cfg if c.get("nombre")}
+    por_categoria = []
+    for (c, t) in claves:
+        pres = pres_map.get((c, t))
+        mes_v = round(cat_mes.get((c, t), 0.0), 2)
+        por_categoria.append({
+            "categoria": c, "tipo": t, "total12": round(cat12.get((c, t), 0.0), 2),
+            "media": round(cat12.get((c, t), 0.0) / 12, 2), "mes": mes_v,
+            "anio": round(cat_ano.get((c, t), 0.0), 2), "presupuesto": pres,
+            "diferencia": round(mes_v - pres, 2) if pres is not None else None,
+        })
+    por_categoria.sort(key=lambda x: -x["total12"])
+    presupuesto_mensual = round(sum(c.get("presupuesto") or 0 for c in cats_cfg if c.get("tipo") == "gasto"), 2)
 
     flujos_out = {"meses": meses_ig, "ingresos": ser_ing, "gastos": ser_gas,
                   "ahorro": ser_aho, "tasaAhorro": ser_tasa, "esteMes": este_mes_ig,
-                  "anio": ano_ig, "media12": media12_ig, "porCategoria": por_categoria} if flujos_cfg else None
+                  "anio": ano_ig, "media12": media12_ig, "porCategoria": por_categoria,
+                  "presupuestoMensual": presupuesto_mensual} if flujos_cfg else None
 
     # Cuota de deudas sobre ingresos: del mes en curso, o de la media si el mes no tiene ingresos.
     ing_ratio = este_mes_ig["ingresos"] or media12_ig["ingresos"]

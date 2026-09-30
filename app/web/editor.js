@@ -646,9 +646,10 @@
       ${seccion("Categorías de ingresos y gastos")}
       <div class="rejilla">
         ${campo("Categorías de ingresos (una por línea)", '<textarea name="catIng" rows="3" placeholder="Nómina\nAlquileres cobrados\nIntereses y dividendos"></textarea>', "", "ancho")}
-        ${campo("Categorías de gastos (una por línea)", '<textarea name="catGas" rows="5" placeholder="Vivienda\nAlimentación\nTransporte\nOcio"></textarea>', "", "ancho")}
+        ${campo("Categorías de gastos (una por línea; opcional «= presupuesto»)", '<textarea name="catGas" rows="5" placeholder="Vivienda = 750\nAlimentación = 600\nTransporte\nOcio = 250"></textarea>', "", "ancho")}
       </div>
-      <p class="ayuda">Aparecen en el desplegable al anotar un ingreso o un gasto. Si las dejas vacías, podrás escribir la categoría a mano.</p>`,
+      <p class="ayuda">Aparecen en el desplegable al anotar. En los gastos puedes añadir un presupuesto mensual con
+        «= importe» (p. ej. <code>Alimentación = 600</code>); el Panel te dirá si te pasas. Si las dejas vacías, escribes la categoría a mano.</p>`,
     async f => {
       const d = campos(f);
       const objetivos = {};
@@ -661,8 +662,13 @@
         return { codigo: parts[0] || "", tipo: parts[1] || "" };
       });
       const lineas = t => (d[t] || "").split(/\n+/).map(s => s.trim()).filter(Boolean);
-      const categorias = lineas("catIng").map(n => ({ nombre: n, tipo: "ingreso" }))
-        .concat(lineas("catGas").map(n => ({ nombre: n, tipo: "gasto" })));
+      const catGas = lineas("catGas").map(l => {
+        const p = l.split("=");
+        const o = { nombre: (p[0] || "").trim(), tipo: "gasto" };
+        if ((p[1] || "").trim()) o.presupuesto = (p[1] || "").trim();
+        return o;
+      }).filter(o => o.nombre);
+      const categorias = lineas("catIng").map(n => ({ nombre: n, tipo: "ingreso" })).concat(catGas);
       await guardaConfig({
         titular: (d.nombreCartera || "").trim(),
         objetivoImporte: d.objetivoImporte,
@@ -691,7 +697,8 @@
     f.elements.monedas.value = (conf.monedas || []).map(m => `${m.codigo} ${m.tipo}`).join("\n");
     const cats = conf.categorias || [];
     f.elements.catIng.value = cats.filter(c => c.tipo === "ingreso").map(c => c.nombre).join("\n");
-    f.elements.catGas.value = cats.filter(c => c.tipo === "gasto").map(c => c.nombre).join("\n");
+    f.elements.catGas.value = cats.filter(c => c.tipo === "gasto")
+      .map(c => c.presupuesto != null ? `${c.nombre} = ${c.presupuesto}` : c.nombre).join("\n");
     return f;
   }
 

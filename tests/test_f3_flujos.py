@@ -101,6 +101,35 @@ def test_motor_ratio_cuota_ingresos_y_tasa_ahorro(tmp_path):
     assert t["tasaAhorro"] == pytest.approx(0.375, abs=0.001)
 
 
+def test_config_categorias_con_presupuesto():
+    cfg = cfg_vacia()
+    almacen.guarda_config(cfg, {"categorias": [
+        {"nombre": "Vivienda", "tipo": "gasto", "presupuesto": "750"},
+        {"nombre": "Nómina", "tipo": "ingreso"},
+    ]})
+    cats = {c["nombre"]: c for c in cfg["config"]["categorias"]}
+    assert cats["Vivienda"]["presupuesto"] == 750.0
+    assert "presupuesto" not in cats["Nómina"]
+
+
+def test_motor_presupuesto_por_categoria(tmp_path):
+    cartera = {
+        "version": 1,
+        "config": {"categorias": [{"nombre": "Vivienda", "tipo": "gasto", "presupuesto": 700.0}]},
+        "productos": [{"id": "c", "nombre": "Caja", "corto": "Caja", "tipo": "efectivo",
+                       "fuente": "manual", "slot": 1}],
+        "movimientos": [],
+        "valoraciones": [{"id": "v", "producto": "c", "fecha": "2024-06-30", "valor": 100.0}],
+        "flujos": [{"id": "f1", "tipo": "gasto", "fecha": "2024-06-30", "importe": 800.0, "categoria": "Vivienda"}],
+    }
+    d = motor.construir(cartera, str(tmp_path), descargar=False)
+    viv = next(c for c in d["flujos"]["porCategoria"] if c["categoria"] == "Vivienda")
+    assert viv["presupuesto"] == 700.0
+    assert viv["mes"] == 800.0
+    assert viv["diferencia"] == 100.0        # gastó 800, presupuesto 700 -> 100 de más
+    assert d["flujos"]["presupuestoMensual"] == 700.0
+
+
 def test_motor_sin_flujos_deja_flujos_none(tmp_path):
     cartera = {
         "version": 1,
