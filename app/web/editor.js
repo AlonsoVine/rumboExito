@@ -165,7 +165,7 @@
       <div id="edAvisos" class="avisos"></div><div id="edCuerpo"></div>`;
     cont.innerHTML = html;
 
-    const vistas = [["productos", "Productos"], ["movimientos", "Movimientos"], ["saldos", "Saldos y valores"], ["importar", "Importar"], ["copias", "Copias y web"]];
+    const vistas = [["productos", "Productos"], ["movimientos", "Movimientos"], ["saldos", "Saldos y valores"], ["hogar", "Hogar"], ["importar", "Importar"], ["copias", "Copias y web"]];
     const seg = $("#edVistas");
     vistas.forEach(([id, et]) => {
       const b = document.createElement("button");
@@ -175,7 +175,7 @@
       seg.appendChild(b);
     });
     $("#edCuerpo").innerHTML = ({ productos: vistaProductos, movimientos: vistaMovimientos, saldos: vistaSaldos,
-      importar: vistaImportar, copias: vistaCopias }[E.vista] || vistaProductos)();
+      hogar: vistaHogar, importar: vistaImportar, copias: vistaCopias }[E.vista] || vistaProductos)();
     if (E.vista === "importar" || E.vista === "copias") conectaImportar();
     const filtro = $("#edFiltro");
     if (filtro) filtro.onchange = e => { E.filtro = e.target.value; pinta(); };
@@ -252,6 +252,8 @@
         ${campo("Tipo", `<select name="tipo">${opciones(E.tipos, p.tipo)}</select>`)}
         ${campo("ISIN o ticker", '<input name="identificador">', "opcional")}
         ${campo("Banco o bróker", '<input name="entidad">', "opcional")}
+        ${campo("Titular", `<input name="titular" list="edTitulares" placeholder="Mar, Común…">
+          <datalist id="edTitulares">${(E.cfg.titulares || []).map(t => `<option value="${esc(t)}">`).join("")}</datalist>`, "de quién es")}
       </div>
 
       <div class="siCotiza">${seccion("De dónde sale el precio")}
@@ -268,6 +270,8 @@
         ${campo("Color en los gráficos", `<div class="colores">${colores}</div>`)}
         <label class="interruptor ancho"><input type="checkbox" name="largoPlazo"><span class="pista"></span>
           <span><b>Inversión a largo plazo</b><small>El botón «Solo largo plazo» del panel quita lo que no lo es: colchón, cuentas…</small></span></label>
+        <label class="interruptor ancho"><input type="checkbox" name="disponible"><span class="pista"></span>
+          <span><b>Disponible</b><small>Liquidez inmediata (cuentas, efectivo). Las inversiones e inmuebles no suelen serlo.</small></span></label>
       </div>
       <p class="relleno" id="bRelleno" hidden></p>
 
@@ -287,6 +291,7 @@
     async f => {
       const d = campos(f);
       d.largoPlazo = f.elements.largoPlazo.checked;
+      d.disponible = f.elements.disponible.checked;
       if (!nuevo) d.id = p.id;
       const item = await guarda("productos", d);
       if (!nuevo) return null;
@@ -306,6 +311,13 @@
     f.elements.tipo.onchange = ajusta;
     f.elements.fuente.onchange = ajusta;
     ajusta();
+
+    // En un producto nuevo, «disponible» se propone según el tipo (efectivo = sí).
+    if (nuevo) {
+      const defDisp = () => { f.elements.disponible.checked = f.elements.tipo.value === "efectivo"; };
+      defDisp();
+      f.elements.tipo.addEventListener("change", defDisp);
+    }
 
     const buscar = async () => {
       const q = $("#bq").value.trim();
@@ -358,6 +370,98 @@
     const extra = nm || nv ? `\n\nSe borrarán también sus ${nm} movimientos y ${nv} valores anotados.` : "";
     if (!confirm(`¿Borrar «${nombre(p)}»?${extra}\n\nSi te equivocas, hay copias automáticas en mis_datos/copias.`)) return;
     try { await borra("productos", id); pinta(); } catch (x) { alert(x.message); }
+  }
+
+  /* ---------------------------------------------- hogar (apartados y parámetros) */
+  function vistaHogar() {
+    const conf = E.cfg.config || {};
+    const tits = E.cfg.titulares || [];
+    const aps = E.cfg.apartados || [];
+    const filasAp = aps.map(a => `<tr>
+      <td>${esc(a.nombre)}</td><td>${esc(a.finalidad || "")}</td><td>${esc(a.titular || "")}</td>
+      <td>${eur(a.importe || 0)}</td><td>${a.fechaPrevista ? fecha(a.fechaPrevista) : ""}</td>
+      <td class="acc"><button data-acc="editarApartado" data-id="${esc(a.id)}">Editar</button>
+        <button data-acc="borrarApartado" data-id="${esc(a.id)}">Borrar</button></td></tr>`).join("");
+    return `
+      <section class="tarjeta"><header><h2>Parámetros del hogar</h2>
+        <span class="subt">Titulares y colchón de seguridad</span>
+        <span class="sp"></span><button class="btn" data-acc="editarHogar">Editar</button></header>
+        <table class="leyenda">
+          <tr><td>Colchón deseado</td><td>${eur(conf.colchon || 0)}</td><td></td></tr>
+          <tr><td>Titulares</td><td>${tits.length ? tits.map(esc).join(", ") : '<span class="subt">ninguno</span>'}</td><td></td></tr>
+        </table>
+        <p class="ayuda">El <b>colchón</b> es la liquidez mínima que quieres mantener siempre; se resta del
+          dinero libre para invertir. Los <b>titulares</b> te dejan asignar cada producto y apartado a una persona.</p>
+      </section>
+      <section class="tarjeta"><header><h2>Apartados</h2>
+        <span class="subt">Dinero reservado para un fin (impuestos, obras…): no resta del patrimonio, pero sí del dinero libre</span>
+        <span class="sp"></span><button class="btn prim" data-acc="nuevoApartado">+ Añadir apartado</button></header>
+        ${filasAp ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Apartado</th><th>Finalidad</th><th>Titular</th>
+          <th>Importe</th><th>Fecha prevista</th><th></th></tr></thead><tbody>${filasAp}</tbody></table></div>`
+          : '<p class="subt">Todavía no has creado ningún apartado.</p>'}
+      </section>`;
+  }
+
+  function formApartado(a) {
+    const nuevo = !a;
+    a = a || {};
+    const tits = E.cfg.titulares || [];
+    const f = abreModal(nuevo ? "Añadir apartado" : "Editar " + esc(a.nombre || "apartado"), `
+      ${seccion("El apartado")}
+      <div class="rejilla">
+        ${campo("Nombre", '<input name="nombre" required>', "", "ancho")}
+        ${campo("Finalidad", '<input name="finalidad">', "para qué es")}
+        ${campo("Titular", `<input name="titular" list="apTitulares" placeholder="Común…">
+          <datalist id="apTitulares">${tits.map(t => `<option value="${esc(t)}">`).join("")}</datalist>`, "opcional")}
+        ${campo("Importe reservado", '<input name="importe" inputmode="decimal" required>', "€")}
+        ${campo("Fecha prevista de uso", '<input name="fechaPrevista" type="date">', "opcional")}
+        ${campo("Nota", '<textarea name="nota" rows="2"></textarea>', "opcional", "ancho")}
+      </div>`,
+    async f => {
+      const d = campos(f);
+      if (!nuevo) d.id = a.id;
+      await guarda("apartados", d);
+    }, nuevo ? "Guardar apartado" : "Guardar cambios");
+    rellena(f, a);
+    return f;
+  }
+
+  async function borrarApartado(id) {
+    const a = (E.cfg.apartados || []).find(x => x.id === id);
+    if (!confirm(`¿Borrar el apartado «${a ? a.nombre : ""}»?\n\nHay copias automáticas en mis_datos/copias.`)) return;
+    try { await borra("apartados", id); pinta(); } catch (x) { alert(x.message); }
+  }
+
+  async function guardaConfig(datos) {
+    const j = await api("POST", "api/config", datos);
+    E.cfg = j.cartera;
+    COP.lista = null;
+    window.EDITOR_SUCIO = true;
+    avisa(j.avisos);
+  }
+
+  function formHogar() {
+    const conf = E.cfg.config || {};
+    const f = abreModal("Parámetros del hogar", `
+      ${seccion("Colchón de seguridad")}
+      <div class="rejilla">
+        ${campo("Colchón deseado", '<input name="colchon" inputmode="decimal" placeholder="3000">', "€, liquidez mínima")}
+      </div>
+      ${seccion("Titulares")}
+      <div class="rejilla">
+        ${campo("Un titular por línea", '<textarea name="titulares" rows="4" placeholder="Mar\nAntonio\nComún"></textarea>', "personas del hogar", "ancho")}
+      </div>
+      <p class="ayuda">Escribe cada titular en su línea. Luego podrás asignar cada producto y apartado a un titular.</p>`,
+    async f => {
+      const d = campos(f);
+      await guardaConfig({
+        colchon: d.colchon,
+        titulares: (d.titulares || "").split(/\n+/).map(s => s.trim()).filter(Boolean),
+      });
+    }, "Guardar");
+    f.elements.colchon.value = conf.colchon || "";
+    f.elements.titulares.value = (E.cfg.titulares || []).join("\n");
+    return f;
   }
 
   /* ---------------------------------------------- movimientos */
@@ -808,6 +912,10 @@
     editarValor: soloPropio(id => formValor(E.cfg.valoraciones.find(v => v.id === id))),
     borrarValor: soloPropio(borrarValor),
     todosValores: soloPropio(todosValores),
+    nuevoApartado: soloPropio(() => formApartado(null)),
+    editarApartado: soloPropio(id => formApartado((E.cfg.apartados || []).find(a => a.id === id))),
+    borrarApartado: soloPropio(borrarApartado),
+    editarHogar: soloPropio(formHogar),
     repartirColores: soloPropio(async () => {
       try {
         const j = await api("POST", "api/repartir-colores");

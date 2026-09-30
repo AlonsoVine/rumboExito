@@ -412,6 +412,41 @@
       ? `Métricas de los ${visibles().length} componentes activos, no del patrimonio completo.` : "";
   }
 
+  /* Patrimonio del hogar: bruto/neto, disponible, apartados, colchón, dinero libre
+     y desglose por titular. Cifras del snapshot de hoy (D.total), no filtradas. */
+  function pintaHogar() {
+    const t = D.total, card = $("#tarjetaHogar");
+    if (!t || t.patrimonioBruto == null) { card.hidden = true; return; }
+    card.hidden = false;
+
+    const tiles = [
+      { e: "Patrimonio bruto", v: G.fmtEur(t.patrimonioBruto, 0), n: "todo lo que tienes" },
+      { e: "Deudas", v: G.fmtEur(t.deudas, 0), n: "lo que debes", cl: t.deudas ? "neg" : "" },
+      { e: "Patrimonio neto", v: G.fmtEur(t.patrimonioNeto, 0), n: "bruto − deudas" },
+      { e: "Disponible", v: G.fmtEur(t.disponible, 0), n: "liquidez inmediata" },
+      { e: "No disponible", v: G.fmtEur(t.noDisponible, 0), n: "inversiones, inmuebles…" },
+      { e: "Apartados", v: G.fmtEur(t.apartadosTotal, 0), n: "dinero reservado" },
+      { e: "Colchón", v: G.fmtEur(t.colchon, 0), n: "liquidez que quieres mantener" },
+      {
+        e: "Dinero libre para invertir", v: G.fmtEur(t.dineroLibre, 0),
+        n: "disponible − apartados − colchón", cl: t.dineroLibre < 0 ? "neg" : "pos"
+      },
+    ];
+    $("#hogarGrid").innerHTML = tiles.map(k =>
+      `<div class="kpi"><div class="e">${k.e}</div>
+       <div class="v ${k.cl || ""}">${k.v}</div><div class="n">${k.n}</div></div>`).join("");
+
+    const pt = t.porTitular || [];
+    const hayTit = pt.length > 1 || (pt.length === 1 && pt[0].nombre !== "Sin asignar");
+    const cont = $("#hogarTitular");
+    cont.innerHTML = !hayTit ? "" :
+      `<h3 style="font-size:13px;margin:0 0 6px;color:var(--tinta2)">Patrimonio neto por titular</h3>
+       <table class="leyenda">` + pt.map(x =>
+        `<tr><td><i style="background:${(x.color && x.color[0]) || "#888"}"></i>${x.nombre}</td>
+         <td>${G.fmtEur(x.valor, 0)}</td><td>${G.fmtPct(x.peso, 0)}</td></tr>`).join("") +
+      `</table>`;
+  }
+
   function pintaPrincipal(m) {
     const fechas = corta(D.fechas);
     const prods = visibles().filter(p => (p.serie || []).some(v => v));
@@ -608,6 +643,7 @@
     pintaFiltros();
     pintaHero(mVis, mTodo);
     pintaKPIs(mVis);
+    pintaHogar();
     pintaPrincipal(mVis);
     pintaChips();
     pintaDistribucion();

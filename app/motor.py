@@ -1241,9 +1241,50 @@ def construir(cfg, carpeta, descargar=True):
                     "precioRef": r4(prod_v["nav"]), "btcRef": r2(ref),
                     "fechaRef": prod_v.get("navFecha") or fecha_extracto.isoformat()}
 
+    # ---- patrimonio del hogar (bruto/neto, disponible, apartados, dinero libre) ----
+    # Los activos suman (productos + otros); las deudas (pasivos) llegan con valor
+    # negativo. El patrimonio neto coincide con «patrimonio».
+    activos = productos + ser_otros
+
+    def es_disponible(p):
+        # Liquidez inmediata: lo que el usuario marcó, o el efectivo por defecto.
+        return bool(p.get("disponible", p.get("tipoClave") == "efectivo"))
+
+    bruto = round(sum(p["valor"] for p in activos), 2)
+    deudas_total = round(-sum(e["valor"] for e in ser_pasivos), 2)
+    neto = round(bruto - deudas_total, 2)
+    disponible = round(sum(p["valor"] for p in activos if es_disponible(p)), 2)
+    no_disponible = round(bruto - disponible, 2)
+
+    apartados_cfg = cfg.get("apartados", []) or []
+    apartados_total = round(sum(float(a.get("importe") or 0) for a in apartados_cfg), 2)
+    colchon = round(float((cfg.get("config") or {}).get("colchon") or 0), 2)
+    # Dinero libre para invertir = disponible − apartados − colchón (puede ser negativo).
+    dinero_libre = round(disponible - apartados_total - colchon, 2)
+
+    # Patrimonio neto atribuido a cada titular (los activos suman; las deudas restan).
+    tit_acc = defaultdict(float)
+    for p in activos:
+        tit_acc[p.get("titular") or "Sin asignar"] += p["valor"]
+    for e in ser_pasivos:
+        tit_acc[e.get("titular") or "Sin asignar"] += e["valor"]
+    por_titular = []
+    for i, (k, v) in enumerate(sorted(tit_acc.items(), key=lambda x: -x[1])):
+        por_titular.append({"nombre": k, "valor": round(v, 2),
+                            "peso": r4(v / neto) if neto else 0,
+                            "color": PALETA.get(i % 12 + 1, PALETA[1])})
+
+    apartados_out = [{"id": a.get("id"), "nombre": a.get("nombre"),
+                      "finalidad": a.get("finalidad", ""), "titular": a.get("titular", ""),
+                      "importe": round(float(a.get("importe") or 0), 2),
+                      "fechaPrevista": a.get("fechaPrevista", "")}
+                     for a in apartados_cfg]
+
     datos = {
         "generado": dt.datetime.now().replace(microsecond=0).isoformat(),
         "titular": cfg.get("titular", "Mi patrimonio"),
+        "titulares": cfg.get("titulares", []) or [],
+        "apartados": apartados_out,
         "moneda": cfg.get("moneda", "EUR"),
         "fechaExtracto": fecha_extracto.isoformat(),
         "fechas": eje_iso,
@@ -1252,6 +1293,15 @@ def construir(cfg, carpeta, descargar=True):
         "pasivos": ser_pasivos,
         "total": {
             "patrimonio": patrimonio,
+            "patrimonioBruto": bruto,
+            "patrimonioNeto": neto,
+            "deudas": deudas_total,
+            "disponible": disponible,
+            "noDisponible": no_disponible,
+            "apartadosTotal": apartados_total,
+            "colchon": colchon,
+            "dineroLibre": dinero_libre,
+            "porTitular": por_titular,
             "aportado": aportado_total,
             "valorConCoste": round(valor_conocido, 2),
             "plusvalia": plusvalia_total,

@@ -136,9 +136,9 @@ def api_buscar():
 
 
 GUARDAR = {"productos": almacen.guarda_producto, "movimientos": almacen.guarda_movimiento,
-           "valoraciones": almacen.guarda_valoracion}
+           "valoraciones": almacen.guarda_valoracion, "apartados": almacen.guarda_apartado}
 BORRAR = {"productos": almacen.borra_producto, "movimientos": almacen.borra_movimiento,
-          "valoraciones": almacen.borra_valoracion}
+          "valoraciones": almacen.borra_valoracion, "apartados": almacen.borra_apartado}
 AVISO_DEMO = ("Estás viendo la cartera de ejemplo. Pulsa «Empezar con mis datos» "
               "para crear la tuya y poder guardar cambios.")
 
@@ -183,6 +183,13 @@ def api_borrar(coleccion, ident):
     if coleccion not in BORRAR:
         return jsonify(ok=False, errores=["No sé borrar eso."]), 404
     return cambia(lambda cfg: BORRAR[coleccion](cfg, ident))
+
+
+@app.post("/api/config")
+def api_config():
+    """Guarda los parámetros del hogar (colchón, titulares)."""
+    datos = request.get_json(silent=True) or {}
+    return cambia(lambda cfg: almacen.guarda_config(cfg, datos))
 
 
 @app.post("/api/repartir-colores")

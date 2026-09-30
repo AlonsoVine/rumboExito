@@ -22,10 +22,17 @@ SOLO_SALDO = ("efectivo", "deuda")   # tipos que se siguen solo con saldos anota
 CARTERA_VACIA = {
     "version": 1, "titular": "Mi patrimonio",
     "productos": [], "movimientos": [], "valoraciones": [],
+    "titulares": [], "apartados": [],
+    "config": {"colchon": 0},
     "comparador": [{"id": "real", "nombre": "Mi cartera real", "real": True}],
     "hitos": [10000, 25000, 50000, 100000, 250000, 500000, 1000000],
     "objetivo": {"activo": True, "importe": 100000, "etiqueta": "Próximo objetivo"},
 }
+
+# Por defecto solo el efectivo/las cuentas cuentan como «disponible» (liquidez
+# inmediata sin penalización). El resto se marca a mano en la ficha del producto.
+def disponible_defecto(tipo):
+    return tipo == "efectivo"
 
 
 class ErrorValidacion(Exception):
@@ -130,7 +137,7 @@ def texto(v, maximo=200):
 # ---------------------------------------------------------------- productos
 
 CAMPOS_TEXTO = ("nombre", "corto", "identificador", "codigo", "entidad", "clase", "gestora",
-                "tipoDetalle", "respaldo", "respaldoMoneda", "vivo", "papel")
+                "tipoDetalle", "respaldo", "respaldoMoneda", "vivo", "papel", "titular")
 
 
 def guarda_producto(cfg, datos):
@@ -161,6 +168,7 @@ def guarda_producto(cfg, datos):
 
     nuevo.update(tipo=tipo, fuente=fuente, moneda=moneda,
                  largoPlazo=bool(datos.get("largoPlazo", True)),
+                 disponible=bool(datos.get("disponible", disponible_defecto(tipo))),
                  slot=int(datos["slot"]) if str(datos.get("slot") or "").isdigit() else None,
                  ter=ter / 100 if ter is not None else None,
                  riesgo=int(riesgo) if riesgo is not None else None)
@@ -318,3 +326,70 @@ def borra_valoracion(cfg, vid):
     cfg["valoraciones"] = [v for v in cfg.get("valoraciones", []) if v.get("id") != vid]
     if len(cfg["valoraciones"]) == antes:
         raise ErrorValidacion(["Ese valor ya no existe."])
+
+
+# ---------------------------------------------------------------- apartados
+# Un apartado es dinero PROPIO reservado para un fin concreto (impuestos, obras,
+# fianzas que habrá que devolver…). NO es deuda y NO resta del patrimonio neto,
+# pero sí del «dinero libre para invertir».
+
+def guarda_apartado(cfg, datos):
+    errores = []
+    nombre = texto(datos.get("nombre"))
+    if not nombre:
+        errores.append("Ponle un nombre al apartado.")
+    importe = numero(datos.get("importe"), "el importe reservado", errores, minimo=0)
+    if errores:
+        raise ErrorValidacion(errores)
+    ap = {"nombre": nombre, "importe": round(importe, 2),
+          "finalidad": texto(datos.get("finalidad")),
+          "titular": texto(datos.get("titular")),
+          "fechaPrevista": fecha_suave(datos.get("fechaPrevista")),
+          "nota": texto(datos.get("nota"))}
+    lista = cfg.setdefault("apartados", [])
+    existente = next((a for a in lista if a.get("id") == datos.get("id")), None) if datos.get("id") else None
+    if existente:
+        aid = existente["id"]
+        existente.clear()
+        existente.update(id=aid, **{k: v for k, v in ap.items() if v not in ("", None)})
+        return existente
+    ap = {"id": siguiente_id(lista, "a"), **{k: v for k, v in ap.items() if v not in ("", None)}}
+    lista.append(ap)
+    return ap
+
+
+def borra_apartado(cfg, aid):
+    antes = len(cfg.get("apartados", []))
+    cfg["apartados"] = [a for a in cfg.get("apartados", []) if a.get("id") != aid]
+    if len(cfg["apartados"]) == antes:
+        raise ErrorValidacion(["Ese apartado ya no existe."])
+
+
+def fecha_suave(valor):
+    """Como fecha(), pero opcional: devuelve ISO o '' sin poner errores."""
+    try:
+        return dt.date.fromisoformat(str(valor or "")[:10]).isoformat()
+    except ValueError:
+        return ""
+
+
+# ---------------------------------------------------------------- configuración
+
+def guarda_config(cfg, datos):
+    """Ajusta los parámetros del hogar: colchón y lista de titulares."""
+    errores = []
+    conf = cfg.setdefault("config", {})
+    if "colchon" in datos:
+        colchon = numero(datos.get("colchon"), "el colchón", errores, obligatorio=False, minimo=0)
+        conf["colchon"] = round(colchon, 2) if colchon is not None else 0
+    if "titulares" in datos:
+        vistos, limpios = set(), []
+        for t in datos.get("titulares") or []:
+            nombre = texto(t, 60)
+            if nombre and nombre.lower() not in vistos:
+                vistos.add(nombre.lower())
+                limpios.append(nombre)
+        cfg["titulares"] = limpios
+    if errores:
+        raise ErrorValidacion(errores)
+    return {"config": conf, "titulares": cfg.get("titulares", [])}

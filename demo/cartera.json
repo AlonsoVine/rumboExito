@@ -141,7 +141,8 @@
    "tipo": "fondo",
    "fuente": "morningstar",
    "codigo": "0P0001CLDK",
-   "moneda": "EUR"
+   "moneda": "EUR",
+   "titular": "Yo"
   },
   {
    "id": "emergentes",
@@ -282,7 +283,8 @@
    "tipo": "fondo",
    "fuente": "morningstar",
    "codigo": "0P0001CJGK",
-   "moneda": "EUR"
+   "moneda": "EUR",
+   "titular": "Pareja"
   },
   {
    "id": "monetario",
@@ -304,7 +306,9 @@
    "tipo": "fondo",
    "fuente": "morningstar",
    "codigo": "0P00000F24",
-   "moneda": "EUR"
+   "moneda": "EUR",
+   "titular": "Común",
+   "disponible": true
   },
   {
    "id": "bitcoin",
@@ -330,7 +334,8 @@
    "moneda": "EUR",
    "respaldo": "BTCW.SW",
    "respaldoMoneda": "CHF",
-   "vivo": "bitcoin"
+   "vivo": "bitcoin",
+   "titular": "Yo"
   },
   {
    "id": "pension_jubilacion",
@@ -344,7 +349,8 @@
    "largoPlazo": true,
    "tipoDetalle": "Plan de pensiones",
    "tipo": "pension",
-   "fuente": "manual"
+   "fuente": "manual",
+   "titular": "Yo"
   },
   {
    "id": "seguro_ahorro",
@@ -358,7 +364,8 @@
    "largoPlazo": true,
    "tipoDetalle": "Seguro de ahorro",
    "tipo": "otro",
-   "fuente": "manual"
+   "fuente": "manual",
+   "titular": "Pareja"
   },
   {
    "id": "efectivo_myinvestor",
@@ -371,7 +378,8 @@
    "entidad": "MyInvestor",
    "papel": "Munición lista para aportar. Es el dinero que va camino de los fondos.",
    "slot": 7,
-   "largoPlazo": false
+   "largoPlazo": false,
+   "titular": "Común"
   },
   {
    "id": "efectivo_bbva",
@@ -384,7 +392,8 @@
    "entidad": "BBVA",
    "papel": "Cuenta del día a día: nómina, recibos y gasto corriente.",
    "slot": 8,
-   "largoPlazo": false
+   "largoPlazo": false,
+   "titular": "Común"
   }
  ],
  "movimientos": [
@@ -1505,5 +1514,30 @@
   "activo": true,
   "importe": 100000,
   "etiqueta": "Proximo objetivo"
- }
+ },
+ "titulares": [
+  "Yo",
+  "Pareja",
+  "Común"
+ ],
+ "config": {
+  "colchon": 3000
+ },
+ "apartados": [
+  {
+   "id": "a1",
+   "nombre": "Reserva impuestos",
+   "finalidad": "Pago de impuestos",
+   "titular": "Común",
+   "importe": 1500,
+   "fechaPrevista": "2027-06-30"
+  },
+  {
+   "id": "a2",
+   "nombre": "Viaje",
+   "finalidad": "Vacaciones",
+   "titular": "Yo",
+   "importe": 800
+  }
+ ]
 }
