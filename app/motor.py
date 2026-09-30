@@ -897,6 +897,9 @@ def construir(cfg, carpeta, descargar=True):
         serie_total.append(round(s, 2))
         serie_ap_total.append(round(sum((p["serieAportado"][i] or 0) for p in productos), 2))
 
+    # Serie diaria de deudas (magnitud): los pasivos vienen con serie negativa.
+    serie_deuda = [round(-sum((e["serie"][i] or 0) for e in ser_pasivos), 2) for i in range(n)] if ser_pasivos else None
+
     patrimonio = round(serie_total[-1], 2)
     aportado_total = round(sum(p["aportado"] or 0 for p in productos), 2)
     plusvalia_total = round(valor_conocido - aportado_total, 2)
@@ -1525,6 +1528,7 @@ def construir(cfg, carpeta, descargar=True):
             "realizado": realizado_total,
             "serie": serie_total,
             "serieAportado": serie_ap_total,
+            "serieDeuda": serie_deuda,
             "porClase": agrupar("clase"),
             "porEntidad": agrupar("entidad"),
             "porTipo": agrupar("tipo"),

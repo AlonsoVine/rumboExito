@@ -68,6 +68,8 @@ def test_motor_detalle_y_totales_de_deuda(tmp_path):
     assert deuda["interesAnual"] == 2400.0
     assert deuda["acreedor"] == "Caixabank"
     assert deuda["fechaVencimiento"] == "2040-01-01"
+    # Serie diaria de deudas (para la gráfica de evolución del hogar).
+    assert t["serieDeuda"] and t["serieDeuda"][-1] == 80000.0
 
 
 def test_motor_sin_deudas_ratio_y_totales_a_cero(tmp_path):
@@ -80,6 +82,7 @@ def test_motor_sin_deudas_ratio_y_totales_a_cero(tmp_path):
     }
     d = motor.construir(cartera, str(tmp_path), descargar=False)
     assert d["deudas"] == []
+    assert d["total"]["serieDeuda"] is None
     assert d["total"]["cuotaMensualDeudas"] == 0
     assert d["total"]["interesAnualDeudas"] == 0
     assert d["total"]["ratioDeudaActivos"] == 0.0

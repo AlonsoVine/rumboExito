@@ -553,6 +553,38 @@
     }
   }
 
+  /* Evolución del hogar: patrimonio neto frente a deudas en el tiempo. */
+  function pintaEvolucionHogar() {
+    const cont = $("#grafDeuda"), card = $("#tarjetaDeudaEvol"), t = D.total;
+    if (!cont) return;
+    if (!t.serieDeuda) { if (card) card.hidden = true; return; }
+    if (card) card.hidden = false;
+    G.multiLinea(cont, {
+      fechas: corta(D.fechas), alto: 260, desdeCero: true,
+      series: [
+        { nombre: "Patrimonio neto", color: G.css("--s1"), valores: corta(t.serie), destacado: true },
+        { nombre: "Deudas", color: G.css("--s8"), valores: corta(t.serieDeuda) },
+      ],
+      formatoY: v => G.fmtEurCorto(v), formatoValor: v => G.fmtEur(v),
+    });
+  }
+
+  /* Evolución de ingresos, gastos y ahorro mes a mes (últimos 12 meses). */
+  function pintaFlujosGraf() {
+    const cont = $("#grafFlujosEvol"), f = D.flujos;
+    if (!cont) return;
+    if (!f) { cont.innerHTML = ""; return; }
+    G.multiLinea(cont, {
+      fechas: f.meses.map(m => m + "-01"), alto: 240, desdeCero: true,
+      series: [
+        { nombre: "Ingresos", color: G.css("--s6"), valores: f.ingresos },
+        { nombre: "Gastos", color: G.css("--s8"), valores: f.gastos },
+        { nombre: "Ahorro", color: G.css("--s1"), valores: f.ahorro, destacado: true },
+      ],
+      formatoY: v => G.fmtEurCorto(v), formatoValor: v => G.fmtEur(v),
+    });
+  }
+
   /* Banner de alertas del cuadro de control (F4). */
   function pintaAlertas() {
     const cont = $("#bannerAlertas"), al = D.alertas || [];
@@ -819,9 +851,10 @@
     pintaChips();
     pintaHitos(mTodo);
     // Gráficos: solo los de la vista visible (un SVG en un panel oculto sale con ancho 0).
-    if (pv === "evolucion") { pintaPrincipal(mVis); pintaBarras(); pintaMes(); }
+    if (pv === "evolucion") { pintaPrincipal(mVis); pintaBarras(); pintaMes(); pintaEvolucionHogar(); }
     else if (pv === "distribucion") pintaDistribucion();
     else if (pv === "rentabilidad") { pintaProyeccion(); pintaTabla(); pintaRendimiento(); }
+    else if (pv === "ingresos") pintaFlujosGraf();
     else if (pv === "producto") pintaFondos();
     // Segmentos: sus callbacks redibujan la vista activa.
     pintaSegm($("#segRango"), RANGOS, estado.rango, id => { estado.rango = id; pintaPatrimonio(); });
