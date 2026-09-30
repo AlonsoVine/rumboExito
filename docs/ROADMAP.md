@@ -17,6 +17,10 @@ hogar completo** (superconjunto del Excel), manteniéndose **100 % local**. Ver
 
 ## Fases
 
+> **Estado a 2026-09-30: F0–F5 implementadas** (con tests, ADRs y commits por
+> fase). Ver [CHANGELOG](../CHANGELOG.md). Pendiente de repaso conjunto y
+> recolocación de la interfaz.
+
 | Fase | Objetivo | Entregables |
 |---|---|---|
 | **F0 · Cimientos** | Red de seguridad antes de tocar el motor. | Suite de tests (pytest) que caracteriza el motor actual; tooling (ruff); documentación (arquitectura, ADR, guía de desarrollo, roadmap); rama de trabajo. |

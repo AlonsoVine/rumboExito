@@ -612,6 +612,21 @@ def construir(cfg, carpeta, descargar=True):
     fecha_extracto = min(d(max(ultimas)), hoy()) if ultimas else hoy()
     print(f"  Datos valorados a {fecha_extracto}")
 
+    # Tipo de cambio manual (F5): factor a euros para productos «a mano» en otra
+    # moneda. Un único tipo para todo el histórico (ver ADR 0007 y la Guía del Excel).
+    monedas_cfg = (cfg.get("config") or {}).get("monedas") or []
+    fx_man = {m["codigo"]: float(m["tipo"]) for m in monedas_cfg if m.get("codigo") and m.get("tipo")}
+    monedas_faltan = set()
+
+    def factor_manual(p):
+        m = p.get("moneda") or "EUR"
+        if (p.get("fuente") or "manual") != "manual" or m in ("EUR", ""):
+            return 1.0
+        if m in fx_man:
+            return fx_man[m]
+        monedas_faltan.add(m)
+        return 1.0
+
     # ---- primera pasada: movimientos, precio actual y fechas ----
     productos, otros, pasivos, primera = [], [], [], None
 
@@ -631,7 +646,9 @@ def construir(cfg, carpeta, descargar=True):
             (p.get("moneda") or "EUR").upper() != "EUR" else None) if x)
         p["aportaciones"] = []
         movs = movs_por.get(p["id"], [])
-        snaps = [[v["fecha"], float(v["valor"]), v.get("aportado")]
+        fac = factor_manual(p)
+        snaps = [[v["fecha"], float(v["valor"]) * fac,
+                  (float(v["aportado"]) * fac if v.get("aportado") is not None else None)]
                  for v in sorted(vals_por.get(p["id"], []), key=lambda v: v["fecha"])]
         fechas_p = [m["fecha"] for m in movs] + [s[0] for s in snaps]
 
@@ -1432,6 +1449,9 @@ def construir(cfg, carpeta, descargar=True):
         _al("Vencimientos dentro del plazo de aviso.", nprox, "info")
     if dinero_libre < 0:
         _al("Dinero libre para invertir negativo (apartados + colchón superan lo disponible).", 1)
+    if monedas_faltan:
+        _al("Monedas sin tipo de cambio configurado (se toman en euros): "
+            + ", ".join(sorted(monedas_faltan)) + ".", len(monedas_faltan))
 
     control = {"umbral": r4(umbral), "desviacionMax": r4(desv_max), "diasAviso": dias_aviso,
                "sumaObjetivos": r4(suma_obj)}
@@ -1448,6 +1468,7 @@ def construir(cfg, carpeta, descargar=True):
         "vencimientos": vencimientos,
         "alertas": alertas,
         "control": control,
+        "monedas": monedas_cfg,
         "moneda": cfg.get("moneda", "EUR"),
         "fechaExtracto": fecha_extracto.isoformat(),
         "fechas": eje_iso,

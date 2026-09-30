@@ -410,6 +410,18 @@
    "fechaInicio": "2023-04-15",
    "fechaVencimiento": "2029-04-15",
    "slot": 8
+  },
+  {
+   "id": "ahorro_usd",
+   "nombre": "Ahorro en dólares",
+   "corto": "Ahorro USD",
+   "tipo": "efectivo",
+   "fuente": "manual",
+   "entidad": "Wise",
+   "titular": "Yo",
+   "moneda": "USD",
+   "disponible": true,
+   "slot": 9
   }
  ],
  "movimientos": [
@@ -1472,6 +1484,12 @@
    "producto": "prestamo_coche",
    "fecha": "2026-09-13",
    "valor": 8260.35
+  },
+  {
+   "id": "vusd",
+   "producto": "ahorro_usd",
+   "fecha": "2026-09-13",
+   "valor": 2000.0
   }
  ],
  "comparador": [
@@ -1553,7 +1571,13 @@
   },
   "umbralConcentracion": 0.4,
   "desviacionMax": 0.05,
-  "diasAviso": 90
+  "diasAviso": 90,
+  "monedas": [
+   {
+    "codigo": "USD",
+    "tipo": 0.92
+   }
+  ]
  },
  "apartados": [
   {

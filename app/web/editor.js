@@ -254,13 +254,13 @@
         ${campo("Banco o bróker", '<input name="entidad">', "opcional")}
         ${campo("Titular", `<input name="titular" list="edTitulares" placeholder="Mar, Común…">
           <datalist id="edTitulares">${(E.cfg.titulares || []).map(t => `<option value="${esc(t)}">`).join("")}</datalist>`, "de quién es")}
+        ${campo("Moneda", '<input name="moneda" maxlength="3" placeholder="EUR">', "EUR por defecto")}
       </div>
 
       <div class="siCotiza">${seccion("De dónde sale el precio")}
       <div class="rejilla tres">
         ${campo("Fuente", `<select name="fuente">${opciones(E.fuentes, p.fuente)}</select>`)}
         ${campo("Código", '<input name="codigo">', "", "siOnline")}
-        ${campo("Moneda", '<input name="moneda" maxlength="3">', "", "siOnline")}
       </div></div>
 
       <div class="siDeuda" hidden>${seccion("Datos de la deuda")}
@@ -483,7 +483,13 @@
       <div class="secc">Objetivo de asignación por tipo (%)</div>
       <div class="rejilla tres">${objInputs}</div>
       <p class="ayuda">Los objetivos por tipo deberían sumar 100 %. Déjalos vacíos si no quieres objetivos.
-        La concentración avisa cuando un tipo o entidad supera el umbral.</p>`,
+        La concentración avisa cuando un tipo o entidad supera el umbral.</p>
+      ${seccion("Monedas (tipo de cambio manual)")}
+      <div class="rejilla">
+        ${campo("Una moneda por línea: código y euros por unidad", '<textarea name="monedas" rows="3" placeholder="USD 0,92\nGBP 1,17"></textarea>', "EUR = 1, implícito", "ancho")}
+      </div>
+      <p class="ayuda">Solo para productos «a mano» en otra divisa. Es un tipo único para todo el histórico
+        (aproximación). Los productos con cotización usan su cambio diario.</p>`,
     async f => {
       const d = campos(f);
       const objetivos = {};
@@ -491,13 +497,17 @@
         const val = (d["obj_" + clave] || "").trim();
         if (val) objetivos[clave] = val;
       });
+      const monedas = (d.monedas || "").split(/\n+/).map(l => l.trim()).filter(Boolean).map(l => {
+        const parts = l.split(/\s+/);
+        return { codigo: parts[0] || "", tipo: parts[1] || "" };
+      });
       await guardaConfig({
         colchon: d.colchon,
         titulares: (d.titulares || "").split(/\n+/).map(s => s.trim()).filter(Boolean),
         umbralConcentracion: d.umbralConcentracion,
         desviacionMax: d.desviacionMax,
         diasAviso: d.diasAviso,
-        objetivos,
+        objetivos, monedas,
       });
     }, "Guardar");
     f.elements.colchon.value = conf.colchon || "";
@@ -510,6 +520,7 @@
       const el = f.elements["obj_" + clave];
       if (el) el.value = pct(frac);
     });
+    f.elements.monedas.value = (conf.monedas || []).map(m => `${m.codigo} ${m.tipo}`).join("\n");
     return f;
   }
 

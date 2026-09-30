@@ -24,7 +24,7 @@ CARTERA_VACIA = {
     "version": 1, "titular": "Mi patrimonio",
     "productos": [], "movimientos": [], "valoraciones": [],
     "titulares": [], "apartados": [], "flujos": [],
-    "config": {"colchon": 0, "categorias": [], "objetivos": {},
+    "config": {"colchon": 0, "categorias": [], "objetivos": {}, "monedas": [],
                "umbralConcentracion": 0.4, "desviacionMax": 0.05, "diasAviso": 90},
     "comparador": [{"id": "real", "nombre": "Mi cartera real", "real": True}],
     "hitos": [10000, 25000, 50000, 100000, 250000, 500000, 1000000],
@@ -421,6 +421,19 @@ def guarda_config(cfg, datos):
                 if x:
                     objs[clave] = round(x / 100, 4)
         conf["objetivos"] = objs
+    if "monedas" in datos:
+        # Tipo de cambio manual: cuántos euros vale 1 unidad de cada moneda (F5).
+        monedas, vistos = [], set()
+        for it in datos.get("monedas") or []:
+            cod = texto((it or {}).get("codigo"), 3)
+            cod = cod if cod in ("GBp", "GBX") else cod.upper()
+            if not re.fullmatch(r"[A-Z]{3}|GBp|GBX", cod) or cod == "EUR" or cod in vistos:
+                continue
+            tipo = numero((it or {}).get("tipo"), f"el tipo de cambio de {cod}", errores, mayor_que=0)
+            if tipo is not None:
+                vistos.add(cod)
+                monedas.append({"codigo": cod, "tipo": round(tipo, 6)})
+        conf["monedas"] = monedas
     if errores:
         raise ErrorValidacion(errores)
     return {"config": conf, "titulares": cfg.get("titulares", [])}
