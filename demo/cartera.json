@@ -1577,6 +1577,44 @@
     "codigo": "USD",
     "tipo": 0.92
    }
+  ],
+  "categorias": [
+   {
+    "nombre": "Nómina",
+    "tipo": "ingreso"
+   },
+   {
+    "nombre": "Alquileres cobrados",
+    "tipo": "ingreso"
+   },
+   {
+    "nombre": "Intereses y dividendos",
+    "tipo": "ingreso"
+   },
+   {
+    "nombre": "Vivienda",
+    "tipo": "gasto"
+   },
+   {
+    "nombre": "Alimentación",
+    "tipo": "gasto"
+   },
+   {
+    "nombre": "Suministros",
+    "tipo": "gasto"
+   },
+   {
+    "nombre": "Transporte",
+    "tipo": "gasto"
+   },
+   {
+    "nombre": "Ocio y restaurantes",
+    "tipo": "gasto"
+   },
+   {
+    "nombre": "Otros gastos",
+    "tipo": "gasto"
+   }
   ]
  },
  "apartados": [

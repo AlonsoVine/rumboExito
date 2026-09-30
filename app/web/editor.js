@@ -8,7 +8,7 @@
   const $ = s => document.querySelector(s);
   const D = window.DATOS;
   const SOLO_SALDO = ["efectivo", "deuda"];
-  const E = { cfg: null, modo: "demo", tipos: {}, fuentes: {}, tiposMov: {}, vista: "productos", filtro: "todos" };
+  const E = { cfg: null, modo: "demo", tipos: {}, fuentes: {}, tiposMov: {}, vista: "activos", filtro: "todos" };
 
   /* ---------------------------------------------- utilidades */
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
@@ -33,7 +33,8 @@
     lee(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     guarda(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* da igual */ } },
   };
-  E.vista = new URLSearchParams(location.search).get("vista") || recuerda.lee("patrimonio.editor") || "productos";
+  E.vista = new URLSearchParams(location.search).get("vista") || recuerda.lee("patrimonio.editor") || "activos";
+  if (!["activos", "deudas", "apartados", "flujos", "saldos", "config", "importar", "copias"].includes(E.vista)) E.vista = "activos";
 
   async function api(metodo, url, cuerpo) {
     const r = await fetch(url, {
@@ -165,7 +166,7 @@
       <div id="edAvisos" class="avisos"></div><div id="edCuerpo"></div>`;
     cont.innerHTML = html;
 
-    const vistas = [["productos", "Productos"], ["movimientos", "Movimientos"], ["saldos", "Saldos y valores"], ["hogar", "Hogar"], ["flujos", "Ingresos/Gastos"], ["importar", "Importar"], ["copias", "Copias y web"]];
+    const vistas = [["activos", "Activos"], ["deudas", "Deudas"], ["apartados", "Apartados"], ["flujos", "Ingresos y gastos"], ["saldos", "Saldos y movimientos"], ["config", "Configuración"], ["importar", "Importar"], ["copias", "Copias y seguridad"]];
     const seg = $("#edVistas");
     vistas.forEach(([id, et]) => {
       const b = document.createElement("button");
@@ -174,8 +175,9 @@
       b.onclick = () => { E.vista = id; recuerda.guarda("patrimonio.editor", id); pinta(); };
       seg.appendChild(b);
     });
-    $("#edCuerpo").innerHTML = ({ productos: vistaProductos, movimientos: vistaMovimientos, saldos: vistaSaldos,
-      hogar: vistaHogar, flujos: vistaFlujos, importar: vistaImportar, copias: vistaCopias }[E.vista] || vistaProductos)();
+    $("#edCuerpo").innerHTML = ({ activos: vistaActivos, deudas: vistaDeudas, apartados: vistaApartados,
+      flujos: vistaFlujos, saldos: vistaSaldosMov, config: vistaConfig,
+      importar: vistaImportar, copias: vistaCopias }[E.vista] || vistaActivos)();
     if (E.vista === "importar" || E.vista === "copias") conectaImportar();
     const filtro = $("#edFiltro");
     if (filtro) filtro.onchange = e => { E.filtro = e.target.value; pinta(); };
@@ -190,26 +192,44 @@
     const c = D && (D.productos || []).find(x => x.id === p.id);
     return c && c.nav ? `${num(c.nav)} € <small>${fecha(c.navFecha)}</small>` : '<small>tras guardar</small>';
   }
-  function vistaProductos() {
-    const filas = E.cfg.productos.map(p => {
-      const n = soloSaldo(p) || manual(p)
-        ? E.cfg.valoraciones.filter(v => v.producto === p.id).length + " valores"
-        : E.cfg.movimientos.filter(m => m.producto === p.id).length + " movs.";
-      return `<tr><td><i class="pt" style="background:var(--s${p.slot || 1})"></i>${esc(nombre(p))}
-          ${p.identificador ? `<small class="idp">${esc(p.identificador)}</small>` : ""}</td>
-        <td>${esc(E.tipos[p.tipo] || p.tipo)}</td><td>${precioDe(p)}</td>
-        <td>${esc(E.fuentes[p.fuente] || "")}${p.codigo ? ` <small>${esc(p.codigo)}</small>` : ""}</td>
-        <td>${n}</td>
-        <td class="acc"><button data-acc="editarProducto" data-id="${esc(p.id)}">Editar</button>
-          <button data-acc="borrarProducto" data-id="${esc(p.id)}">Borrar</button></td></tr>`;
-    }).join("");
-    return `<section class="tarjeta"><header><h2>Productos</h2>
-        <span class="subt">Todo lo que tienes: fondos, acciones, cripto, cuentas, planes, inmuebles…</span>
-        <span class="sp"></span>${E.cfg.productos.length > 1 ? '<button class="btn" data-acc="repartirColores" title="Da a cada producto un color distinto">Repartir colores</button>' : ""}
-        <button class="btn prim" data-acc="nuevoProducto">+ Añadir producto</button></header>
-      ${filas ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Producto</th><th>Tipo</th><th>Último precio</th>
+  function filaProducto(p) {
+    const n = soloSaldo(p) || manual(p)
+      ? E.cfg.valoraciones.filter(v => v.producto === p.id).length + " valores"
+      : E.cfg.movimientos.filter(m => m.producto === p.id).length + " movs.";
+    return `<tr><td><i class="pt" style="background:var(--s${p.slot || 1})"></i>${esc(nombre(p))}
+        ${p.identificador ? `<small class="idp">${esc(p.identificador)}</small>` : ""}</td>
+      <td>${esc(E.tipos[p.tipo] || p.tipo)}</td><td>${precioDe(p)}</td>
+      <td>${esc(E.fuentes[p.fuente] || "")}${p.codigo ? ` <small>${esc(p.codigo)}</small>` : ""}</td>
+      <td>${n}</td>
+      <td class="acc"><button data-acc="editarProducto" data-id="${esc(p.id)}">Editar</button>
+        <button data-acc="borrarProducto" data-id="${esc(p.id)}">Borrar</button></td></tr>`;
+  }
+
+  function vistaActivos() {
+    const lista = E.cfg.productos.filter(p => p.tipo !== "deuda");
+    const filas = lista.map(filaProducto).join("");
+    return `<section class="tarjeta"><header><h2>Activos</h2>
+        <span class="subt">Todo lo que suma: fondos, acciones, cripto, cuentas, planes, inmuebles… Desde la ficha de cada uno anotas sus compras o su saldo.</span>
+        <span class="sp"></span>${lista.length > 1 ? '<button class="btn" data-acc="repartirColores" title="Da a cada activo un color distinto">Repartir colores</button>' : ""}
+        <button class="btn prim" data-acc="nuevoProducto">+ Añadir activo</button></header>
+      ${filas ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Activo</th><th>Tipo</th><th>Último precio</th>
         <th>Fuente del precio</th><th>Datos</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
-        : '<p class="subt">Todavía no has añadido ningún producto.</p>'}</section>`;
+        : '<p class="subt">Todavía no has añadido ningún activo.</p>'}</section>`;
+  }
+
+  function vistaDeudas() {
+    const lista = E.cfg.productos.filter(p => p.tipo === "deuda");
+    const filas = lista.map(filaProducto).join("");
+    return `<section class="tarjeta"><header><h2>Deudas</h2>
+        <span class="subt">Préstamos, hipoteca, tarjetas… El capital pendiente lo anotas cada mes en «Saldos y movimientos».</span>
+        <span class="sp"></span><button class="btn prim" data-acc="nuevaDeuda">+ Añadir deuda</button></header>
+      ${filas ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Deuda</th><th>Tipo</th><th>Último saldo</th>
+        <th>Fuente</th><th>Datos</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
+        : '<p class="subt">No tienes deudas registradas.</p>'}</section>`;
+  }
+
+  function vistaSaldosMov() {
+    return vistaMovimientos() + vistaSaldos();
   }
 
   function siguienteColor() {
@@ -228,9 +248,9 @@
   const COLOR_FUENTE = { morningstar: "var(--s3)", yahoo: "var(--s7)", coingecko: "var(--s4)" };
   const decimal = v => v == null || v === "" ? "" : String(v).replace(".", ",");
 
-  function formProducto(p) {
+  function formProducto(p, tipoInicial) {
     const nuevo = !p;
-    p = p || { tipo: "fondo", fuente: "morningstar", moneda: "EUR", largoPlazo: true, slot: siguienteColor() };
+    p = p || { tipo: tipoInicial || "fondo", fuente: tipoInicial === "deuda" ? "manual" : "morningstar", moneda: "EUR", largoPlazo: true, slot: siguienteColor() };
     const clases = [...new Set(E.cfg.productos.map(x => x.clase).filter(Boolean))];
     const colores = Array.from({ length: 12 }, (_, i) =>
       `<label class="color" style="--c:var(--s${i + 1})" title="Color ${i + 1}"><input type="radio" name="slot" value="${i + 1}"><i></i></label>`).join("");
@@ -393,33 +413,47 @@
   }
 
   /* ---------------------------------------------- hogar (apartados y parámetros) */
-  function vistaHogar() {
-    const conf = E.cfg.config || {};
-    const tits = E.cfg.titulares || [];
+  function vistaApartados() {
     const aps = E.cfg.apartados || [];
     const filasAp = aps.map(a => `<tr>
       <td>${esc(a.nombre)}</td><td>${esc(a.finalidad || "")}</td><td>${esc(a.titular || "")}</td>
       <td>${eur(a.importe || 0)}</td><td>${a.fechaPrevista ? fecha(a.fechaPrevista) : ""}</td>
       <td class="acc"><button data-acc="editarApartado" data-id="${esc(a.id)}">Editar</button>
         <button data-acc="borrarApartado" data-id="${esc(a.id)}">Borrar</button></td></tr>`).join("");
-    return `
-      <section class="tarjeta"><header><h2>Parámetros del hogar</h2>
-        <span class="subt">Titulares y colchón de seguridad</span>
-        <span class="sp"></span><button class="btn" data-acc="editarHogar">Editar</button></header>
-        <table class="leyenda">
-          <tr><td>Colchón deseado</td><td>${eur(conf.colchon || 0)}</td><td></td></tr>
-          <tr><td>Titulares</td><td>${tits.length ? tits.map(esc).join(", ") : '<span class="subt">ninguno</span>'}</td><td></td></tr>
-        </table>
-        <p class="ayuda">El <b>colchón</b> es la liquidez mínima que quieres mantener siempre; se resta del
-          dinero libre para invertir. Los <b>titulares</b> te dejan asignar cada producto y apartado a una persona.</p>
-      </section>
-      <section class="tarjeta"><header><h2>Apartados</h2>
-        <span class="subt">Dinero reservado para un fin (impuestos, obras…): no resta del patrimonio, pero sí del dinero libre</span>
+    return `<section class="tarjeta"><header><h2>Apartados</h2>
+        <span class="subt">Dinero reservado para un fin (impuestos, obras, fianzas…): no resta del patrimonio, pero sí del dinero libre para invertir</span>
         <span class="sp"></span><button class="btn prim" data-acc="nuevoApartado">+ Añadir apartado</button></header>
-        ${filasAp ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Apartado</th><th>Finalidad</th><th>Titular</th>
-          <th>Importe</th><th>Fecha prevista</th><th></th></tr></thead><tbody>${filasAp}</tbody></table></div>`
-          : '<p class="subt">Todavía no has creado ningún apartado.</p>'}
-      </section>`;
+      ${filasAp ? `<div class="tablaEnv"><table class="dt"><thead><tr><th>Apartado</th><th>Finalidad</th><th>Titular</th>
+        <th>Importe</th><th>Fecha prevista</th><th></th></tr></thead><tbody>${filasAp}</tbody></table></div>`
+        : '<p class="subt">Todavía no has creado ningún apartado.</p>'}</section>`;
+  }
+
+  function vistaConfig() {
+    const conf = E.cfg.config || {};
+    const tits = E.cfg.titulares || [];
+    const cats = conf.categorias || [];
+    const objN = Object.keys(conf.objetivos || {}).length;
+    const pct = v => v != null ? (v * 100).toLocaleString("es-ES", { maximumFractionDigits: 2 }) + " %" : "—";
+    const fila = (et, val) => `<tr><td>${et}</td><td>${val}</td></tr>`;
+    return `<section class="tarjeta"><header><h2>Configuración</h2>
+        <span class="subt">Titulares, categorías, monedas y umbrales de aviso (como la hoja «Configuración» del Excel)</span>
+        <span class="sp"></span><button class="btn prim" data-acc="editarConfig">Editar</button></header>
+      <table class="leyenda">
+        ${fila("Titulares", tits.length ? tits.map(esc).join(", ") : '<span class="subt">ninguno</span>')}
+        ${fila("Colchón deseado", eur(conf.colchon || 0))}
+        ${fila("Objetivos de asignación", objN ? objN + " tipos con objetivo" : '<span class="subt">sin objetivos</span>')}
+        ${fila("Umbral de concentración", pct(conf.umbralConcentracion))}
+        ${fila("Desviación máxima", pct(conf.desviacionMax))}
+        ${fila("Días de aviso", (conf.diasAviso != null ? conf.diasAviso : "—"))}
+        ${fila("Monedas", (conf.monedas || []).length ? (conf.monedas || []).map(m => esc(m.codigo)).join(", ") : "EUR")}
+        ${fila("Categorías de ingresos/gastos", cats.length ? cats.length + " categorías" : '<span class="subt">se escriben libres</span>')}
+      </table>
+      <p class="ayuda">Aquí defines las listas maestras y los parámetros del hogar. El <b>colchón</b> es la liquidez mínima
+        que quieres mantener; la <b>concentración</b> avisa cuando un tipo o entidad pesa demasiado; las <b>categorías</b>
+        alimentan el desplegable de ingresos y gastos.</p>
+      ${cats.length ? `<div class="tablaEnv" style="margin-top:12px"><table class="dt"><thead><tr><th>Categoría</th><th>Tipo</th></tr></thead>
+        <tbody>${cats.map(c => `<tr><td>${esc(c.nombre)}</td><td class="${c.tipo === "ingreso" ? "pos" : "neg"}">${c.tipo === "ingreso" ? "Ingreso" : "Gasto"}</td></tr>`).join("")}</tbody></table></div>` : ""}
+    </section>`;
   }
 
   function formApartado(a) {
@@ -465,7 +499,7 @@
     const obj = conf.objetivos || {};
     const objInputs = Object.entries(E.tipos).map(([clave, label]) =>
       `<label class="campo"><span class="et">${esc(label)} <em>%</em></span><input name="obj_${clave}" inputmode="decimal" placeholder="0"></label>`).join("");
-    const f = abreModal("Parámetros del hogar", `
+    const f = abreModal("Configuración", `
       ${seccion("Colchón de seguridad")}
       <div class="rejilla">
         ${campo("Colchón deseado", '<input name="colchon" inputmode="decimal" placeholder="3000">', "€, liquidez mínima")}
@@ -489,7 +523,13 @@
         ${campo("Una moneda por línea: código y euros por unidad", '<textarea name="monedas" rows="3" placeholder="USD 0,92\nGBP 1,17"></textarea>', "EUR = 1, implícito", "ancho")}
       </div>
       <p class="ayuda">Solo para productos «a mano» en otra divisa. Es un tipo único para todo el histórico
-        (aproximación). Los productos con cotización usan su cambio diario.</p>`,
+        (aproximación). Los productos con cotización usan su cambio diario.</p>
+      ${seccion("Categorías de ingresos y gastos")}
+      <div class="rejilla">
+        ${campo("Categorías de ingresos (una por línea)", '<textarea name="catIng" rows="3" placeholder="Nómina\nAlquileres cobrados\nIntereses y dividendos"></textarea>', "", "ancho")}
+        ${campo("Categorías de gastos (una por línea)", '<textarea name="catGas" rows="5" placeholder="Vivienda\nAlimentación\nTransporte\nOcio"></textarea>', "", "ancho")}
+      </div>
+      <p class="ayuda">Aparecen en el desplegable al anotar un ingreso o un gasto. Si las dejas vacías, podrás escribir la categoría a mano.</p>`,
     async f => {
       const d = campos(f);
       const objetivos = {};
@@ -501,13 +541,16 @@
         const parts = l.split(/\s+/);
         return { codigo: parts[0] || "", tipo: parts[1] || "" };
       });
+      const lineas = t => (d[t] || "").split(/\n+/).map(s => s.trim()).filter(Boolean);
+      const categorias = lineas("catIng").map(n => ({ nombre: n, tipo: "ingreso" }))
+        .concat(lineas("catGas").map(n => ({ nombre: n, tipo: "gasto" })));
       await guardaConfig({
         colchon: d.colchon,
         titulares: (d.titulares || "").split(/\n+/).map(s => s.trim()).filter(Boolean),
         umbralConcentracion: d.umbralConcentracion,
         desviacionMax: d.desviacionMax,
         diasAviso: d.diasAviso,
-        objetivos, monedas,
+        objetivos, monedas, categorias,
       });
     }, "Guardar");
     f.elements.colchon.value = conf.colchon || "";
@@ -521,6 +564,9 @@
       if (el) el.value = pct(frac);
     });
     f.elements.monedas.value = (conf.monedas || []).map(m => `${m.codigo} ${m.tipo}`).join("\n");
+    const cats = conf.categorias || [];
+    f.elements.catIng.value = cats.filter(c => c.tipo === "ingreso").map(c => c.nombre).join("\n");
+    f.elements.catGas.value = cats.filter(c => c.tipo === "gasto").map(c => c.nombre).join("\n");
     return f;
   }
 
@@ -547,7 +593,10 @@
     const nuevo = !x;
     x = x || { tipo: "gasto" };
     const tits = E.cfg.titulares || [];
-    const cats = [...new Set((E.cfg.flujos || []).map(v => v.categoria).filter(Boolean))];
+    // Categorías definidas en Configuración + las que ya hayas usado.
+    const defin = ((E.cfg.config || {}).categorias || []).map(c => c.nombre);
+    const usadas = (E.cfg.flujos || []).map(v => v.categoria).filter(Boolean);
+    const cats = [...new Set([...defin, ...usadas])];
     const f = abreModal(nuevo ? "Añadir apunte" : "Editar apunte", `
       ${seccion("Ingreso o gasto")}
       <div class="rejilla">
@@ -981,7 +1030,7 @@
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.ok) { fallo.textContent = (j.errores || ["No he podido leer la copia."]).join("\n"); fallo.hidden = false; return; }
     recuerda.guarda("patrimonio.tab", "datos");
-    recuerda.guarda("patrimonio.editor", "productos");
+    recuerda.guarda("patrimonio.editor", "activos");
     location.reload();
   }
 
@@ -1011,8 +1060,9 @@
   const ACC = {
     empezar,
     reiniciar,
-    verPanel() { recuerda.guarda("patrimonio.tab", "patrimonio"); location.reload(); },
+    verPanel() { recuerda.guarda("patrimonio.tab", "panel"); location.reload(); },
     nuevoProducto: soloPropio(() => formProducto(null)),
+    nuevaDeuda: soloPropio(() => formProducto(null, "deuda")),
     editarProducto: soloPropio(id => formProducto(prod(id))),
     borrarProducto: soloPropio(borrarProducto),
     nuevoMov: soloPropio(() => formMovimiento(null)),
@@ -1025,7 +1075,7 @@
     nuevoApartado: soloPropio(() => formApartado(null)),
     editarApartado: soloPropio(id => formApartado((E.cfg.apartados || []).find(a => a.id === id))),
     borrarApartado: soloPropio(borrarApartado),
-    editarHogar: soloPropio(formHogar),
+    editarConfig: soloPropio(formHogar),
     nuevoFlujo: soloPropio(() => formFlujo(null)),
     editarFlujo: soloPropio(id => formFlujo((E.cfg.flujos || []).find(x => x.id === id))),
     borrarFlujo: soloPropio(borrarFlujo),
@@ -1044,7 +1094,7 @@
     subirCopia,
     recuperarCopia,
     exportarWeb() { location.href = "api/exportar-web?ocultar=" + ($("#webOcultar").checked ? "1" : "0"); },
-    verPanelDatos() { recuerda.guarda("patrimonio.tab", "patrimonio"); location.reload(); },
+    verPanelDatos() { recuerda.guarda("patrimonio.tab", "panel"); location.reload(); },
     async imCopiar() {
       const txt = IMP.prompt || (await api("GET", "api/prompt")).texto;
       IMP.prompt = txt;

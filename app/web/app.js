@@ -44,7 +44,8 @@
   }
 
   const estado = {
-    tab: "patrimonio",
+    tab: "panel",
+    pv: "patrimonio",
     rango: "todo",
     vista: "apilado",
     dist: "clase",
@@ -633,7 +634,7 @@
         <div class="pi"><span>${oculto ? "fuera del gráfico" : G.fmtPct(p.peso, 1) + " del total"}</span>
           <span class="${rent == null ? "" : rent >= 0 ? "pos" : "neg"}">${rent == null ? "—" : G.fmtPctSigno(rent, 1)}</span></div>
         <div class="sp"></div>`;
-      b.onclick = () => { estado.fondo = p.id; irA("fondos"); };
+      b.onclick = () => { estado.fondo = p.id; irVista("producto"); };
       cont.appendChild(b);
       G.mini(b.querySelector(".sp"), corta(p.serie), color(p));
     });
@@ -650,7 +651,7 @@
     G.donut($("#grafDonut"), {
       datos, alto: 236, tituloCentro: filtrando() ? "Filtrado" : "Total",
       valorCentro: G.fmtEurCorto(total),
-      onClick: d => { if (d.id) { estado.fondo = d.id; irA("fondos"); } }
+      onClick: d => { if (d.id) { estado.fondo = d.id; irVista("producto"); } }
     });
     $("#leyendaDist").innerHTML = datos.map(d =>
       `<tr><td><i style="background:${d.color}"></i>${d.nombre}</td>
@@ -760,6 +761,8 @@
   function pintaPatrimonio() {
     const mTodo = metricas(TODOS());
     const mVis = filtrando() ? metricas(visibles()) : mTodo;
+    const pv = estado.pv || "patrimonio";
+    // Cifras y tablas (baratas): se rellenan siempre, aunque su vista esté oculta.
     pintaFiltros();
     pintaHero(mVis, mTodo);
     pintaKPIs(mVis);
@@ -769,13 +772,14 @@
     pintaFlujos();
     pintaAsignacion();
     pintaVencimientos();
-    pintaPrincipal(mVis);
     pintaChips();
-    pintaDistribucion();
-    pintaBarras();
     pintaHitos(mTodo);
-    pintaProyeccion();
-    pintaTabla();
+    // Gráficos: solo los de la vista visible (un SVG en un panel oculto sale con ancho 0).
+    if (pv === "evolucion") { pintaPrincipal(mVis); pintaBarras(); pintaMes(); }
+    else if (pv === "distribucion") pintaDistribucion();
+    else if (pv === "rentabilidad") { pintaProyeccion(); pintaTabla(); pintaRendimiento(); }
+    else if (pv === "producto") pintaFondos();
+    // Segmentos: sus callbacks redibujan la vista activa.
     pintaSegm($("#segRango"), RANGOS, estado.rango, id => { estado.rango = id; pintaPatrimonio(); });
     pintaSegm($("#segVista"), [
       { id: "apilado", et: "Por producto" }, { id: "total", et: "Total" },
@@ -1192,7 +1196,7 @@
       `${pa ? `Precios actualizados el ${G.fmtFecha(pa.slice(0, 10))} a las ${pa.slice(11, 16)}` : "Precios sin actualizar"} ·
        datos valorados a ${G.fmtFecha(D.fechaExtracto)} ·
        ${D.total.diasInvertido} días invertido.<br>
-       Fuentes de precios: ${fuentes.join(", ") || "ninguna"}. En la pestaña Productos verás la de cada uno.<br>
+       Fuentes de precios: ${fuentes.join(", ") || "ninguna"}. En «Panel → Distribución» pulsa un producto para ver su ficha.<br>
        <b>Aviso:</b> herramienta informativa. No es asesoramiento financiero ni una recomendación de compra o venta.
        Los precios vienen de servicios públicos gratuitos y pueden tener errores o retrasos: no se garantiza su exactitud.`;
     if ($("#bannerDemo")) $("#bannerDemo").hidden = D.modo !== "demo";
@@ -1248,14 +1252,28 @@
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // Cambia de sub-pestaña dentro del Panel (Patrimonio, Distribución, …).
+  function irVista(pv) {
+    if (pv === "producto" && !estado.fondo) pv = "distribucion";
+    estado.pv = pv;
+    document.querySelectorAll("#subtabs button").forEach(b =>
+      b.setAttribute("aria-selected", String(b.dataset.pv === pv)));
+    document.querySelectorAll(".pv").forEach(el => { el.hidden = el.id !== "pv-" + pv; });
+    if (pv !== "producto") recuerda.guarda("patrimonio.pv", pv);
+    pintaPatrimonio();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function pintarTab() {
-    // Cada pestaña se dibuja al mostrarse: un SVG dentro de un panel oculto
+    // Cada vista se dibuja al mostrarse: un SVG dentro de un panel oculto
     // no tiene ancho, y saldria del tamano equivocado.
-    if (estado.tab === "patrimonio") pintaPatrimonio();
-    else if (estado.tab === "mes") pintaMes();
-    else if (estado.tab === "fondos") pintaFondos();
-    else if (estado.tab === "rendimiento") pintaRendimiento();
-    else if (estado.tab === "datos" && window.Editor) window.Editor.mostrar();
+    if (estado.tab === "panel") {
+      const pv = estado.pv || "patrimonio";
+      document.querySelectorAll("#subtabs button").forEach(b =>
+        b.setAttribute("aria-selected", String(b.dataset.pv === pv)));
+      document.querySelectorAll(".pv").forEach(el => { el.hidden = el.id !== "pv-" + pv; });
+      pintaPatrimonio();
+    } else if (estado.tab === "datos" && window.Editor) window.Editor.mostrar();
   }
   function pintar() { pintaComun(); pintarTab(); }
 
@@ -1287,6 +1305,7 @@
     setTimeout(pintarTab, 60);
   };
   document.querySelectorAll("#tabs button").forEach(b => { b.onclick = () => irA(b.dataset.tab); });
+  document.querySelectorAll("#subtabs button").forEach(b => { b.onclick = () => irVista(b.dataset.pv); });
   $("#mesSel").onchange = e => { estado.mes = +e.target.value; pintaMes(); };
   $("#mesPrev").onclick = () => { estado.mes = Math.max(0, estado.mes - 1); pintaMes(); };
   $("#mesNext").onclick = () => { estado.mes = Math.min(D.resumenMensual.length - 1, estado.mes + 1); pintaMes(); };
@@ -1301,25 +1320,27 @@
     if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
     if (e.key === "Escape" && filtrando()) { estado.ocultos.clear(); pintaPatrimonio(); }
     if (e.key === "v" && !e.metaKey && !e.ctrlKey) $("#btnVideo").click();
-    if (e.key === "l" && !e.metaKey && !e.ctrlKey && estado.tab === "patrimonio") {
+    if (e.key === "l" && !e.metaKey && !e.ctrlKey && estado.tab === "panel") {
       estado.ocultos = filtrando() ? new Set() : new Set(idsCorto());
       pintaPatrimonio();
     }
+    // Teclas 1-6: sub-pestañas del Panel.
     const n = "123456".indexOf(e.key);
-    const tab = ["patrimonio", "mes", "fondos", "rendimiento", "datos", "ayuda"][n];
-    if (n >= 0 && document.getElementById("tab-" + tab)) irA(tab);
+    const pv = ["patrimonio", "distribucion", "rentabilidad", "evolucion", "ingresos", "deudas"][n];
+    if (n >= 0 && document.getElementById("pv-" + pv)) { if (estado.tab !== "panel") irA("panel"); irVista(pv); }
   });
 
   let t = null;
   window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(pintarTab, 140); });
 
   const tabGuardada = recuerda.lee("patrimonio.tab");
-  if (tabGuardada && document.getElementById("tab-" + tabGuardada)) {
-    estado.tab = tabGuardada;
-    document.querySelectorAll("#tabs button").forEach(b =>
-      b.setAttribute("aria-selected", String(b.dataset.tab === estado.tab)));
-    document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-" + estado.tab; });
-  }
+  estado.tab = ["panel", "datos", "ayuda"].includes(tabGuardada) ? tabGuardada : "panel";
+  const pvGuardada = recuerda.lee("patrimonio.pv");
+  if (pvGuardada && document.getElementById("pv-" + pvGuardada)) estado.pv = pvGuardada;
+  document.querySelectorAll("#tabs button").forEach(b =>
+    b.setAttribute("aria-selected", String(b.dataset.tab === estado.tab)));
+  document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-" + estado.tab; });
+  document.querySelectorAll(".pv").forEach(el => { el.hidden = el.id !== "pv-" + estado.pv; });
 
   try {
     pintar();

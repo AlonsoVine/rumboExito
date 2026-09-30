@@ -434,6 +434,16 @@ def guarda_config(cfg, datos):
                 vistos.add(cod)
                 monedas.append({"codigo": cod, "tipo": round(tipo, 6)})
         conf["monedas"] = monedas
+    if "categorias" in datos:
+        # Lista maestra de categorías de ingresos/gastos (F3+, como el Excel).
+        cats, vistos = [], set()
+        for it in datos.get("categorias") or []:
+            nombre = texto((it or {}).get("nombre"), 40)
+            tipo = (it or {}).get("tipo")
+            if nombre and tipo in TIPOS_FLUJO and nombre.lower() not in vistos:
+                vistos.add(nombre.lower())
+                cats.append({"nombre": nombre, "tipo": tipo})
+        conf["categorias"] = cats
     if errores:
         raise ErrorValidacion(errores)
     return {"config": conf, "titulares": cfg.get("titulares", [])}

@@ -71,6 +71,28 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 }
 .tabs button:hover{color:var(--tinta)}
 .tabs button[aria-selected="true"]{color:var(--tinta);border-bottom-color:var(--s1)}
+/* Barra superior (secciones grandes): un poco más grande y con más aire. */
+.tabsPrin{gap:4px}
+.tabsPrin button{font-size:15.5px;padding:12px 20px 13px}
+/* Sub-pestañas del Panel: píldoras grandes y claras, con la activa rellena. */
+.subtabs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 10px}
+.subtabs button{border:1px solid var(--borde);background:var(--sup);color:var(--tinta2);
+  font:inherit;font-size:14px;font-weight:600;padding:9px 16px;border-radius:999px;cursor:pointer;transition:.13s}
+.subtabs button:hover{color:var(--tinta);border-color:var(--tinta3)}
+.subtabs button[aria-selected="true"]{background:var(--s1);border-color:var(--s1);color:#fff}
+.pv[hidden]{display:none}
+/* Línea-guía en lenguaje llano al inicio de cada vista. */
+.ayudaVista{color:var(--tinta2);font-size:13.5px;margin:4px 0 16px;line-height:1.5}
+/* Iconito de ayuda (ⓘ) con explicación al pasar el ratón o al enfocar. */
+.info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
+  border-radius:50%;border:1px solid var(--borde);color:var(--tinta3);font-size:11px;font-weight:700;
+  cursor:help;margin-left:6px;vertical-align:middle;user-select:none}
+.info:hover,.info:focus{color:var(--tinta);border-color:var(--tinta3);outline:none}
+.info .infoPop{position:absolute;top:135%;right:0;z-index:30;width:min(280px,72vw);
+  background:var(--sup);border:1px solid var(--borde);border-radius:10px;padding:10px 12px;
+  font-size:12.5px;font-weight:400;line-height:1.5;color:var(--tinta2);box-shadow:0 10px 28px rgba(0,0,0,.16);
+  opacity:0;visibility:hidden;transform:translateY(-4px);transition:.14s;text-align:left;white-space:normal}
+.info:hover .infoPop,.info:focus .infoPop{opacity:1;visibility:visible;transform:none}
 .panel[hidden]{display:none}
 
 /* ============================ hero ============================ */
@@ -628,13 +650,10 @@ body.video .tarjetaCanal{display:none}
       <button class="btn" id="btnTema" title="Cambiar entre claro y oscuro">◐ Tema</button>
       <button class="btn" id="btnVideo" title="Oculta los controles y agranda las cifras">▶ Modo vídeo</button>
     </div>
-    <nav class="tabs" id="tabs" role="tablist">
-      <button data-tab="patrimonio" role="tab" aria-selected="true">Patrimonio</button>
-      <button data-tab="mes" role="tab" aria-selected="false">El mes</button>
-      <button data-tab="fondos" role="tab" aria-selected="false">Productos</button>
-      <button data-tab="rendimiento" role="tab" aria-selected="false">Rendimiento</button>
-      <button data-tab="datos" role="tab" aria-selected="false">Mis datos</button>
-      <button data-tab="ayuda" role="tab" aria-selected="false">Ayuda</button>
+    <nav class="tabs tabsPrin" id="tabs" role="tablist">
+      <button data-tab="panel" role="tab" aria-selected="true">📊 Panel</button>
+      <button data-tab="datos" role="tab" aria-selected="false">✏️ Mis datos</button>
+      <button data-tab="ayuda" role="tab" aria-selected="false">❓ Ayuda</button>
     </nav>
   </div>
 </div>
@@ -650,77 +669,55 @@ body.video .tarjetaCanal{display:none}
 </div>
 <p class="aviso-legal">Herramienta informativa. No es asesoramiento financiero. No se garantiza la exactitud de los datos ni de los precios.</p>
 
-<!-- ==================================================== PATRIMONIO -->
-<div class="panel" id="tab-patrimonio" role="tabpanel">
+<!-- ==================================================== PANEL -->
+<div class="panel" id="tab-panel" role="tabpanel">
 
-  <section class="hero">
-    <div class="hEtq" id="heroEtq">Patrimonio neto</div>
-    <div class="hCifra" id="heroCifra">—</div>
-    <div class="hSub" id="heroSub"></div>
-    <div class="prog" id="progEnv" hidden>
-      <div class="progBarra"><div class="progRelleno" id="progRelleno" style="width:0"></div></div>
-      <div class="progPie"><span id="progIzq"></span><span id="progDer"></span></div>
-    </div>
-  </section>
+  <nav class="subtabs" id="subtabs" role="tablist">
+    <button data-pv="patrimonio" aria-selected="true">Patrimonio</button>
+    <button data-pv="distribucion" aria-selected="false">Distribución</button>
+    <button data-pv="rentabilidad" aria-selected="false">Rentabilidad</button>
+    <button data-pv="evolucion" aria-selected="false">Evolución</button>
+    <button data-pv="ingresos" aria-selected="false">Ingresos y gastos</button>
+    <button data-pv="deudas" aria-selected="false">Deudas y vencimientos</button>
+  </nav>
 
   <div id="bannerAlertas" class="bannerAlertas"></div>
 
-  <p class="kpisNota subt" id="kpisNota"></p>
-  <div class="kpis" id="kpis"></div>
+  <!-- ===== PATRIMONIO ===== -->
+  <div class="pv" id="pv-patrimonio">
+    <section class="hero">
+      <div class="hEtq" id="heroEtq">Patrimonio neto</div>
+      <div class="hCifra" id="heroCifra">—</div>
+      <div class="hSub" id="heroSub"></div>
+      <div class="prog" id="progEnv" hidden>
+        <div class="progBarra"><div class="progRelleno" id="progRelleno" style="width:0"></div></div>
+        <div class="progPie"><span id="progIzq"></span><span id="progDer"></span></div>
+      </div>
+    </section>
+    <p class="ayudaVista">Tu foto de hoy: cuánto tienes, cuánto debes y cuánto te queda libre para invertir.</p>
+    <p class="kpisNota subt" id="kpisNota"></p>
+    <div class="kpis" id="kpis"></div>
+    <section class="tarjeta" id="tarjetaHogar" style="margin-top:16px" hidden>
+      <header>
+        <h2>Patrimonio del hogar</h2>
+        <span class="subt" id="hogarSub">Foto de hoy: qué tienes, qué debes y cuánto queda libre</span>
+      </header>
+      <div class="kpis" id="hogarGrid"></div>
+      <div id="hogarTitular" style="margin-top:16px"></div>
+    </section>
+  </div>
 
-  <section class="tarjeta" id="tarjetaHogar" style="margin-top:16px" hidden>
-    <header>
-      <h2>Patrimonio del hogar</h2>
-      <span class="subt" id="hogarSub">Foto de hoy: qué tienes, qué debes y cuánto queda libre</span>
-    </header>
-    <div class="kpis" id="hogarGrid"></div>
-    <div id="hogarTitular" style="margin-top:16px"></div>
-  </section>
-
-  <section class="tarjeta" id="tarjetaDeudas" style="margin-top:16px" hidden>
-    <header><h2>Deudas</h2><span class="subt">Lo que debes, su coste y cuánto te apalancas</span></header>
-    <div class="kpis" id="deudasKpis"></div>
-    <div class="tablaEnv" id="deudasTablaEnv" style="margin-top:14px"><table class="dt" id="deudasTabla"></table></div>
-  </section>
-
-  <section class="tarjeta" id="tarjetaFlujos" style="margin-top:16px" hidden>
-    <header><h2>Ingresos, gastos y ahorro</h2><span class="subt" id="flujosSub"></span></header>
-    <div class="kpis" id="flujosKpis"></div>
-    <div class="tablaEnv" style="margin-top:14px"><table class="dt" id="flujosTabla"></table></div>
-  </section>
-
-  <section class="tarjeta" id="tarjetaAsignacion" style="margin-top:16px" hidden>
-    <header><h2>Asignación objetivo</h2><span class="subt" id="asigSub"></span></header>
-    <div class="tablaEnv"><table class="dt" id="asigTabla"></table></div>
-  </section>
-
-  <section class="tarjeta" id="tarjetaVenc" style="margin-top:16px" hidden>
-    <header><h2>Vencimientos</h2><span class="subt">Depósitos, promociones y deudas por fecha</span></header>
-    <div class="tablaEnv"><table class="dt" id="vencTabla"></table></div>
-  </section>
-
-  <section class="tarjeta">
-    <header>
-      <h2>Evolución del patrimonio</h2>
-      <span class="subt" id="evolNota"></span>
-      <div class="sep"></div>
-      <div class="segm" id="segRango"></div>
-      <div class="segm" id="segVista"></div>
-    </header>
-    <div class="filtros" id="filtros"></div>
-    <div class="envGraf" id="grafPrincipal"></div>
-  </section>
-
-  <section style="margin-top:26px">
-    <header style="display:flex;align-items:center;gap:12px;margin-bottom:2px">
-      <h2 style="font-size:15px">Componentes de la cartera</h2>
-      <span class="subt">Pulsa uno para abrir su ficha completa</span>
-    </header>
-    <div class="chips" id="chips"></div>
-  </section>
-
-  <div class="rejilla2">
-    <section class="tarjeta">
+  <!-- ===== DISTRIBUCIÓN ===== -->
+  <div class="pv" id="pv-distribucion" hidden>
+    <p class="ayudaVista">En qué está repartido tu dinero: por tipo, por dónde lo tienes y a quién le corresponde. Pulsa un componente para ver su ficha.</p>
+    <section style="margin-top:8px">
+      <header style="display:flex;align-items:center;gap:12px;margin-bottom:2px">
+        <h2 style="font-size:15px">Componentes de la cartera</h2>
+        <span class="subt">Pulsa uno para abrir su ficha completa</span>
+      </header>
+      <div class="chips" id="chips"></div>
+    </section>
+    <section class="tarjeta" style="margin-top:16px">
       <header>
         <h2>Distribución</h2>
         <div class="sep"></div>
@@ -729,115 +726,151 @@ body.video .tarjetaCanal{display:none}
       <div class="envGraf" id="grafDonut"></div>
       <table class="leyenda" id="leyendaDist" style="margin-top:14px"></table>
     </section>
-    <section class="tarjeta">
-      <header><h2>Aportaciones por mes</h2><span class="subt" id="notaAport"></span></header>
-      <div class="envGraf" id="grafBarras"></div>
+    <section class="tarjeta" id="tarjetaAsignacion" style="margin-top:16px" hidden>
+      <header><h2>Asignación objetivo</h2><span class="subt" id="asigSub"></span></header>
+      <div class="tablaEnv"><table class="dt" id="asigTabla"></table></div>
     </section>
   </div>
 
-  <section class="tarjeta" style="margin-top:16px">
-    <header><h2>Hitos</h2><span class="subt">La primera vez que el patrimonio cruzó cada cifra</span></header>
-    <div class="hitos" id="hitos"></div>
-  </section>
+  <!-- ===== PRODUCTO (detalle, se abre desde Distribución) ===== -->
+  <div class="pv" id="pv-producto" hidden>
+    <div class="selFondo" id="selFondo" style="margin-top:8px"></div>
+    <section class="tarjeta" id="fondoFicha"></section>
+    <section class="tarjeta" id="fondoExpo" hidden></section>
+    <section class="tarjeta" id="fondoTabla"></section>
+  </div>
 
-  <section class="tarjeta" id="seccionProyeccion" style="margin-top:16px">
-    <header>
-      <h2>Si sigo así…</h2>
-      <span class="subt">Proyección orientativa: rentabilidad constante, sin impuestos ni inflación</span>
-    </header>
-    <div class="mandos">
-      <div class="mando"><label>Años <b id="vAnos">15</b></label><input type="range" id="rAnos" min="1" max="40" value="15"></div>
-      <div class="mando"><label>Rentabilidad anual <b id="vRent">7 %</b></label><input type="range" id="rRent" min="0" max="15" step="0.5" value="7"></div>
-      <div class="mando"><label>Aportación mensual <b id="vApor">—</b></label><input type="range" id="rApor" min="0" max="3000" step="50" value="500"></div>
-    </div>
-    <div class="envGraf" id="grafProy"></div>
-    <div class="hSub" id="proyResumen" style="margin-top:14px"></div>
-  </section>
+  <!-- ===== RENTABILIDAD ===== -->
+  <div class="pv" id="pv-rentabilidad" hidden>
+    <p class="ayudaVista">Cuánto ganan tus inversiones: ganancia, TIR (rentabilidad real de tu dinero), por año y comparado con un indexado.</p>
+    <section class="tarjeta" style="margin-top:8px">
+      <header><h2>Rentabilidad por año natural</h2><span class="subt" id="notaAnual"></span></header>
+      <div class="envGraf" id="grafAnual"></div>
+      <div class="filaTabla">
+        <span class="subt" id="notaTablaAnual"></span>
+      </div>
+      <div class="tablaEnv"><table class="dt" id="tablaAnual"></table></div>
+    </section>
+    <section class="tarjeta" id="seccionComparar">
+      <header>
+        <h2>¿Y si lo hubieras metido todo en un indexado?</h2>
+        <span class="subt">Las mismas compras y ventas que tú, en las mismas fechas, pero en otra cartera</span>
+        <span class="sp"></span>
+        <div class="segm" id="compRef"></div>
+      </header>
+      <div class="compTitular" id="compTitular"></div>
+      <div class="envGraf" id="grafComparacion"></div>
+      <p class="subt" id="compNota" style="margin:10px 0 0"></p>
+      <details class="compDetalles" id="compDetalles">
+        <summary>Ver más detalles: volatilidad, Sharpe y caídas</summary>
+        <p class="subt" id="notaComparador" style="margin:12px 0 0"></p>
+        <div class="envGraf" id="grafComparador"></div>
+        <div class="tablaEnv" style="margin-top:16px"><table class="dt" id="tablaComparador"></table></div>
+        <p class="subt" id="notaRiesgo" style="margin:14px 0 0"></p>
+      </details>
+    </section>
+    <section class="tarjeta">
+      <header><h2>Lo que pagas en comisiones</h2><span class="subt" id="notaComisiones"></span></header>
+      <div class="tablaEnv"><table class="dt" id="tablaComisiones"></table></div>
+    </section>
+    <section class="tarjeta" id="seccionProyeccion" style="margin-top:16px">
+      <header>
+        <h2>Si sigo así…</h2>
+        <span class="subt">Proyección orientativa: rentabilidad constante, sin impuestos ni inflación</span>
+      </header>
+      <div class="mandos">
+        <div class="mando"><label>Años <b id="vAnos">15</b></label><input type="range" id="rAnos" min="1" max="40" value="15"></div>
+        <div class="mando"><label>Rentabilidad anual <b id="vRent">7 %</b></label><input type="range" id="rRent" min="0" max="15" step="0.5" value="7"></div>
+        <div class="mando"><label>Aportación mensual <b id="vApor">—</b></label><input type="range" id="rApor" min="0" max="3000" step="50" value="500"></div>
+      </div>
+      <div class="envGraf" id="grafProy"></div>
+      <div class="hSub" id="proyResumen" style="margin-top:14px"></div>
+    </section>
+    <section class="tarjeta" id="seccionTabla" style="margin-top:16px">
+      <header>
+        <h2>Todas las aportaciones</h2>
+        <span class="subt" id="notaTabla"></span>
+        <div class="sep"></div>
+        <div class="segm" id="segTabla"></div>
+      </header>
+      <div class="tablaEnv alto"><table class="dt" id="tablaMov"></table></div>
+    </section>
+  </div>
 
-  <section class="tarjeta" id="seccionTabla" style="margin-top:16px">
-    <header>
-      <h2>Todas las aportaciones</h2>
-      <span class="subt" id="notaTabla"></span>
-      <div class="sep"></div>
-      <div class="segm" id="segTabla"></div>
-    </header>
-    <div class="tablaEnv alto"><table class="dt" id="tablaMov"></table></div>
-  </section>
-</div>
+  <!-- ===== EVOLUCIÓN (incluye el mes a mes) ===== -->
+  <div class="pv" id="pv-evolucion" hidden>
+    <p class="ayudaVista">Cómo cambia tu patrimonio en el tiempo y qué pasó cada mes.</p>
+    <section class="tarjeta" style="margin-top:8px">
+      <header>
+        <h2>Evolución del patrimonio</h2>
+        <span class="subt" id="evolNota"></span>
+        <div class="sep"></div>
+        <div class="segm" id="segRango"></div>
+        <div class="segm" id="segVista"></div>
+      </header>
+      <div class="filtros" id="filtros"></div>
+      <div class="envGraf" id="grafPrincipal"></div>
+    </section>
+    <section class="tarjeta" style="margin-top:16px">
+      <header><h2>Aportaciones por mes</h2><span class="subt" id="notaAport"></span></header>
+      <div class="envGraf" id="grafBarras"></div>
+    </section>
+    <section class="tarjeta" style="margin-top:16px">
+      <header><h2>Hitos</h2><span class="subt">La primera vez que el patrimonio cruzó cada cifra</span></header>
+      <div class="hitos" id="hitos"></div>
+    </section>
+    <section class="hero" style="padding-bottom:0;margin-top:20px">
+      <div class="mesBarra">
+        <button class="btn" id="mesPrev" title="Mes anterior">‹</button>
+        <select id="mesSel" aria-label="Elegir mes"></select>
+        <button class="btn" id="mesNext" title="Mes siguiente">›</button>
+        <div class="sep"></div>
+        <span class="subt" id="mesNota"></span>
+      </div>
+      <div class="hEtq" id="mesEtq">Cambio del mes</div>
+      <div class="hCifra" id="mesCifra">—</div>
+      <div class="hSub" id="mesSub"></div>
+    </section>
+    <div class="mesTarjetas" id="mesTarjetas"></div>
+    <section class="tarjeta">
+      <header><h2>Qué ha hecho cada componente</h2><span class="subt" id="mesTablaNota"></span></header>
+      <div class="tablaEnv"><table class="dt" id="mesTabla"></table></div>
+    </section>
+    <section class="tarjeta">
+      <header>
+        <h2>Tu esfuerzo y el del mercado, mes a mes</h2>
+        <span class="subt">Lo que aportaste tú, y encima lo que puso o quitó el mercado.</span>
+      </header>
+      <div class="envGraf" id="grafMesHist"></div>
+    </section>
+  </div>
 
-<!-- ==================================================== EL MES -->
-<div class="panel" id="tab-mes" role="tabpanel" hidden>
-  <section class="hero" style="padding-bottom:0">
-    <div class="mesBarra">
-      <button class="btn" id="mesPrev" title="Mes anterior">‹</button>
-      <select id="mesSel" aria-label="Elegir mes"></select>
-      <button class="btn" id="mesNext" title="Mes siguiente">›</button>
-      <div class="sep"></div>
-      <span class="subt" id="mesNota"></span>
-    </div>
-    <div class="hEtq" id="mesEtq">Cambio del mes</div>
-    <div class="hCifra" id="mesCifra">—</div>
-    <div class="hSub" id="mesSub"></div>
-  </section>
+  <!-- ===== INGRESOS Y GASTOS ===== -->
+  <div class="pv" id="pv-ingresos" hidden>
+    <p class="ayudaVista">El día a día del hogar: lo que entra, lo que sale y cuánto ahorras.</p>
+    <section class="tarjeta" id="tarjetaFlujos" style="margin-top:8px">
+      <header><h2>Ingresos, gastos y ahorro</h2><span class="subt" id="flujosSub"></span></header>
+      <div class="kpis" id="flujosKpis"></div>
+      <div class="tablaEnv" style="margin-top:14px"><table class="dt" id="flujosTabla"></table></div>
+      <p class="subt" id="flujosVacio" hidden style="margin-top:12px">Todavía no has anotado ingresos ni gastos. Ve a «Mis datos → Ingresos y gastos» para empezar.</p>
+    </section>
+  </div>
 
-  <div class="mesTarjetas" id="mesTarjetas"></div>
+  <!-- ===== DEUDAS Y VENCIMIENTOS ===== -->
+  <div class="pv" id="pv-deudas" hidden>
+    <p class="ayudaVista">Lo que debes y las fechas que conviene vigilar (depósitos, promociones y deudas).</p>
+    <section class="tarjeta" id="tarjetaDeudas" style="margin-top:8px" hidden>
+      <header><h2>Deudas</h2><span class="subt">Lo que debes, su coste y cuánto te apalancas</span></header>
+      <div class="kpis" id="deudasKpis"></div>
+      <div class="tablaEnv" id="deudasTablaEnv" style="margin-top:14px"><table class="dt" id="deudasTabla"></table></div>
+    </section>
+    <section class="tarjeta" id="tarjetaVenc" style="margin-top:16px" hidden>
+      <header><h2>Vencimientos</h2><span class="subt">Depósitos, promociones y deudas por fecha</span></header>
+      <div class="tablaEnv"><table class="dt" id="vencTabla"></table></div>
+    </section>
+    <p class="subt" id="deudasVacio" hidden>No tienes deudas ni vencimientos registrados. Puedes añadirlos en «Mis datos → Deudas».</p>
+  </div>
 
-  <section class="tarjeta">
-    <header><h2>Qué ha hecho cada componente</h2><span class="subt" id="mesTablaNota"></span></header>
-    <div class="tablaEnv"><table class="dt" id="mesTabla"></table></div>
-  </section>
-
-  <section class="tarjeta">
-    <header>
-      <h2>Tu esfuerzo y el del mercado, mes a mes</h2>
-      <span class="subt">Lo que aportaste tú, y encima lo que puso o quitó el mercado.</span>
-    </header>
-    <div class="envGraf" id="grafMesHist"></div>
-  </section>
-</div>
-
-<!-- ==================================================== FONDOS -->
-<div class="panel" id="tab-fondos" role="tabpanel" hidden>
-  <div class="selFondo" id="selFondo" style="margin-top:24px"></div>
-  <section class="tarjeta" id="fondoFicha"></section>
-  <section class="tarjeta" id="fondoExpo" hidden></section>
-  <section class="tarjeta" id="fondoTabla"></section>
-</div>
-
-<!-- ==================================================== RENDIMIENTO -->
-<div class="panel" id="tab-rendimiento" role="tabpanel" hidden>
-  <section class="tarjeta" style="margin-top:24px">
-    <header><h2>Rentabilidad por año natural</h2><span class="subt" id="notaAnual"></span></header>
-    <div class="envGraf" id="grafAnual"></div>
-    <div class="filaTabla">
-      <span class="subt" id="notaTablaAnual"></span>
-    </div>
-    <div class="tablaEnv"><table class="dt" id="tablaAnual"></table></div>
-  </section>
-
-  <section class="tarjeta" id="seccionComparar">
-    <header>
-      <h2>¿Y si lo hubieras metido todo en un indexado?</h2>
-      <span class="subt">Las mismas compras y ventas que tú, en las mismas fechas, pero en otra cartera</span>
-      <span class="sp"></span>
-      <div class="segm" id="compRef"></div>
-    </header>
-    <div class="compTitular" id="compTitular"></div>
-    <div class="envGraf" id="grafComparacion"></div>
-    <p class="subt" id="compNota" style="margin:10px 0 0"></p>
-    <details class="compDetalles" id="compDetalles">
-      <summary>Ver más detalles: volatilidad, Sharpe y caídas</summary>
-      <p class="subt" id="notaComparador" style="margin:12px 0 0"></p>
-      <div class="envGraf" id="grafComparador"></div>
-      <div class="tablaEnv" style="margin-top:16px"><table class="dt" id="tablaComparador"></table></div>
-      <p class="subt" id="notaRiesgo" style="margin:14px 0 0"></p>
-    </details>
-  </section>
-
-  <section class="tarjeta">
-    <header><h2>Lo que pagas en comisiones</h2><span class="subt" id="notaComisiones"></span></header>
-    <div class="tablaEnv"><table class="dt" id="tablaComisiones"></table></div>
-  </section>
 </div>
 
 <div class="panel" id="tab-datos" role="tabpanel" hidden><div id="editor"></div></div>

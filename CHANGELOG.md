@@ -6,6 +6,19 @@ del Excel `Gestor_Patrimonial`), manteniéndose 100 % local. Ver
 
 ## No publicado — rama `feat/gestor-patrimonial-f0`
 
+### UX · Navegación de dos niveles
+- Barra superior reducida a tres secciones grandes: **Panel**, **Mis datos** y
+  **Ayuda** (pensada para una persona mayor no habituada a estas interfaces).
+- **Panel** con sub-pestañas: Patrimonio · Distribución · Rentabilidad ·
+  Evolución (incluye el mes a mes) · Ingresos y gastos · Deudas y vencimientos.
+  El banner de avisos queda siempre visible arriba, y cada vista abre con una
+  línea-guía en lenguaje llano; iconos ⓘ con explicación donde hace falta.
+- **Mis datos** con pestañas: Activos · Deudas · Apartados · Ingresos y gastos ·
+  Saldos y movimientos · Configuración · Importar · Copias y seguridad.
+- Nueva **Configuración** (como la hoja del Excel): titulares, **categorías de
+  ingresos/gastos**, monedas, colchón, objetivos y umbrales. El desplegable de
+  categorías se alimenta de esa lista.
+
 ### F0 · Cimientos
 - Suite de tests (pytest) que caracteriza el motor actual (números, XIRR, FIFO,
   series/divisas, validación y `construir()` de extremo a extremo), deterministas

@@ -42,6 +42,20 @@ def test_flujo_se_borra():
     assert cfg["flujos"] == []
 
 
+def test_config_categorias_maestras():
+    cfg = cfg_vacia()
+    almacen.guarda_config(cfg, {"categorias": [
+        {"nombre": "Nómina", "tipo": "ingreso"},
+        {"nombre": "Vivienda", "tipo": "gasto"},
+        {"nombre": "Nómina", "tipo": "ingreso"},   # duplicado, se ignora
+        {"nombre": "Sin tipo", "tipo": "otro"},     # tipo inválido, se ignora
+    ]})
+    assert cfg["config"]["categorias"] == [
+        {"nombre": "Nómina", "tipo": "ingreso"},
+        {"nombre": "Vivienda", "tipo": "gasto"},
+    ]
+
+
 # ---------------------------------------------------------------- motor
 
 def _cartera_con_flujos():
