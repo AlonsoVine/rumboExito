@@ -632,6 +632,7 @@
         ${campo("Umbral de concentración", '<input name="umbralConcentracion" inputmode="decimal" placeholder="40">', "%")}
         ${campo("Desviación máxima", '<input name="desviacionMax" inputmode="decimal" placeholder="5">', "puntos %")}
         ${campo("Días de aviso", '<input name="diasAviso" inputmode="numeric" placeholder="90">', "vencimientos")}
+        ${campo("Recordatorio sin anotar", '<input name="diasSinAnotar" inputmode="numeric" placeholder="30">', "días")}
       </div>
       <div class="secc">Objetivo de asignación por tipo (%)</div>
       <div class="rejilla tres">${objInputs}</div>
@@ -677,6 +678,7 @@
         umbralConcentracion: d.umbralConcentracion,
         desviacionMax: d.desviacionMax,
         diasAviso: d.diasAviso,
+        diasSinAnotar: d.diasSinAnotar,
         objetivos, monedas, categorias,
       });
       // El nombre sale en el selector de arriba: recargar para que se vea al momento.
@@ -690,6 +692,7 @@
     f.elements.umbralConcentracion.value = pct(conf.umbralConcentracion);
     f.elements.desviacionMax.value = pct(conf.desviacionMax);
     f.elements.diasAviso.value = conf.diasAviso != null ? conf.diasAviso : "";
+    f.elements.diasSinAnotar.value = conf.diasSinAnotar != null ? conf.diasSinAnotar : "";
     Object.entries(obj).forEach(([clave, frac]) => {
       const el = f.elements["obj_" + clave];
       if (el) el.value = pct(frac);

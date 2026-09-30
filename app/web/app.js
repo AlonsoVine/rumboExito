@@ -601,11 +601,18 @@
     card.hidden = false;
     const conObj = a.some(x => x.objetivo != null);
     $("#asigSub").textContent = conObj
-      ? "Peso actual frente a tu objetivo por tipo"
-      : "Peso por tipo · define objetivos en «Mis datos → Hogar» para ver desviaciones";
+      ? "Peso actual frente a tu objetivo, y cuánto aportar o reducir para rebalancear"
+      : "Peso por tipo · define objetivos en «Mis datos → Configuración» para ver el rebalanceo";
     const tag = e => {
       const c = e === "OK" ? "var(--bien)" : e === "Sin objetivo" ? "var(--tinta3)" : "var(--mal)";
       return `<span style="color:${c}">${e}</span>`;
+    };
+    const ajusteCel = x => {
+      if (x.ajuste == null) return "—";
+      if (Math.abs(x.ajuste) < 1) return '<span style="color:var(--bien)">en objetivo</span>';
+      const cl = x.ajuste > 0 ? "pos" : "neg";
+      const verbo = x.ajuste > 0 ? "aporta " : "reduce ";
+      return `<span class="${cl}">${verbo}${G.fmtEur(Math.abs(x.ajuste), 0)}</span>`;
     };
     const filas = a.map(x => `<tr>
       <td><i class="pt" style="background:${(x.color && x.color[0]) || "#888"}"></i>${x.tipo}${x.concentracion ? ' <span style="color:var(--mal)" title="Concentración por encima del umbral">●</span>' : ""}</td>
@@ -613,10 +620,20 @@
       <td style="text-align:right">${G.fmtPct(x.peso, 0)}</td>
       <td style="text-align:right">${x.objetivo != null ? G.fmtPct(x.objetivo, 0) : "—"}</td>
       <td style="text-align:right">${x.desviacion != null ? G.fmtPctSigno(x.desviacion) : "—"}</td>
+      <td style="text-align:right">${ajusteCel(x)}</td>
       <td>${tag(x.estado)}</td></tr>`).join("");
     $("#asigTabla").innerHTML =
       `<thead><tr><th>Tipo</th><th style="text-align:right">Valor</th><th style="text-align:right">Peso</th>
-        <th style="text-align:right">Objetivo</th><th style="text-align:right">Desviación</th><th>Estado</th></tr></thead><tbody>${filas}</tbody>`;
+        <th style="text-align:right">Objetivo</th><th style="text-align:right">Desviación</th>
+        <th style="text-align:right">Rebalanceo</th><th>Estado</th></tr></thead><tbody>${filas}</tbody>`;
+    const cont = $("#asigRebal");
+    if (cont) {
+      const mov = a.filter(x => x.ajuste != null && Math.abs(x.ajuste) >= 1);
+      cont.innerHTML = (conObj && mov.length)
+        ? `<p class="subt" style="margin-top:10px">Para volver a tu objetivo: ` + mov.map(x =>
+          `${x.ajuste > 0 ? "aporta " : "reduce "}<b>${G.fmtEur(Math.abs(x.ajuste), 0)}</b> ${x.ajuste > 0 ? "a" : "de"} ${x.tipo}`).join(" · ") + ".</p>"
+        : "";
+    }
   }
 
   /* Vencimientos ordenados por fecha, con días restantes y estado. */

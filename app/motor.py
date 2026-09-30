@@ -1416,14 +1416,16 @@ def construir(cfg, carpeta, descargar=True):
         peso = val / bruto if bruto else 0
         obj = objetivos.get(clave)
         if obj is None:
-            estado, desv = "Sin objetivo", None
+            estado, desv, ajuste = "Sin objetivo", None, None
         else:
             desv = peso - obj
             estado = "OK" if abs(desv) <= desv_max else ("Sobreponderado" if desv > 0 else "Infraponderado")
+            # Rebalanceo: euros que faltan (+) o sobran (-) para llegar al objetivo.
+            ajuste = round(obj * bruto - val, 2)
         asignacion.append({"tipoClave": clave, "tipo": TIPOS.get(clave, clave),
                            "valor": round(val, 2), "peso": r4(peso), "objetivo": obj,
                            "desviacion": r4(desv) if desv is not None else None,
-                           "estado": estado, "concentracion": peso > umbral,
+                           "ajuste": ajuste, "estado": estado, "concentracion": peso > umbral,
                            "color": PALETA.get(i % 12 + 1, PALETA[1])})
 
     val_por_ent = defaultdict(float)
@@ -1481,6 +1483,19 @@ def construir(cfg, carpeta, descargar=True):
     if monedas_faltan:
         _al("Monedas sin tipo de cambio configurado (se toman en euros): "
             + ", ".join(sorted(monedas_faltan)) + ".", len(monedas_faltan))
+    # Recordatorio (B3): hace mucho que no anotas nada. Umbral configurable.
+    dias_sin = int((cfg.get("config") or {}).get("diasSinAnotar") or 30)
+    fechas_datos = ([m.get("fecha") for m in cfg.get("movimientos", [])]
+                    + [v.get("fecha") for v in cfg.get("valoraciones", [])]
+                    + [f.get("fecha") for f in (cfg.get("flujos") or [])])
+    fechas_datos = [f for f in fechas_datos if f]
+    if fechas_datos:
+        try:
+            dias = (hoy() - d(max(fechas_datos))).days
+        except ValueError:
+            dias = 0
+        if dias > dias_sin:
+            _al(f"Hace {dias} días que no anotas nada (saldos, movimientos o gastos).", 1, "info")
 
     control = {"umbral": r4(umbral), "desviacionMax": r4(desv_max), "diasAviso": dias_aviso,
                "sumaObjetivos": r4(suma_obj)}

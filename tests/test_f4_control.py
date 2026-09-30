@@ -61,6 +61,10 @@ def test_asignacion_estados_y_concentracion(tmp_path):
     ent = {e["entidad"]: e for e in d["concentracionEntidad"]}
     assert ent["Banco A"]["concentracion"] is True
     assert ent["Banco B"]["concentracion"] is False
+    # Rebalanceo (B1): fondo tiene 6000 con objetivo 5000 -> reducir 1000;
+    # efectivo tiene 4000 con objetivo 5000 -> aportar 1000.
+    assert por["fondo"]["ajuste"] == -1000.0
+    assert por["efectivo"]["ajuste"] == 1000.0
 
 
 def test_vencimientos_ordenados_y_estados(tmp_path):
@@ -79,6 +83,27 @@ def test_alertas_generadas(tmp_path):
     assert "concentración" in textos
     fuera = next(a for a in d["alertas"] if "fuera del objetivo" in a["texto"])
     assert fuera["n"] == 2   # fondo (sobre) + efectivo (infra)
+
+
+def test_recordatorio_sin_anotar(tmp_path):
+    cartera = {
+        "version": 1, "config": {"diasSinAnotar": 30},
+        "productos": [{"id": "c", "nombre": "Caja", "corto": "Caja", "tipo": "efectivo",
+                       "fuente": "manual", "slot": 1}],
+        "movimientos": [],
+        "valoraciones": [{"id": "v", "producto": "c", "fecha": "2020-01-31", "valor": 100.0}],
+    }
+    d = motor.construir(cartera, str(tmp_path), descargar=False)
+    assert any("no anotas nada" in a["texto"] for a in d["alertas"])
+    cartera["config"]["diasSinAnotar"] = 100000    # umbral altísimo: no debe avisar
+    d2 = motor.construir(cartera, str(tmp_path), descargar=False)
+    assert not any("no anotas nada" in a["texto"] for a in d2["alertas"])
+
+
+def test_config_dias_sin_anotar():
+    cfg = cfg_vacia()
+    almacen.guarda_config(cfg, {"diasSinAnotar": "20"})
+    assert cfg["config"]["diasSinAnotar"] == 20
 
 
 def test_sin_objetivos_no_alerta_de_suma(tmp_path):

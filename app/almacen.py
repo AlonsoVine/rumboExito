@@ -25,7 +25,8 @@ CARTERA_VACIA = {
     "productos": [], "movimientos": [], "valoraciones": [],
     "titulares": [], "apartados": [], "flujos": [],
     "config": {"colchon": 0, "categorias": [], "objetivos": {}, "monedas": [],
-               "umbralConcentracion": 0.4, "desviacionMax": 0.05, "diasAviso": 90},
+               "umbralConcentracion": 0.4, "desviacionMax": 0.05, "diasAviso": 90,
+               "diasSinAnotar": 30},
     "comparador": [{"id": "real", "nombre": "Mi cartera real", "real": True}],
     "hitos": [10000, 25000, 50000, 100000, 250000, 500000, 1000000],
     "objetivo": {"activo": True, "importe": 100000, "etiqueta": "Próximo objetivo"},
@@ -426,6 +427,9 @@ def guarda_config(cfg, datos):
     if "diasAviso" in datos:
         da = numero(datos.get("diasAviso"), "los días de aviso", errores, obligatorio=False, minimo=0)
         conf["diasAviso"] = int(da) if da is not None else 90
+    if "diasSinAnotar" in datos:
+        ds = numero(datos.get("diasSinAnotar"), "los días sin anotar", errores, obligatorio=False, minimo=0)
+        conf["diasSinAnotar"] = int(ds) if ds else 30
     if "objetivos" in datos:
         objs = {}
         for clave, val in (datos.get("objetivos") or {}).items():
