@@ -379,7 +379,8 @@
    "papel": "Munición lista para aportar. Es el dinero que va camino de los fondos.",
    "slot": 7,
    "largoPlazo": false,
-   "titular": "Común"
+   "titular": "Común",
+   "fechaVencimiento": "2026-11-15"
   },
   {
    "id": "efectivo_bbva",
@@ -1542,7 +1543,17 @@
   "Común"
  ],
  "config": {
-  "colchon": 3000
+  "colchon": 3000,
+  "objetivos": {
+   "fondo": 0.55,
+   "efectivo": 0.2,
+   "etf": 0.1,
+   "pension": 0.1,
+   "otro": 0.05
+  },
+  "umbralConcentracion": 0.4,
+  "desviacionMax": 0.05,
+  "diasAviso": 90
  },
  "apartados": [
   {

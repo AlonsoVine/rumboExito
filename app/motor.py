@@ -1354,6 +1354,88 @@ def construir(cfg, carpeta, descargar=True):
     ing_ratio = este_mes_ig["ingresos"] or media12_ig["ingresos"]
     cuota_sobre_ingresos = r4(cuota_total / ing_ratio) if (cuota_total and ing_ratio) else None
 
+    # ---- asignación objetivo, concentración, vencimientos y alertas (F4) ----
+    conf = cfg.get("config") or {}
+    objetivos = conf.get("objetivos") or {}
+    umbral = float(conf.get("umbralConcentracion") or 0.4)
+    desv_max = float(conf.get("desviacionMax") or 0.05)
+    dias_aviso = int(conf.get("diasAviso") or 90)
+
+    val_por_tipo = defaultdict(float)
+    for p in activos:
+        val_por_tipo[p.get("tipoClave") or "otro"] += p["valor"]
+    suma_obj = round(sum(objetivos.values()), 6)
+    asignacion = []
+    for i, (clave, val) in enumerate(sorted(val_por_tipo.items(), key=lambda x: -x[1])):
+        peso = val / bruto if bruto else 0
+        obj = objetivos.get(clave)
+        if obj is None:
+            estado, desv = "Sin objetivo", None
+        else:
+            desv = peso - obj
+            estado = "OK" if abs(desv) <= desv_max else ("Sobreponderado" if desv > 0 else "Infraponderado")
+        asignacion.append({"tipoClave": clave, "tipo": TIPOS.get(clave, clave),
+                           "valor": round(val, 2), "peso": r4(peso), "objetivo": obj,
+                           "desviacion": r4(desv) if desv is not None else None,
+                           "estado": estado, "concentracion": peso > umbral,
+                           "color": PALETA.get(i % 12 + 1, PALETA[1])})
+
+    val_por_ent = defaultdict(float)
+    for p in activos:
+        val_por_ent[p.get("entidad") or "Sin entidad"] += p["valor"]
+    concentracion_entidad = []
+    for i, (k, v) in enumerate(sorted(val_por_ent.items(), key=lambda x: -x[1])):
+        peso = v / bruto if bruto else 0
+        concentracion_entidad.append({"entidad": k, "valor": round(v, 2), "peso": r4(peso),
+                                      "concentracion": peso > umbral,
+                                      "color": PALETA.get(i % 12 + 1, PALETA[1])})
+
+    vencimientos = []
+    for p in productos + ser_otros + ser_pasivos:
+        fv = p.get("fechaVencimiento")
+        if not fv:
+            continue
+        try:
+            dias = (d(fv) - fecha_extracto).days
+        except ValueError:
+            continue
+        estado = "Vencido" if dias < 0 else ("Próximo" if dias <= dias_aviso else "OK")
+        vencimientos.append({"nombre": p.get("corto") or p.get("nombre"),
+                             "clase": "Deuda" if p in ser_pasivos else "Activo",
+                             "tipo": p.get("tipo"), "entidad": p.get("entidad", ""),
+                             "titular": p.get("titular", ""), "fecha": fv,
+                             "diasRestantes": dias, "estado": estado,
+                             "saldo": round(abs(p.get("valor") or 0), 2)})
+    vencimientos.sort(key=lambda x: x["fecha"])
+
+    alertas = []
+
+    def _al(txt, n, nivel="aviso"):
+        alertas.append({"texto": txt, "n": n, "nivel": nivel})
+
+    if objetivos and abs(suma_obj - 1.0) > 1e-6:
+        _al("Los objetivos de asignación no suman 100 %.", 1)
+    nct = sum(1 for a in asignacion if a["concentracion"])
+    if nct:
+        _al("Tipos de activo por encima del umbral de concentración.", nct)
+    nce = sum(1 for e in concentracion_entidad if e["concentracion"])
+    if nce:
+        _al("Entidades por encima del umbral de concentración.", nce)
+    nfo = sum(1 for a in asignacion if a["estado"] in ("Sobreponderado", "Infraponderado"))
+    if nfo:
+        _al("Tipos de activo fuera del objetivo (más allá de la desviación máxima).", nfo)
+    nven = sum(1 for v in vencimientos if v["estado"] == "Vencido")
+    if nven:
+        _al("Fechas ya vencidas: revísalas y, si procede, da de baja.", nven)
+    nprox = sum(1 for v in vencimientos if v["estado"] == "Próximo")
+    if nprox:
+        _al("Vencimientos dentro del plazo de aviso.", nprox, "info")
+    if dinero_libre < 0:
+        _al("Dinero libre para invertir negativo (apartados + colchón superan lo disponible).", 1)
+
+    control = {"umbral": r4(umbral), "desviacionMax": r4(desv_max), "diasAviso": dias_aviso,
+               "sumaObjetivos": r4(suma_obj)}
+
     datos = {
         "generado": dt.datetime.now().replace(microsecond=0).isoformat(),
         "titular": cfg.get("titular", "Mi patrimonio"),
@@ -1361,6 +1443,11 @@ def construir(cfg, carpeta, descargar=True):
         "apartados": apartados_out,
         "deudas": deudas_detalle,
         "flujos": flujos_out,
+        "asignacion": asignacion,
+        "concentracionEntidad": concentracion_entidad,
+        "vencimientos": vencimientos,
+        "alertas": alertas,
+        "control": control,
         "moneda": cfg.get("moneda", "EUR"),
         "fechaExtracto": fecha_extracto.isoformat(),
         "fechas": eje_iso,

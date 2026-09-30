@@ -24,7 +24,8 @@ CARTERA_VACIA = {
     "version": 1, "titular": "Mi patrimonio",
     "productos": [], "movimientos": [], "valoraciones": [],
     "titulares": [], "apartados": [], "flujos": [],
-    "config": {"colchon": 0, "categorias": []},
+    "config": {"colchon": 0, "categorias": [], "objetivos": {},
+               "umbralConcentracion": 0.4, "desviacionMax": 0.05, "diasAviso": 90},
     "comparador": [{"id": "real", "nombre": "Mi cartera real", "real": True}],
     "hitos": [10000, 25000, 50000, 100000, 250000, 500000, 1000000],
     "objetivo": {"activo": True, "importe": 100000, "etiqueta": "Próximo objetivo"},
@@ -402,6 +403,24 @@ def guarda_config(cfg, datos):
                 vistos.add(nombre.lower())
                 limpios.append(nombre)
         cfg["titulares"] = limpios
+    # Control de asignación (F4). Los porcentajes llegan como % y se guardan como fracción.
+    if "umbralConcentracion" in datos:
+        u = numero(datos.get("umbralConcentracion"), "el umbral de concentración", errores, obligatorio=False, minimo=0)
+        conf["umbralConcentracion"] = round(u / 100, 4) if u is not None else 0.4
+    if "desviacionMax" in datos:
+        dv = numero(datos.get("desviacionMax"), "la desviación máxima", errores, obligatorio=False, minimo=0)
+        conf["desviacionMax"] = round(dv / 100, 4) if dv is not None else 0.05
+    if "diasAviso" in datos:
+        da = numero(datos.get("diasAviso"), "los días de aviso", errores, obligatorio=False, minimo=0)
+        conf["diasAviso"] = int(da) if da is not None else 90
+    if "objetivos" in datos:
+        objs = {}
+        for clave, val in (datos.get("objetivos") or {}).items():
+            if clave in TIPOS:
+                x = numero(val, "el objetivo", errores, obligatorio=False, minimo=0)
+                if x:
+                    objs[clave] = round(x / 100, 4)
+        conf["objetivos"] = objs
     if errores:
         raise ErrorValidacion(errores)
     return {"config": conf, "titulares": cfg.get("titulares", [])}

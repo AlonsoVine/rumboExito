@@ -462,6 +462,9 @@
 
   function formHogar() {
     const conf = E.cfg.config || {};
+    const obj = conf.objetivos || {};
+    const objInputs = Object.entries(E.tipos).map(([clave, label]) =>
+      `<label class="campo"><span class="et">${esc(label)} <em>%</em></span><input name="obj_${clave}" inputmode="decimal" placeholder="0"></label>`).join("");
     const f = abreModal("Parámetros del hogar", `
       ${seccion("Colchón de seguridad")}
       <div class="rejilla">
@@ -471,16 +474,42 @@
       <div class="rejilla">
         ${campo("Un titular por línea", '<textarea name="titulares" rows="4" placeholder="Mar\nAntonio\nComún"></textarea>', "personas del hogar", "ancho")}
       </div>
-      <p class="ayuda">Escribe cada titular en su línea. Luego podrás asignar cada producto y apartado a un titular.</p>`,
+      ${seccion("Control de asignación")}
+      <div class="rejilla tres">
+        ${campo("Umbral de concentración", '<input name="umbralConcentracion" inputmode="decimal" placeholder="40">', "%")}
+        ${campo("Desviación máxima", '<input name="desviacionMax" inputmode="decimal" placeholder="5">', "puntos %")}
+        ${campo("Días de aviso", '<input name="diasAviso" inputmode="numeric" placeholder="90">', "vencimientos")}
+      </div>
+      <div class="secc">Objetivo de asignación por tipo (%)</div>
+      <div class="rejilla tres">${objInputs}</div>
+      <p class="ayuda">Los objetivos por tipo deberían sumar 100 %. Déjalos vacíos si no quieres objetivos.
+        La concentración avisa cuando un tipo o entidad supera el umbral.</p>`,
     async f => {
       const d = campos(f);
+      const objetivos = {};
+      Object.keys(E.tipos).forEach(clave => {
+        const val = (d["obj_" + clave] || "").trim();
+        if (val) objetivos[clave] = val;
+      });
       await guardaConfig({
         colchon: d.colchon,
         titulares: (d.titulares || "").split(/\n+/).map(s => s.trim()).filter(Boolean),
+        umbralConcentracion: d.umbralConcentracion,
+        desviacionMax: d.desviacionMax,
+        diasAviso: d.diasAviso,
+        objetivos,
       });
     }, "Guardar");
     f.elements.colchon.value = conf.colchon || "";
     f.elements.titulares.value = (E.cfg.titulares || []).join("\n");
+    const pct = v => v != null ? +(v * 100).toFixed(2) : "";
+    f.elements.umbralConcentracion.value = pct(conf.umbralConcentracion);
+    f.elements.desviacionMax.value = pct(conf.desviacionMax);
+    f.elements.diasAviso.value = conf.diasAviso != null ? conf.diasAviso : "";
+    Object.entries(obj).forEach(([clave, frac]) => {
+      const el = f.elements["obj_" + clave];
+      if (el) el.value = pct(frac);
+    });
     return f;
   }
 

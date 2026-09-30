@@ -89,6 +89,10 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 @keyframes lat{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
 .pos{color:var(--bien)} .neg{color:var(--mal)}
 .fuerte{font-weight:650;color:var(--tinta)}
+.bannerAlertas{margin:14px 0 0;display:flex;flex-direction:column;gap:6px}
+.bannerAlertas:empty{display:none}
+.avisoLinea{background:var(--sup);border:1px solid var(--borde);border-radius:9px;padding:9px 12px;font-size:13px}
+.avisoLinea b{display:inline-block;min-width:20px;font-variant-numeric:tabular-nums}
 
 .prog{margin-top:26px;max-width:760px}
 .progBarra{height:9px;border-radius:99px;background:var(--sup2);overflow:hidden;border:1px solid var(--borde)}
@@ -659,6 +663,8 @@ body.video .tarjetaCanal{display:none}
     </div>
   </section>
 
+  <div id="bannerAlertas" class="bannerAlertas"></div>
+
   <p class="kpisNota subt" id="kpisNota"></p>
   <div class="kpis" id="kpis"></div>
 
@@ -681,6 +687,16 @@ body.video .tarjetaCanal{display:none}
     <header><h2>Ingresos, gastos y ahorro</h2><span class="subt" id="flujosSub"></span></header>
     <div class="kpis" id="flujosKpis"></div>
     <div class="tablaEnv" style="margin-top:14px"><table class="dt" id="flujosTabla"></table></div>
+  </section>
+
+  <section class="tarjeta" id="tarjetaAsignacion" style="margin-top:16px" hidden>
+    <header><h2>Asignación objetivo</h2><span class="subt" id="asigSub"></span></header>
+    <div class="tablaEnv"><table class="dt" id="asigTabla"></table></div>
+  </section>
+
+  <section class="tarjeta" id="tarjetaVenc" style="margin-top:16px" hidden>
+    <header><h2>Vencimientos</h2><span class="subt">Depósitos, promociones y deudas por fecha</span></header>
+    <div class="tablaEnv"><table class="dt" id="vencTabla"></table></div>
   </section>
 
   <section class="tarjeta">

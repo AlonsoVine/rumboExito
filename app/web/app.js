@@ -515,6 +515,58 @@
         <th style="text-align:right">Ahorro</th><th style="text-align:right">Tasa</th></tr></thead><tbody>${filas}</tbody>`;
   }
 
+  /* Banner de alertas del cuadro de control (F4). */
+  function pintaAlertas() {
+    const cont = $("#bannerAlertas"), al = D.alertas || [];
+    cont.innerHTML = al.map(a => {
+      const color = a.nivel === "info" ? "var(--tinta2)" : "var(--mal)";
+      return `<div class="avisoLinea" style="border-left:3px solid ${color}"><b>${a.n}</b> ${a.texto}</div>`;
+    }).join("");
+  }
+
+  /* Asignación por tipo frente al objetivo, con desviación, estado y concentración. */
+  function pintaAsignacion() {
+    const card = $("#tarjetaAsignacion"), a = D.asignacion || [];
+    if (!a.length) { card.hidden = true; return; }
+    card.hidden = false;
+    const conObj = a.some(x => x.objetivo != null);
+    $("#asigSub").textContent = conObj
+      ? "Peso actual frente a tu objetivo por tipo"
+      : "Peso por tipo · define objetivos en «Mis datos → Hogar» para ver desviaciones";
+    const tag = e => {
+      const c = e === "OK" ? "var(--bien)" : e === "Sin objetivo" ? "var(--tinta3)" : "var(--mal)";
+      return `<span style="color:${c}">${e}</span>`;
+    };
+    const filas = a.map(x => `<tr>
+      <td><i class="pt" style="background:${(x.color && x.color[0]) || "#888"}"></i>${x.tipo}${x.concentracion ? ' <span style="color:var(--mal)" title="Concentración por encima del umbral">●</span>' : ""}</td>
+      <td style="text-align:right">${G.fmtEur(x.valor, 0)}</td>
+      <td style="text-align:right">${G.fmtPct(x.peso, 0)}</td>
+      <td style="text-align:right">${x.objetivo != null ? G.fmtPct(x.objetivo, 0) : "—"}</td>
+      <td style="text-align:right">${x.desviacion != null ? G.fmtPctSigno(x.desviacion) : "—"}</td>
+      <td>${tag(x.estado)}</td></tr>`).join("");
+    $("#asigTabla").innerHTML =
+      `<thead><tr><th>Tipo</th><th style="text-align:right">Valor</th><th style="text-align:right">Peso</th>
+        <th style="text-align:right">Objetivo</th><th style="text-align:right">Desviación</th><th>Estado</th></tr></thead><tbody>${filas}</tbody>`;
+  }
+
+  /* Vencimientos ordenados por fecha, con días restantes y estado. */
+  function pintaVencimientos() {
+    const card = $("#tarjetaVenc"), v = D.vencimientos || [];
+    if (!v.length) { card.hidden = true; return; }
+    card.hidden = false;
+    const tag = e => {
+      const c = e === "Vencido" ? "var(--mal)" : e === "Próximo" ? "#c98500" : "var(--bien)";
+      return `<span style="color:${c}">${e}</span>`;
+    };
+    const filas = v.map(x => `<tr>
+      <td>${x.nombre}</td><td>${x.clase}</td><td>${x.entidad || ""}</td><td>${x.titular || ""}</td>
+      <td>${G.fmtFecha(x.fecha)}</td><td style="text-align:right">${x.diasRestantes} d</td>
+      <td>${tag(x.estado)}</td></tr>`).join("");
+    $("#vencTabla").innerHTML =
+      `<thead><tr><th>Concepto</th><th>Clase</th><th>Entidad</th><th>Titular</th><th>Fecha</th>
+        <th style="text-align:right">Días</th><th>Estado</th></tr></thead><tbody>${filas}</tbody>`;
+  }
+
   function pintaPrincipal(m) {
     const fechas = corta(D.fechas);
     const prods = visibles().filter(p => (p.serie || []).some(v => v));
@@ -711,9 +763,12 @@
     pintaFiltros();
     pintaHero(mVis, mTodo);
     pintaKPIs(mVis);
+    pintaAlertas();
     pintaHogar();
     pintaDeudas();
     pintaFlujos();
+    pintaAsignacion();
+    pintaVencimientos();
     pintaPrincipal(mVis);
     pintaChips();
     pintaDistribucion();
