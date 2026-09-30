@@ -163,6 +163,10 @@ def guarda_producto(cfg, datos):
     riesgo = numero(datos.get("riesgo"), "el nivel de riesgo", errores, obligatorio=False, minimo=1)
     if riesgo is not None and riesgo > 7:
         errores.append("El nivel de riesgo va de 1 a 7.")
+    # Campos de deuda (F2): la TAE se guarda como fracción, igual que el TER.
+    tae = numero(datos.get("tae"), "la TAE", errores, obligatorio=False, minimo=0)
+    cuota = numero(datos.get("cuota"), "la cuota mensual", errores, obligatorio=False, minimo=0)
+    capital = numero(datos.get("capitalInicial"), "el capital inicial", errores, obligatorio=False, minimo=0)
     if errores:
         raise ErrorValidacion(errores)
 
@@ -171,7 +175,14 @@ def guarda_producto(cfg, datos):
                  disponible=bool(datos.get("disponible", disponible_defecto(tipo))),
                  slot=int(datos["slot"]) if str(datos.get("slot") or "").isdigit() else None,
                  ter=ter / 100 if ter is not None else None,
-                 riesgo=int(riesgo) if riesgo is not None else None)
+                 riesgo=int(riesgo) if riesgo is not None else None,
+                 tae=tae / 100 if tae is not None else None,
+                 cuota=round(cuota, 2) if cuota is not None else None,
+                 capitalInicial=round(capital, 2) if capital is not None else None,
+                 fechaInicio=fecha_suave(datos.get("fechaInicio")),
+                 fechaVencimiento=fecha_suave(datos.get("fechaVencimiento")),
+                 fechaRevision=fecha_suave(datos.get("fechaRevision")),
+                 fechaCancelacion=fecha_suave(datos.get("fechaCancelacion")))
     if fuente == "manual":
         nuevo.update(codigo="", respaldo="", respaldoMoneda="")
     nuevo["corto"] = nuevo["corto"] or nuevo["nombre"][:24]

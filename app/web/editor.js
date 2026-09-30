@@ -263,6 +263,19 @@
         ${campo("Moneda", '<input name="moneda" maxlength="3">', "", "siOnline")}
       </div></div>
 
+      <div class="siDeuda" hidden>${seccion("Datos de la deuda")}
+      <div class="rejilla tres">
+        ${campo("Capital inicial", '<input name="capitalInicial" inputmode="decimal">', "€")}
+        ${campo("TAE", '<input name="tae" inputmode="decimal" placeholder="6,5">', "%")}
+        ${campo("Cuota mensual", '<input name="cuota" inputmode="decimal">', "€")}
+        ${campo("Fecha de inicio", '<input name="fechaInicio" type="date">')}
+        ${campo("Vencimiento", '<input name="fechaVencimiento" type="date">')}
+        ${campo("Próxima revisión", '<input name="fechaRevision" type="date">')}
+        ${campo("Fecha de cancelación", '<input name="fechaCancelacion" type="date">', "si ya la pagaste")}
+      </div>
+      <p class="ayuda">El <b>capital pendiente</b> lo anotas cada mes en «Saldos y valores» (es el saldo de la deuda).
+        Aquí van los datos fijos del préstamo; los intereses anuales se estiman como capital × TAE.</p></div>
+
       ${seccion("Cómo se muestra")}
       <div class="rejilla">
         ${campo("Clase de activo", `<input name="clase" list="edClases" placeholder="Renta variable global">
@@ -299,13 +312,20 @@
       return manual(item) ? () => formValor(null, item.id) : () => formMovimiento(null, item.id);
     }, nuevo ? "Guardar producto" : "Guardar cambios");
 
-    rellena(f, { ...p, ter: p.ter != null ? decimal(+(p.ter * 100).toFixed(4)) : "" });
+    rellena(f, {
+      ...p,
+      ter: p.ter != null ? decimal(+(p.ter * 100).toFixed(4)) : "",
+      tae: p.tae != null ? decimal(+(p.tae * 100).toFixed(4)) : "",
+    });
     const ajusta = () => {
-      const saldo = SOLO_SALDO.includes(f.elements.tipo.value);
+      const tipo = f.elements.tipo.value;
+      const saldo = SOLO_SALDO.includes(tipo);
+      const deuda = tipo === "deuda";
       const online = !saldo && f.elements.fuente.value !== "manual";
       f.querySelector(".siCotiza").hidden = saldo;
+      f.querySelector(".siDeuda").hidden = !deuda;
       f.querySelectorAll(".siOnline").forEach(el => { el.hidden = !online; });
-      f.querySelector(".rejilla.tres").classList.toggle("una", !online);
+      f.querySelector(".siCotiza .rejilla.tres").classList.toggle("una", !online);
       f.querySelector(".buscador").hidden = saldo;
     };
     f.elements.tipo.onchange = ajusta;

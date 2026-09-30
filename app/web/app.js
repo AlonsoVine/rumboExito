@@ -447,6 +447,40 @@
       `</table>`;
   }
 
+  /* Deudas: capital pendiente, cuota, intereses estimados, ratio y detalle. */
+  function pintaDeudas() {
+    const card = $("#tarjetaDeudas"), ds = D.deudas || [], t = D.total;
+    if (!ds.length) { card.hidden = true; return; }
+    card.hidden = false;
+
+    const tiles = [
+      { e: "Capital pendiente", v: G.fmtEur(t.deudas, 0), n: `${ds.length} deuda${ds.length > 1 ? "s" : ""}` },
+      { e: "Cuota mensual", v: G.fmtEur(t.cuotaMensualDeudas, 0), n: "suma de cuotas" },
+      { e: "Intereses/año (est.)", v: G.fmtEur(t.interesAnualDeudas, 0), n: "capital × TAE" },
+      {
+        e: "Deudas / activos", v: t.ratioDeudaActivos != null ? G.fmtPct(t.ratioDeudaActivos, 0) : "—",
+        n: "apalancamiento", cl: t.ratioDeudaActivos > 0.5 ? "neg" : ""
+      },
+    ];
+    $("#deudasKpis").innerHTML = tiles.map(k =>
+      `<div class="kpi"><div class="e">${k.e}</div>
+       <div class="v ${k.cl || ""}">${k.v}</div><div class="n">${k.n}</div></div>`).join("");
+
+    const cel = (v, r) => `<td${r ? ' style="text-align:right"' : ""}>${v}</td>`;
+    const filas = ds.map(x => `<tr>
+      <td><i class="pt" style="background:${(x.color && x.color[0]) || "#888"}"></i>${x.nombre}${x.acreedor ? ` <small>${x.acreedor}</small>` : ""}</td>
+      ${cel(x.titular || "")}
+      ${cel(G.fmtEur(x.capitalPendiente, 0), true)}
+      ${cel(x.tae != null ? G.fmtPct(x.tae, 2) : "—", true)}
+      ${cel(x.cuota != null ? G.fmtEur(x.cuota, 0) : "—", true)}
+      ${cel(x.interesAnual != null ? G.fmtEur(x.interesAnual, 0) : "—", true)}
+      ${cel(x.fechaVencimiento ? G.fmtFecha(x.fechaVencimiento) : "")}</tr>`).join("");
+    $("#deudasTabla").innerHTML =
+      `<thead><tr><th>Deuda</th><th>Titular</th><th style="text-align:right">Capital pend.</th>
+        <th style="text-align:right">TAE</th><th style="text-align:right">Cuota</th>
+        <th style="text-align:right">Interés/año</th><th>Vence</th></tr></thead><tbody>${filas}</tbody>`;
+  }
+
   function pintaPrincipal(m) {
     const fechas = corta(D.fechas);
     const prods = visibles().filter(p => (p.serie || []).some(v => v));
@@ -644,6 +678,7 @@
     pintaHero(mVis, mTodo);
     pintaKPIs(mVis);
     pintaHogar();
+    pintaDeudas();
     pintaPrincipal(mVis);
     pintaChips();
     pintaDistribucion();

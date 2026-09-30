@@ -1280,11 +1280,37 @@ def construir(cfg, carpeta, descargar=True):
                       "fechaPrevista": a.get("fechaPrevista", "")}
                      for a in apartados_cfg]
 
+    # ---- deudas (F2): detalle por deuda, cuota total, intereses y ratio ----
+    # El capital pendiente es el último saldo anotado (ser_pasivos llega en negativo).
+    deudas_detalle, cuota_total, interes_anual_total = [], 0.0, 0.0
+    for e in ser_pasivos:
+        cap = round(-e["valor"], 2)
+        tae = e.get("tae")
+        cuota = e.get("cuota")
+        interes = round(cap * tae, 2) if (tae and cap) else None
+        if cuota:
+            cuota_total += cuota
+        if interes:
+            interes_anual_total += interes
+        deudas_detalle.append({
+            "id": e["id"], "nombre": e.get("corto") or e.get("nombre"),
+            "acreedor": e.get("entidad", ""), "titular": e.get("titular", ""),
+            "capitalPendiente": cap, "capitalInicial": e.get("capitalInicial"),
+            "tae": tae, "cuota": cuota, "interesAnual": interes,
+            "fechaInicio": e.get("fechaInicio"), "fechaVencimiento": e.get("fechaVencimiento"),
+            "fechaRevision": e.get("fechaRevision"),
+            "color": e.get("slotColor"),
+        })
+    cuota_total = round(cuota_total, 2)
+    interes_anual_total = round(interes_anual_total, 2)
+    ratio_deuda_activos = r4(deudas_total / bruto) if bruto else None
+
     datos = {
         "generado": dt.datetime.now().replace(microsecond=0).isoformat(),
         "titular": cfg.get("titular", "Mi patrimonio"),
         "titulares": cfg.get("titulares", []) or [],
         "apartados": apartados_out,
+        "deudas": deudas_detalle,
         "moneda": cfg.get("moneda", "EUR"),
         "fechaExtracto": fecha_extracto.isoformat(),
         "fechas": eje_iso,
@@ -1302,6 +1328,9 @@ def construir(cfg, carpeta, descargar=True):
             "colchon": colchon,
             "dineroLibre": dinero_libre,
             "porTitular": por_titular,
+            "cuotaMensualDeudas": cuota_total,
+            "interesAnualDeudas": interes_anual_total,
+            "ratioDeudaActivos": ratio_deuda_activos,
             "aportado": aportado_total,
             "valorConCoste": round(valor_conocido, 2),
             "plusvalia": plusvalia_total,

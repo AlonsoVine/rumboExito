@@ -394,6 +394,21 @@
    "slot": 8,
    "largoPlazo": false,
    "titular": "Común"
+  },
+  {
+   "id": "prestamo_coche",
+   "nombre": "Préstamo coche",
+   "corto": "Préstamo coche",
+   "tipo": "deuda",
+   "fuente": "manual",
+   "entidad": "Caixabank",
+   "titular": "Común",
+   "capitalInicial": 18000,
+   "tae": 0.065,
+   "cuota": 320,
+   "fechaInicio": "2023-04-15",
+   "fechaVencimiento": "2029-04-15",
+   "slot": 8
   }
  ],
  "movimientos": [
@@ -1450,6 +1465,12 @@
    "valor": 549.4,
    "aportado": null,
    "id": "v6"
+  },
+  {
+   "id": "vdeuda1",
+   "producto": "prestamo_coche",
+   "fecha": "2026-09-13",
+   "valor": 8260.35
   }
  ],
  "comparador": [
