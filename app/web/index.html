@@ -111,6 +111,9 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 @keyframes lat{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
 .pos{color:var(--bien)} .neg{color:var(--mal)}
 .fuerte{font-weight:650;color:var(--tinta)}
+.selCartera{font:inherit;font-size:14px;font-weight:600;color:var(--tinta);background:var(--sup);
+  border:1px solid var(--borde);border-radius:8px;padding:5px 8px;cursor:pointer;max-width:220px}
+.selCartera:hover{border-color:var(--tinta3)}
 .bannerAlertas{margin:14px 0 0;display:flex;flex-direction:column;gap:6px}
 .bannerAlertas:empty{display:none}
 .avisoLinea{background:var(--sup);border:1px solid var(--borde);border-radius:9px;padding:9px 12px;font-size:13px}
@@ -643,7 +646,7 @@ body.video .tarjetaCanal{display:none}
 <div class="top">
   <div class="env">
     <div class="topFila">
-      <div class="marca"><img class="logoIcono" src="icono-64.png" alt="" width="24" height="24"><span class="nombreApp">Rumbo</span><span class="marcaSep"></span><span id="marcaTexto">Mi patrimonio</span></div>
+      <div class="marca"><img class="logoIcono" src="icono-64.png" alt="" width="24" height="24"><span class="nombreApp">Rumbo</span><span class="marcaSep"></span><span id="marcaTexto">Mi patrimonio</span><select id="selCartera" class="selCartera" aria-label="Elegir o crear cartera" hidden></select></div>
       <div class="sep"></div>
       <span class="meta" id="metaFecha"></span>
       <button class="btn" id="btnPrecios" title="Descarga los precios de hoy de cada producto">↻ Actualizar precios</button>

@@ -13,6 +13,7 @@ import logging
 import os
 import re
 import secrets
+import shutil
 import sys
 import threading
 import urllib.request
@@ -55,21 +56,94 @@ def escribe_json(ruta, datos):
     os.replace(tmp, ruta)
 
 
+# ---------------------------------------------------------------- carteras
+# Varias carteras conviven en DATOS/carteras/<id>/ (cada una con su cartera.json,
+# calculado, copias, cache…). DATOS/registro.json guarda cuál está activa. Si solo
+# hay una cartera suelta en DATOS/cartera.json (modo antiguo), se sigue usando tal
+# cual: el multi-cartera solo se estrena al crear la segunda.
+
+def _carteras_dir():
+    return os.path.join(DATOS, "carteras")
+
+
+def registro():
+    return lee_json(os.path.join(DATOS, "registro.json"), {}) or {}
+
+
+def guarda_registro(reg):
+    escribe_json(os.path.join(DATOS, "registro.json"), reg)
+
+
+def asegura_multi():
+    """Pasa del modo antiguo (cartera.json suelto en DATOS) al multi: mueve esa
+    cartera a carteras/<id>/ y la deja activa. No hace nada si ya es multi."""
+    if os.path.isdir(_carteras_dir()):
+        return
+    suelta = os.path.join(DATOS, "cartera.json")
+    if not os.path.exists(suelta):
+        return
+    cfg = lee_json(suelta, {}) or {}
+    cid = almacen.slug(cfg.get("titular") or "cartera", set())
+    destino = os.path.join(_carteras_dir(), cid)
+    os.makedirs(destino, exist_ok=True)
+    for n in os.listdir(DATOS):
+        if n not in ("carteras", "registro.json"):
+            os.replace(os.path.join(DATOS, n), os.path.join(destino, n))
+    guarda_registro({"activa": cid})
+
+
+def carteras():
+    """Carteras disponibles en DATOS/carteras/<id>/ (modo multi)."""
+    out = []
+    base = _carteras_dir()
+    if os.path.isdir(base):
+        for cid in sorted(os.listdir(base)):
+            cfg = lee_json(os.path.join(base, cid, "cartera.json"))
+            if cfg is not None:
+                out.append({"id": cid, "nombre": cfg.get("titular") or cid})
+    return out
+
+
+def id_activa():
+    lst = carteras()
+    if not lst:
+        return None
+    ids = {c["id"] for c in lst}
+    act = registro().get("activa")
+    return act if act in ids else lst[0]["id"]
+
+
+def dir_activa():
+    """Carpeta de la cartera activa: carteras/<id>/ (multi), DATOS (modo antiguo con
+    cartera.json suelto) o None (demo, sin ninguna cartera)."""
+    cid = id_activa()
+    if cid:
+        return os.path.join(_carteras_dir(), cid)
+    if os.path.exists(os.path.join(DATOS, "cartera.json")):
+        return DATOS
+    return None
+
+
+def carpeta():
+    """Dónde leer/escribir cartera, cálculo, estado y copias. En demo, DATOS."""
+    return dir_activa() or DATOS
+
+
 def modo():
-    """'propio' si ya hay una cartera en mis_datos; si no, 'demo'."""
-    return "propio" if os.path.exists(os.path.join(DATOS, "cartera.json")) else "demo"
+    return "propio" if dir_activa() else "demo"
 
 
 def cartera():
-    return lee_json(os.path.join(DATOS, "cartera.json") if modo() == "propio" else DEMO, {})
+    d = dir_activa()
+    return lee_json(os.path.join(d, "cartera.json"), {}) if d else lee_json(DEMO, {})
 
 
 def ruta_calculado():
-    return os.path.join(DATOS, f"calculado_{modo()}.json")
+    return os.path.join(carpeta(), f"calculado_{modo()}.json")
 
 
 def estado():
-    return lee_json(os.path.join(DATOS, "estado.json"), {})
+    return lee_json(os.path.join(carpeta(), "estado.json"), {})
 
 
 # ---------------------------------------------------------------- cálculo
@@ -78,11 +152,11 @@ def recalcula(descargar):
     """Recalcula el panel. Con descargar=True baja antes los precios nuevos;
     con "faltan", solo los de productos que aún no tienen precios guardados."""
     with cerrojo:
-        datos = motor.construir(cartera(), DATOS, descargar=descargar)
+        datos = motor.construir(cartera(), carpeta(), descargar=descargar)
         est = estado()
         if descargar is True:
             est["preciosActualizados"] = dt.datetime.now().replace(microsecond=0).isoformat()
-            escribe_json(os.path.join(DATOS, "estado.json"), est)
+            escribe_json(os.path.join(carpeta(), "estado.json"), est)
         if datos is not None:
             datos["modo"] = modo()
             datos["preciosActualizados"] = est.get("preciosActualizados")
@@ -150,7 +224,7 @@ def cambia(fn):
     if modo() == "demo":
         return jsonify(ok=False, errores=[AVISO_DEMO]), 403
     with cerrojo:
-        ruta = os.path.join(DATOS, "cartera.json")
+        ruta = os.path.join(carpeta(), "cartera.json")
         cfg = almacen.carga(ruta)
         try:
             item = fn(cfg)
@@ -212,7 +286,62 @@ def api_empezar():
             cfg = dict(lee_json(DEMO, {}), titular="Mi patrimonio (copia del ejemplo)")
         else:
             cfg = json.loads(json.dumps(almacen.CARTERA_VACIA))
-        almacen.guarda(os.path.join(DATOS, "cartera.json"), cfg)
+        almacen.guarda(os.path.join(carpeta(), "cartera.json"), cfg)
+        recalcula(descargar="faltan")
+    return jsonify(ok=True)
+
+
+# ---------------------------------------------------------------- varias carteras
+
+@app.get("/api/carteras")
+def api_carteras():
+    lst, activa = carteras(), id_activa()
+    if not lst and modo() == "propio":   # modo antiguo: una sola cartera suelta
+        lst = [{"id": "__actual__", "nombre": cartera().get("titular") or "Mi patrimonio"}]
+        activa = "__actual__"
+    return jsonify(carteras=lst, activa=activa, modo=modo())
+
+
+@app.post("/api/cartera/nueva")
+def api_cartera_nueva():
+    nombre = ((request.get_json(silent=True) or {}).get("nombre") or "").strip()[:60]
+    if not nombre:
+        return jsonify(ok=False, errores=["Ponle un nombre a la cartera."]), 400
+    with cerrojo:
+        asegura_multi()   # si venías del modo antiguo, lo pasa a multi
+        cid = almacen.slug(nombre, {c["id"] for c in carteras()})
+        cfg = json.loads(json.dumps(almacen.CARTERA_VACIA))
+        cfg["titular"] = nombre
+        os.makedirs(os.path.join(_carteras_dir(), cid), exist_ok=True)
+        almacen.guarda(os.path.join(_carteras_dir(), cid, "cartera.json"), cfg)
+        guarda_registro({"activa": cid})
+        recalcula(descargar="faltan")
+    return jsonify(ok=True, id=cid)
+
+
+@app.post("/api/cartera/activar")
+def api_cartera_activar():
+    cid = (request.get_json(silent=True) or {}).get("id")
+    if cid not in {c["id"] for c in carteras()}:
+        return jsonify(ok=False, errores=["Esa cartera ya no existe."]), 400
+    with cerrojo:
+        guarda_registro({"activa": cid})
+        recalcula(descargar="faltan")
+    return jsonify(ok=True)
+
+
+@app.post("/api/cartera/borrar")
+def api_cartera_borrar():
+    cid = (request.get_json(silent=True) or {}).get("id")
+    ids = {c["id"] for c in carteras()}
+    if cid not in ids:
+        return jsonify(ok=False, errores=["Esa cartera ya no existe."]), 400
+    if len(ids) <= 1:
+        return jsonify(ok=False, errores=["No puedes borrar tu única cartera. Crea otra antes."]), 400
+    with cerrojo:
+        shutil.rmtree(os.path.join(_carteras_dir(), cid), ignore_errors=True)
+        if registro().get("activa") == cid:
+            guarda_registro({"activa": sorted(ids - {cid})[0]})
         recalcula(descargar="faltan")
     return jsonify(ok=True)
 
@@ -231,11 +360,11 @@ def api_importar_previsualizar():
     archivos = [(f.filename, f.read()) for f in request.files.getlist("archivos") if f.filename]
     texto = (request.form.get("texto") or "").strip()
     with cerrojo:
-        cfg = almacen.carga(os.path.join(DATOS, "cartera.json"))
+        cfg = almacen.carga(os.path.join(carpeta(), "cartera.json"))
         if origen == "myinvestor":
             if not archivos:
                 return jsonify(ok=False, errores=["Elige los archivos CSV que has descargado de MyInvestor."]), 400
-            plan = importar.preparar_myinvestor(cfg, archivos, DATOS)
+            plan = importar.preparar_myinvestor(cfg, archivos, carpeta())
         else:
             if not archivos and not texto:
                 return jsonify(ok=False, errores=["Elige un archivo o pega el texto que te ha dado la IA."]), 400
@@ -245,7 +374,7 @@ def api_importar_previsualizar():
                 if error:
                     return jsonify(ok=False, errores=[f"{nombre}: {error}" if archivos else error]), 400
                 filas += leidas
-            plan = importar.preparar_tabla(cfg, filas, DATOS)
+            plan = importar.preparar_tabla(cfg, filas, carpeta())
         informe = importar.vista_previa(cfg, plan)
     token = secrets.token_hex(8)
     PLANES.clear()   # solo una importación pendiente a la vez
@@ -292,7 +421,7 @@ def api_prompt():
 # ---------------------------------------------------------------- copias de seguridad
 
 def ruta_copias():
-    return os.path.join(DATOS, "copias")
+    return os.path.join(carpeta(), "copias")
 
 
 def valida_copia(cfg):
@@ -306,10 +435,10 @@ def valida_copia(cfg):
 def restaura(cfg):
     """Pone cfg como cartera. Lo que hubiera antes queda en las copias automáticas."""
     with cerrojo:
-        almacen.guarda(os.path.join(DATOS, "cartera.json"), cfg)
+        almacen.guarda(os.path.join(carpeta(), "cartera.json"), cfg)
         for viejo in ("calculado_propio.json", "historico.json"):
-            if os.path.exists(os.path.join(DATOS, viejo)):
-                os.remove(os.path.join(DATOS, viejo))
+            if os.path.exists(os.path.join(carpeta(), viejo)):
+                os.remove(os.path.join(carpeta(), viejo))
         recalcula(descargar="faltan")
 
 
@@ -337,7 +466,7 @@ def api_copias():
 def api_copia_descargar():
     if modo() != "propio":
         return jsonify(ok=False, errores=["Todavía no tienes una cartera propia que guardar."]), 400
-    with open(os.path.join(DATOS, "cartera.json"), "rb") as f:
+    with open(os.path.join(carpeta(), "cartera.json"), "rb") as f:
         contenido = f.read()
     nombre = f"copia_patrimonio_{dt.date.today().isoformat()}.json"
     return Response(contenido, mimetype="application/json",
@@ -373,7 +502,7 @@ def api_copia_recuperar():
     if modo() == "propio":
         # Además de la copia automática, una con nombre propio que no se borra sola.
         sello = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
-        with open(os.path.join(DATOS, "cartera.json"), "rb") as a, \
+        with open(os.path.join(carpeta(), "cartera.json"), "rb") as a, \
                 open(os.path.join(ruta_copias(), f"antes_de_recuperar_{sello}.json"), "wb") as b:
             b.write(a.read())
     restaura(cfg)
@@ -428,14 +557,14 @@ def api_reiniciar():
         return jsonify(ok=False, errores=["Ahora mismo no tienes ninguna cartera propia."]), 400
     a = (request.get_json(silent=True) or {}).get("a")
     with cerrojo:
-        ruta = os.path.join(DATOS, "cartera.json")
-        copias = os.path.join(DATOS, "copias")
+        ruta = os.path.join(carpeta(), "cartera.json")
+        copias = os.path.join(carpeta(), "copias")
         os.makedirs(copias, exist_ok=True)
         sello = dt.datetime.now().strftime("%Y%m%d_%H%M%S")
         os.replace(ruta, os.path.join(copias, f"antes_de_reiniciar_{sello}.json"))
         for viejo in ("calculado_propio.json", "historico.json"):
-            if os.path.exists(os.path.join(DATOS, viejo)):
-                os.remove(os.path.join(DATOS, viejo))
+            if os.path.exists(os.path.join(carpeta(), viejo)):
+                os.remove(os.path.join(carpeta(), viejo))
         if a == "vacia":
             almacen.guarda(ruta, json.loads(json.dumps(almacen.CARTERA_VACIA)))
         recalcula(descargar="faltan")

@@ -6,6 +6,16 @@ del Excel `Gestor_Patrimonial`), manteniéndose 100 % local. Ver
 
 ## No publicado — rama `feat/gestor-patrimonial-f0`
 
+### Varias carteras y correcciones
+- **Multi-cartera:** puedes tener varias carteras y cambiar entre ellas desde el
+  selector de la barra superior; «＋ Nueva cartera…» crea una vacía con el nombre
+  que le pongas. Cada cartera vive en `mis_datos/carteras/<id>/`; el modo antiguo
+  (una sola cartera) sigue funcionando y se migra solo al crear la segunda.
+- **Corrección:** en «Distribución», el botón del selector (Activo/Producto/
+  Entidad/Tipo) ahora se marca al pulsarlo.
+- **Autoría:** añadido Alonso (github.com/AlonsoVine) como coautor de las
+  modificaciones en el LICENSE y en el pie de la app.
+
 ### UX · Navegación de dos niveles
 - Barra superior reducida a tres secciones grandes: **Panel**, **Mis datos** y
   **Ayuda** (pensada para una persona mayor no habituada a estas interfaces).

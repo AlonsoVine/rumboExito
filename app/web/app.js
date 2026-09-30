@@ -40,6 +40,7 @@
         document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-" + b.dataset.tab; });
       };
     });
+    montaSelectorCarteras();
     return;
   }
 
@@ -293,7 +294,12 @@
       const b = document.createElement("button");
       b.textContent = o.et;
       b.setAttribute("aria-pressed", String(o.id === activo));
-      b.onclick = () => alPulsar(o.id);
+      b.onclick = () => {
+        // Marca el botón pulsado al momento, aunque el callback solo redibuje
+        // el gráfico y no vuelva a pintar esta barra de segmentos.
+        cont.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+        alPulsar(o.id);
+      };
       cont.appendChild(b);
     });
   }
@@ -1198,7 +1204,8 @@
        ${D.total.diasInvertido} días invertido.<br>
        Fuentes de precios: ${fuentes.join(", ") || "ninguna"}. En «Panel → Distribución» pulsa un producto para ver su ficha.<br>
        <b>Aviso:</b> herramienta informativa. No es asesoramiento financiero ni una recomendación de compra o venta.
-       Los precios vienen de servicios públicos gratuitos y pueden tener errores o retrasos: no se garantiza su exactitud.`;
+       Los precios vienen de servicios públicos gratuitos y pueden tener errores o retrasos: no se garantiza su exactitud.<br>
+       <span class="creditoMod">Rumbo, de Dani Dominguez Quant · modificaciones (gestor de patrimonio de hogar) por Alonso (github.com/AlonsoVine).</span>`;
     if ($("#bannerDemo")) $("#bannerDemo").hidden = D.modo !== "demo";
     const K = window.CANAL;
     if (K) {
@@ -1277,9 +1284,42 @@
   }
   function pintar() { pintaComun(); pintarTab(); }
 
+  /* Selector de carteras en la barra superior: cambiar entre las tuyas o crear una nueva. */
+  async function montaSelectorCarteras() {
+    const sel = $("#selCartera"), txt = $("#marcaTexto");
+    if (!sel) return;
+    let j;
+    try { j = await (await fetch("api/carteras")).json(); } catch (e) { return; }
+    if (j.modo !== "propio" || !(j.carteras || []).length) return;   // demo: se queda el texto
+    if (txt) txt.hidden = true;
+    sel.hidden = false;
+    sel.innerHTML = j.carteras.map(c =>
+      `<option value="${c.id}"${c.id === j.activa ? " selected" : ""}>${c.nombre}</option>`).join("")
+      + '<option value="__nueva__">＋ Nueva cartera…</option>';
+    sel.onchange = async () => {
+      const v = sel.value;
+      const post = (url, cuerpo) => fetch(url, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo),
+      });
+      try {
+        if (v === "__nueva__") {
+          const nombre = (prompt("Nombre de la cartera nueva (se crea vacía):") || "").trim();
+          if (!nombre) { sel.value = j.activa; return; }
+          const r = await (await post("api/cartera/nueva", { nombre })).json();
+          if (r.ok === false) { alert((r.errores || ["No se pudo crear."]).join("\n")); sel.value = j.activa; return; }
+        } else if (v !== j.activa) {
+          await post("api/cartera/activar", { id: v });
+        } else { return; }
+        recuerda.guarda("patrimonio.tab", "panel");
+        location.reload();
+      } catch (e) { alert("No he podido cambiar de cartera."); sel.value = j.activa; }
+    };
+  }
+
   /* ---------------------------------------------- arranque */
   document.title = "Rumbo · " + (D.titular || "Mi patrimonio");
   $("#marcaTexto").textContent = D.titular || "Mi patrimonio";
+  montaSelectorCarteras();
   $("#metaFecha").textContent = "Datos a " + G.fmtFecha(D.fechaExtracto);
 
   $("#btnTema").onclick = () => { cambiaTema(); pintar(); };

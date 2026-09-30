@@ -1,6 +1,9 @@
 MIT License
 
-Copyright (c) 2026 Dani Dominguez Quant
+Copyright (c) 2026 Dani Dominguez Quant (obra original «Rumbo»)
+Copyright (c) 2026 Alonso (github.com/AlonsoVine) — modificaciones: gestor de
+patrimonio de hogar (titulares, deudas, apartados, ingresos y gastos,
+asignación y control, multidivisa e interfaz reorganizada)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
