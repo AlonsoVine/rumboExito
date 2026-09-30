@@ -1593,27 +1593,33 @@
    },
    {
     "nombre": "Vivienda",
-    "tipo": "gasto"
+    "tipo": "gasto",
+    "presupuesto": 750
    },
    {
     "nombre": "Alimentación",
-    "tipo": "gasto"
+    "tipo": "gasto",
+    "presupuesto": 600
    },
    {
     "nombre": "Suministros",
-    "tipo": "gasto"
+    "tipo": "gasto",
+    "presupuesto": 130
    },
    {
     "nombre": "Transporte",
-    "tipo": "gasto"
+    "tipo": "gasto",
+    "presupuesto": 200
    },
    {
     "nombre": "Ocio y restaurantes",
-    "tipo": "gasto"
+    "tipo": "gasto",
+    "presupuesto": 250
    },
    {
     "nombre": "Otros gastos",
-    "tipo": "gasto"
+    "tipo": "gasto",
+    "presupuesto": 150
    }
   ]
  },
