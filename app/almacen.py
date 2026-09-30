@@ -396,6 +396,15 @@ def guarda_config(cfg, datos):
         nombre = texto(datos.get("titular"), 60)
         if nombre:
             cfg["titular"] = nombre
+    if "objetivoImporte" in datos:   # meta de patrimonio (barra de progreso del panel)
+        imp = numero(datos.get("objetivoImporte"), "el objetivo de patrimonio", errores,
+                     obligatorio=False, minimo=0)
+        obj = cfg.setdefault("objetivo", {"activo": True, "importe": 100000, "etiqueta": "Próximo objetivo"})
+        if imp is not None and imp > 0:
+            obj["importe"] = round(imp, 2)
+            obj["activo"] = True
+        else:
+            obj["activo"] = False
     if "colchon" in datos:
         colchon = numero(datos.get("colchon"), "el colchón", errores, obligatorio=False, minimo=0)
         conf["colchon"] = round(colchon, 2) if colchon is not None else 0

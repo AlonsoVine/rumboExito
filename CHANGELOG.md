@@ -6,6 +6,20 @@ del Excel `Gestor_Patrimonial`), manteniéndose 100 % local. Ver
 
 ## No publicado — rama `feat/gestor-patrimonial-f0`
 
+### Ajustes de UX y correcciones
+- **Objetivo de patrimonio configurable** (antes fijo en 100.000 €): en
+  Configuración, campo «Objetivo de patrimonio».
+- **Orden de tablas más visible**: las columnas ordenables muestran ↕ y una pista
+  «Ordena pulsando una columna» junto al buscador.
+- **«Empezar de nuevo»** ya no aparece en todas las vistas: vive en «Copias y
+  seguridad».
+- **Ayuda ampliada**: preguntas frecuentes sobre carteras, titulares, apartados,
+  deudas, ingresos/gastos, dinero libre, objetivos, concentración, vencimientos,
+  multidivisa, objetivo de patrimonio, orden de tablas y repartir colores.
+- **Repartir colores**: confirmación al ejecutarlo (ya funcionaba, faltaba aviso).
+- **Evolución por año**: además del mes, se puede elegir un año y ver el cambio
+  «en lo que va de año» con su detalle por componente.
+
 ### Tablas, renombrar, restaurar y reparto %
 - **Buscar, ordenar y filtrar** en las tablas de Mis datos (Activos, Deudas,
   Apartados, Ingresos y gastos, Movimientos y Saldos): buscador por tabla y

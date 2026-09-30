@@ -208,8 +208,10 @@
   // Caja de búsqueda + tabla ordenable, envuelta con su clave para conservar el estado.
   function envTabla(key, thead, filas, alto) {
     return `<div class="tablaBloque" data-tabla="${esc(key)}">
-      <div class="tablaTools"><label class="buscaTabla">${LUPA}<input type="search" data-buscar
-        placeholder="Buscar…" aria-label="Buscar en la tabla" autocomplete="off"></label></div>
+      <div class="tablaTools" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <label class="buscaTabla">${LUPA}<input type="search" data-buscar
+          placeholder="Buscar…" aria-label="Buscar en la tabla" autocomplete="off"></label>
+        <span class="ordenaHint">↕ Ordena pulsando una columna</span></div>
       <div class="tablaEnv${alto ? " alto" : ""}"><table class="dt orden"><thead>${thead}</thead>
         <tbody>${filas}</tbody></table></div></div>`;
   }
@@ -242,8 +244,13 @@
         border-radius:9px;padding:6px 11px;background:var(--sup);max-width:280px;color:var(--tinta3)}
       .buscaTabla input{border:0;background:transparent;font:inherit;font-size:14px;color:var(--tinta);outline:none;width:100%}
       table.dt.orden thead th{cursor:pointer;user-select:none}
+      table.dt.orden thead th:not(.nosort):hover{color:var(--tinta)}
       table.dt.orden thead th.nosort{cursor:default}
-      table.dt.orden thead th .flecha{color:var(--tinta3);font-size:11px}`;
+      table.dt.orden thead th:not(.nosort)::after{content:"↕";margin-left:5px;opacity:.35;font-size:10px}
+      table.dt.orden thead th.nosort::after{content:""}
+      table.dt.orden thead th:has(.flecha)::after{content:""}
+      table.dt.orden thead th .flecha{color:var(--s1);font-size:11px;opacity:1}
+      .ordenaHint{color:var(--tinta3);font-size:12px}`;
     const s = document.createElement("style");
     s.textContent = css;
     document.head.appendChild(s);
@@ -266,8 +273,7 @@
         <button class="btn prim" data-acc="nuevoProducto">+ Añadir mi primer producto</button></section>`;
     }
     html += `<div class="edBarra"><div class="segm" id="edVistas"></div><span class="sp"></span>
-      ${!D && E.cfg.productos.length ? '<button class="btn" data-acc="verPanel">Ver mi panel →</button>' : ""}
-      ${E.modo === "propio" ? '<button class="btn" data-acc="reiniciar">Empezar de nuevo…</button>' : ""}</div>
+      ${!D && E.cfg.productos.length ? '<button class="btn" data-acc="verPanel">Ver mi panel →</button>' : ""}</div>
       <div id="edAvisos" class="avisos"></div><div id="edCuerpo"></div>`;
     cont.innerHTML = html;
 
@@ -546,6 +552,7 @@
         <span class="sp"></span><button class="btn prim" data-acc="editarConfig">Editar</button></header>
       <table class="leyenda">
         ${fila("Nombre de la cartera", esc(E.cfg.titular || "Mi patrimonio"))}
+        ${fila("Objetivo de patrimonio", (E.cfg.objetivo && E.cfg.objetivo.activo) ? eur(E.cfg.objetivo.importe) : '<span class="subt">sin meta</span>')}
         ${fila("Titulares", tits.length ? tits.map(esc).join(", ") : '<span class="subt">ninguno</span>')}
         ${fila("Colchón deseado", eur(conf.colchon || 0))}
         ${fila("Objetivos de asignación", objN ? objN + " tipos con objetivo" : '<span class="subt">sin objetivos</span>')}
@@ -610,6 +617,7 @@
       ${seccion("Esta cartera")}
       <div class="rejilla">
         ${campo("Nombre de esta cartera", '<input name="nombreCartera" maxlength="60" required>', "aparece arriba, en el selector")}
+        ${campo("Objetivo de patrimonio", '<input name="objetivoImporte" inputmode="decimal" placeholder="100000">', "€, la meta de la barra del panel; vacío = sin meta")}
       </div>
       ${seccion("Colchón de seguridad")}
       <div class="rejilla">
@@ -657,6 +665,7 @@
         .concat(lineas("catGas").map(n => ({ nombre: n, tipo: "gasto" })));
       await guardaConfig({
         titular: (d.nombreCartera || "").trim(),
+        objetivoImporte: d.objetivoImporte,
         colchon: d.colchon,
         titulares: (d.titulares || "").split(/\n+/).map(s => s.trim()).filter(Boolean),
         umbralConcentracion: d.umbralConcentracion,
@@ -668,6 +677,7 @@
       location.reload();
     }, "Guardar");
     f.elements.nombreCartera.value = E.cfg.titular || "";
+    f.elements.objetivoImporte.value = (E.cfg.objetivo && E.cfg.objetivo.activo) ? (E.cfg.objetivo.importe || "") : "";
     f.elements.colchon.value = conf.colchon || "";
     f.elements.titulares.value = (E.cfg.titulares || []).join("\n");
     const pct = v => v != null ? +(v * 100).toFixed(2) : "";
@@ -1119,6 +1129,10 @@
           <th>Productos</th><th>Movimientos</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
         : '<p class="subt">Todavía no hay copias: se crean solas en cuanto cambias algo.</p>'}</section>
 
+      ${propio ? `<section class="tarjeta"><header><h2>Empezar de nuevo</h2>
+        <span class="subt">Vacía esta cartera o vuelve a la de ejemplo. Se guarda una copia antes, por si acaso.</span>
+        <span class="sp"></span><button class="btn" data-acc="reiniciar">Empezar de nuevo…</button></header></section>` : ""}
+
       <section class="tarjeta"><header><h2>Publicar como web</h2>
         <span class="subt">Tu panel en un solo archivo, de solo lectura, para enseñarlo o subirlo a internet.</span></header>
       <label class="interruptor"><input type="checkbox" id="webOcultar"><span class="pista"></span>
@@ -1200,6 +1214,7 @@
         E.cfg = j.cartera;
         window.EDITOR_SUCIO = true;
         pinta();
+        avisa(["✓ Colores repartidos: cada activo tiene ahora un color distinto. Se verá en el panel."]);
       } catch (x) { alert(x.message); }
     }),
     imOrigen(id) { IMP.origen = id; IMP.hecho = null; pinta(); },

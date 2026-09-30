@@ -53,6 +53,8 @@
     fondo: null,
     serieDetalle: "posicion",
     mes: (D.resumenMensual || []).length - 1,
+    periodo: "mes",
+    anio: null,
     anual: "mia",
     tablaFiltro: "todos",
     ordenTabla: { col: "fecha", desc: true },
@@ -811,31 +813,65 @@
   /* ================================================================
      PESTAÑA 2 · EL MES
      ================================================================ */
+  // Agrega los meses de un año en la misma forma que un mes de resumenMensual,
+  // para ver el cambio «en lo que va de año» y el detalle por componente.
+  function resumenAnio(anio) {
+    const meses = (D.resumenMensual || []).filter(x => x.mes.slice(0, 4) === anio);
+    if (!meses.length) return { mes: anio, inicio: 0, fin: 0, aportado: 0, mercado: 0, nuevo: 0, porProducto: {} };
+    const prim = meses[0], ult = meses[meses.length - 1];
+    const r = { mes: anio, inicio: prim.inicio, fin: ult.fin, aportado: 0, mercado: 0, nuevo: 0, porProducto: {} };
+    let rent = 1, hayRent = false;
+    meses.forEach(m => {
+      r.aportado += m.aportado || 0; r.mercado += m.mercado || 0; r.nuevo += m.nuevo || 0;
+      if (m.rentabilidad != null) { rent *= 1 + m.rentabilidad; hayRent = true; }
+      Object.entries(m.porProducto || {}).forEach(([id, d]) => {
+        const a = r.porProducto[id] || (r.porProducto[id] = { inicio: d.inicio, fin: d.fin, aportado: 0, mercado: 0, nuevo: 0 });
+        a.fin = d.fin;
+        a.aportado += d.aportado || 0; a.mercado += d.mercado || 0; a.nuevo += d.nuevo || 0;
+      });
+    });
+    r.rentabilidad = hayRent ? rent - 1 : null;
+    return r;
+  }
+
   function pintaMes() {
     const rm = D.resumenMensual || [];
     if (!rm.length) { $("#mesCifra").textContent = "—"; return; }
-    if (estado.mes == null || estado.mes < 0 || estado.mes >= rm.length) estado.mes = rm.length - 1;
-    const r = rm[estado.mes];
+    const periodo = estado.periodo || "mes";
+    const anios = [...new Set(rm.map(x => x.mes.slice(0, 4)))];
 
+    pintaSegm($("#segPeriodo"), [{ id: "mes", et: "Mes" }, { id: "anio", et: "Año" }],
+      periodo, id => { estado.periodo = id; pintaMes(); });
+
+    let r, ultimo;
     const sel = $("#mesSel");
-    if (sel.options.length !== rm.length) {
+    if (periodo === "anio") {
+      if (estado.anio == null || !anios.includes(estado.anio)) estado.anio = anios[anios.length - 1];
+      r = resumenAnio(estado.anio);
+      ultimo = estado.anio === anios[anios.length - 1];
+      sel.innerHTML = anios.map(a => `<option value="${a}">${a}</option>`).join("");
+      sel.value = estado.anio;
+      $("#mesPrev").disabled = anios.indexOf(estado.anio) === 0;
+      $("#mesNext").disabled = ultimo;
+      $("#mesEtq").textContent = ultimo ? "Cambio en lo que va de año" : "Cambio del año";
+    } else {
+      if (estado.mes == null || estado.mes < 0 || estado.mes >= rm.length) estado.mes = rm.length - 1;
+      r = rm[estado.mes];
+      ultimo = estado.mes === rm.length - 1;
       sel.innerHTML = rm.map((x, i) => `<option value="${i}">${G.fmtMes(x.mes)}</option>`).join("");
+      sel.value = String(estado.mes);
+      $("#mesPrev").disabled = estado.mes === 0;
+      $("#mesNext").disabled = ultimo;
+      $("#mesEtq").textContent = ultimo ? "Cambio en lo que va de mes" : "Cambio del mes";
     }
-    sel.value = String(estado.mes);
-    $("#mesPrev").disabled = estado.mes === 0;
-    $("#mesNext").disabled = estado.mes === rm.length - 1;
 
-    const cambio = r.fin - r.inicio;
     // El titular es el cambio REAL: lo que aportaste mas lo que hizo el mercado.
-    // Incorporar una cuenta al panel mueve el saldo pero no es dinero ganado,
-    // asi que va aparte y no infla la cifra grande.
     const real = r.aportado + r.mercado;
-    const ultimo = estado.mes === rm.length - 1;
-    $("#mesEtq").textContent = ultimo ? "Cambio en lo que va de mes" : "Cambio del mes";
+    const cambio = r.fin - r.inicio;
     $("#mesCifra").textContent = G.fmtEurSigno(real);
     $("#mesCifra").className = "hCifra " + (real >= 0 ? "pos" : "neg");
     $("#mesNota").textContent = ultimo
-      ? "Mes en curso, con datos hasta el " + G.fmtFecha(D.fechaExtracto) : "";
+      ? (periodo === "anio" ? "Año en curso, " : "Mes en curso, ") + "con datos hasta el " + G.fmtFecha(D.fechaExtracto) : "";
     const trozos = [`De <span class="fuerte">${G.fmtEur(r.inicio)}</span> a <span class="fuerte">${G.fmtEur(r.fin)}</span>`];
     if (r.rentabilidad != null) {
       trozos.push(`rentabilidad de la cartera
@@ -1353,9 +1389,25 @@
   };
   document.querySelectorAll("#tabs button").forEach(b => { b.onclick = () => irA(b.dataset.tab); });
   document.querySelectorAll("#subtabs button").forEach(b => { b.onclick = () => irVista(b.dataset.pv); });
-  $("#mesSel").onchange = e => { estado.mes = +e.target.value; pintaMes(); };
-  $("#mesPrev").onclick = () => { estado.mes = Math.max(0, estado.mes - 1); pintaMes(); };
-  $("#mesNext").onclick = () => { estado.mes = Math.min(D.resumenMensual.length - 1, estado.mes + 1); pintaMes(); };
+  function pasoPeriodo(d) {
+    const rm = D.resumenMensual || [];
+    if ((estado.periodo || "mes") === "anio") {
+      const anios = [...new Set(rm.map(x => x.mes.slice(0, 4)))];
+      let i = anios.indexOf(estado.anio) + d;
+      i = Math.max(0, Math.min(anios.length - 1, i));
+      estado.anio = anios[i];
+    } else {
+      estado.mes = Math.max(0, Math.min(rm.length - 1, (estado.mes || 0) + d));
+    }
+    pintaMes();
+  }
+  $("#mesSel").onchange = e => {
+    if ((estado.periodo || "mes") === "anio") estado.anio = e.target.value;
+    else estado.mes = +e.target.value;
+    pintaMes();
+  };
+  $("#mesPrev").onclick = () => pasoPeriodo(-1);
+  $("#mesNext").onclick = () => pasoPeriodo(1);
   ["rAnos", "rRent", "rApor"].forEach(id => $("#" + id).addEventListener("input", pintaProyeccion));
   $("#rApor").value = Math.min(3000, Math.max(0, Math.round((D.total.ritmoMensual || 500) / 50) * 50));
 

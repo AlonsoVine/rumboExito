@@ -824,9 +824,10 @@ body.video .tarjetaCanal{display:none}
     </section>
     <section class="hero" style="padding-bottom:0;margin-top:20px">
       <div class="mesBarra">
-        <button class="btn" id="mesPrev" title="Mes anterior">‹</button>
-        <select id="mesSel" aria-label="Elegir mes"></select>
-        <button class="btn" id="mesNext" title="Mes siguiente">›</button>
+        <div class="segm" id="segPeriodo"></div>
+        <button class="btn" id="mesPrev" title="Anterior">‹</button>
+        <select id="mesSel" aria-label="Elegir mes o año"></select>
+        <button class="btn" id="mesNext" title="Siguiente">›</button>
         <div class="sep"></div>
         <span class="subt" id="mesNota"></span>
       </div>
@@ -926,7 +927,7 @@ body.video .tarjetaCanal{display:none}
       <p>La <b>rentabilidad</b> compara lo que vale tu cartera con lo que has metido, sin mirar cuándo lo metiste. La <b>TIR</b> (tasa interna de rentabilidad) sí tiene en cuenta cuándo entró y salió cada euro, y lo expresa como un porcentaje anual. Si aportas poco a poco, la TIR es la cifra honesta para compararte con un depósito o con un índice.</p></div></details>
 
     <details class="faq"><summary>He borrado o cambiado algo sin querer</summary><div>
-      <p>Antes de cada cambio, la app guarda una copia automática (las últimas 20). Ve a <b>Mis datos → Copias y web</b> y pulsa <b>«Recuperar»</b> en la copia de antes del error.</p></div></details>
+      <p>Antes de cada cambio, la app guarda una copia automática (las últimas 20). Ve a <b>Mis datos → Copias y seguridad</b> y pulsa <b>«Recuperar»</b> en la copia de antes del error.</p></div></details>
 
     <details class="faq"><summary>¿Cómo actualizo a una versión nueva sin perder mis datos?</summary><div>
       <ol>
@@ -935,10 +936,10 @@ body.video .tarjetaCanal{display:none}
         <li>Copia tu carpeta <code>mis_datos</code> de la versión antigua a la nueva (o copia todo lo nuevo encima de lo viejo, menos <code>mis_datos</code>).</li>
         <li>Abre la app con «Iniciar» como siempre.</li>
       </ol>
-      <p>Por si acaso, antes descarga una copia en <b>Mis datos → Copias y web</b>.</p></div></details>
+      <p>Por si acaso, antes descarga una copia en <b>Mis datos → Copias y seguridad</b>.</p></div></details>
 
     <details class="faq"><summary>¿Cómo lo paso a otro ordenador?</summary><div>
-      <p>En el ordenador viejo, <b>Mis datos → Copias y web → Descargar copia</b>. En el nuevo, instala la app, ábrela y, en ese mismo sitio, sube el archivo con <b>«Recuperar desde un archivo»</b>. También vale copiar la carpeta <code>mis_datos</code> entera.</p></div></details>
+      <p>En el ordenador viejo, <b>Mis datos → Copias y seguridad → Descargar copia</b>. En el nuevo, instala la app, ábrela y, en ese mismo sitio, sube el archivo con <b>«Recuperar desde un archivo»</b>. También vale copiar la carpeta <code>mis_datos</code> entera.</p></div></details>
 
     <details class="faq"><summary>Windows o Mac me dicen que el archivo puede ser peligroso</summary><div>
       <p>Pasa con cualquier archivo descargado de internet que no viene de una tienda de apps. <code>Iniciar.bat</code> e <code>Iniciar.command</code> son texto plano: puedes abrirlos con el Bloc de notas o TextEdit y leer todo lo que hacen.</p>
@@ -946,6 +947,81 @@ body.video .tarjetaCanal{display:none}
         <li><b>Windows</b>: en el aviso azul, pulsa «Más información» y luego «Ejecutar de todas formas».</li>
         <li><b>Mac</b>: la primera vez, clic derecho sobre <code>Iniciar.command</code> → «Abrir» → «Abrir».</li>
       </ul></div></details>
+
+    <details class="faq"><summary>¿Cómo está organizada la app ahora?</summary><div>
+      <p>Arriba hay solo tres botones grandes:</p>
+      <ul>
+        <li><b>📊 Panel</b>: mirar tus números. Dentro tiene pestañas: <b>Patrimonio</b> (tu foto de hoy),
+          <b>Distribución</b> (en qué está el dinero), <b>Rentabilidad</b> (cuánto gana), <b>Evolución</b>
+          (cómo cambia en el tiempo y el mes a mes), <b>Ingresos y gastos</b> y <b>Deudas y vencimientos</b>.</li>
+        <li><b>✏️ Mis datos</b>: lo que escribes tú. Dentro: Activos, Deudas, Apartados, Ingresos y gastos,
+          Saldos y movimientos, Configuración, Importar y Copias y seguridad.</li>
+        <li><b>❓ Ayuda</b>: esto.</li>
+      </ul></div></details>
+
+    <details class="faq"><summary>¿Puedo tener varias carteras y cambiar entre ellas?</summary><div>
+      <p>Sí. Arriba, junto al nombre de la app, hay un desplegable con tus carteras. Elige <b>«＋ Nueva cartera…»</b>,
+      ponle un nombre y se crea vacía. Cada cartera guarda sus propios productos, saldos y copias. Para cambiar de una
+      a otra, elígela en ese mismo desplegable.</p></div></details>
+
+    <details class="faq"><summary>¿Cómo le cambio el nombre a una cartera?</summary><div>
+      <p>En <b>Mis datos → Configuración</b>, campo <b>«Nombre de esta cartera»</b>. El nombre nuevo aparece
+      arriba, en el selector de carteras.</p></div></details>
+
+    <details class="faq"><summary>¿Para qué sirven los titulares?</summary><div>
+      <p>Son las personas del hogar (por ejemplo, Mar, Antonio y «Común»). Se definen en <b>Configuración</b> y
+      luego asignas cada producto, deuda o apartado a un titular. El patrimonio sigue siendo uno solo, pero puedes
+      ver cuánto le corresponde a cada uno (Panel → Patrimonio).</p></div></details>
+
+    <details class="faq"><summary>¿Qué es «disponible» y el «dinero libre para invertir»?</summary><div>
+      <p><b>Disponible</b> es el dinero que puedes usar ya, sin penalización (cuentas, efectivo). Lo marcas en la
+      ficha de cada producto. El <b>dinero libre para invertir</b> = disponible − apartados − colchón: lo que te
+      queda de verdad para meter en inversiones.</p></div></details>
+
+    <details class="faq"><summary>¿Qué son los apartados y el colchón?</summary><div>
+      <p>Un <b>apartado</b> es dinero tuyo reservado para un fin concreto (impuestos, obras, una fianza que
+      devolverás…): no resta de tu patrimonio, pero sí del dinero libre. El <b>colchón</b> es la liquidez mínima que
+      quieres mantener siempre. Ambos se configuran en <b>Mis datos</b> (Apartados y Configuración).</p></div></details>
+
+    <details class="faq"><summary>Patrimonio bruto y patrimonio neto, ¿en qué se diferencian?</summary><div>
+      <p><b>Bruto</b> = todo lo que tienes (activos). <b>Neto</b> = bruto − deudas. En el Panel → Patrimonio ves los dos.</p></div></details>
+
+    <details class="faq"><summary>¿Cómo registro una deuda (hipoteca, préstamo, tarjeta)?</summary><div>
+      <p>En <b>Mis datos → Deudas → «+ Añadir deuda»</b>: pon el capital inicial, la TAE, la cuota y las fechas.
+      Cada mes anota el capital que queda por pagar en <b>Saldos y movimientos</b>. La app calcula los intereses
+      estimados y los ratios deuda/activos y cuota/ingresos.</p></div></details>
+
+    <details class="faq"><summary>¿Cómo llevo los ingresos y gastos del hogar?</summary><div>
+      <p>En <b>Mis datos → Ingresos y gastos</b> anotas nóminas, alquileres, gastos… por categoría. En el Panel
+      verás ingresos, gastos, ahorro y <b>tasa de ahorro</b> por mes, año y media de 12 meses. Las categorías las
+      defines en <b>Configuración</b> (cada una como ingreso o gasto).</p></div></details>
+
+    <details class="faq"><summary>¿Qué son los objetivos de asignación y la concentración?</summary><div>
+      <p>En <b>Configuración</b> puedes fijar un <b>objetivo (%)</b> por tipo de activo (deberían sumar 100 %). El
+      Panel te dice si estás sobre o infraponderado respecto a ese objetivo, y te avisa de <b>concentración</b>
+      cuando un tipo o una entidad supera el umbral que elijas.</p></div></details>
+
+    <details class="faq"><summary>¿Y los vencimientos?</summary><div>
+      <p>Si pones fecha de vencimiento a un depósito, promoción o deuda, aparecen en <b>Panel → Deudas y
+      vencimientos</b> ordenados por fecha, con los días que faltan y un aviso cuando están cerca (el plazo se
+      ajusta en Configuración).</p></div></details>
+
+    <details class="faq"><summary>Tengo algo en otra moneda (dólares, libras). ¿Cómo lo pongo?</summary><div>
+      <p>En <b>Configuración</b>, apartado <b>Monedas</b>, añade el código y cuántos euros vale 1 unidad
+      (por ejemplo, <code>USD 0,92</code>). Luego, en la ficha del producto elige esa moneda y anota sus saldos en
+      esa divisa: la app los pasa a euros. Es un tipo de cambio único (aproximado).</p></div></details>
+
+    <details class="faq"><summary>¿Cómo cambio la meta de patrimonio (la barra de progreso)?</summary><div>
+      <p>En <b>Configuración</b>, campo <b>«Objetivo de patrimonio»</b>. Pon la cifra que quieras (no tiene por qué
+      ser 100.000 €); déjalo vacío si no quieres una meta.</p></div></details>
+
+    <details class="faq"><summary>¿Puedo buscar y ordenar en las tablas de Mis datos?</summary><div>
+      <p>Sí. Cada tabla tiene un buscador arriba y puedes <b>ordenar pulsando en el título de una columna</b>
+      (aparece ▲ o ▼ según el sentido). Vuelve a pulsar para invertir el orden.</p></div></details>
+
+    <details class="faq"><summary>¿Para qué sirve «Repartir colores»?</summary><div>
+      <p>En <b>Mis datos → Activos</b>, da a cada activo un color distinto (útil cuando tienes muchos y se repiten).
+      El cambio se ve en los gráficos del panel.</p></div></details>
 
     <p class="ayudaPie" id="ayudaVersion">¿Otra duda? Mira la página del proyecto en GitHub.</p>
   </section>
