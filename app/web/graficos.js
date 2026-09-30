@@ -367,6 +367,7 @@
     if (!n || !series.length) { cont.innerHTML = '<p class="vacio">Sin aportaciones en este rango.</p>'; return; }
 
     const totales = cats.map((_, i) => series.reduce((a, s) => a + (s.valores[i] || 0), 0));
+    const fV = cfg.formatoValor || fmtEur;
     const esc = escalaBonita(Math.max(...totales), 0);
     const paso = iw / n;
     const ancho = Math.max(4, Math.min(paso - 6, 46));
