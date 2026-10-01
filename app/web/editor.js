@@ -416,7 +416,8 @@
     const clases = [...new Set(E.cfg.productos.map(x => x.clase).filter(Boolean))];
     const colores = Array.from({ length: 12 }, (_, i) =>
       `<label class="color" style="--c:var(--s${i + 1})" title="Color ${i + 1}"><input type="radio" name="slot" value="${i + 1}"><i></i></label>`).join("");
-    const tituloNuevo = (tipoInicial === "deuda" || p.tipo === "deuda") ? "Añadir deuda" : "Añadir activo";
+    const esDeuda = (tipoInicial === "deuda" || p.tipo === "deuda");
+    const tituloNuevo = esDeuda ? "Añadir deuda" : "Añadir activo";
     const f = abreModal(nuevo ? tituloNuevo : "Editar " + esc(nombre(p)), `
       <div class="buscador">
         <div class="tit">Busca tu producto</div>
@@ -494,7 +495,7 @@
       if (!nuevo) return null;
       // Siguiente paso natural: su primer dato.
       return manual(item) ? () => formValor(null, item.id) : () => formMovimiento(null, item.id);
-    }, nuevo ? "Guardar producto" : "Guardar cambios");
+    }, nuevo ? (esDeuda ? "Guardar deuda" : "Guardar activo") : "Guardar cambios");
 
     rellena(f, {
       ...p,

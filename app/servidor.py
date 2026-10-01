@@ -238,8 +238,8 @@ GUARDAR = {"productos": almacen.guarda_producto, "movimientos": almacen.guarda_m
 BORRAR = {"productos": almacen.borra_producto, "movimientos": almacen.borra_movimiento,
           "valoraciones": almacen.borra_valoracion, "apartados": almacen.borra_apartado,
           "flujos": almacen.borra_flujo}
-AVISO_DEMO = ("Estás viendo la cartera de ejemplo. Pulsa «Empezar con mis datos» "
-              "para crear la tuya y poder guardar cambios.")
+AVISO_DEMO = ("Estás viendo el patrimonio de ejemplo. Pulsa «Empezar con mis datos» "
+              "para crear el tuyo y poder guardar cambios.")
 
 
 def cambia(fn):
