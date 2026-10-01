@@ -430,6 +430,8 @@ def guarda_config(cfg, datos):
     if "diasSinAnotar" in datos:
         ds = numero(datos.get("diasSinAnotar"), "los días sin anotar", errores, obligatorio=False, minimo=0)
         conf["diasSinAnotar"] = int(ds) if ds else 30
+    if "asistenteOculto" in datos:
+        conf["asistenteOculto"] = bool(datos.get("asistenteOculto"))
     if "objetivos" in datos:
         objs = {}
         for clave, val in (datos.get("objetivos") or {}).items():

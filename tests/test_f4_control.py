@@ -106,6 +106,12 @@ def test_config_dias_sin_anotar():
     assert cfg["config"]["diasSinAnotar"] == 20
 
 
+def test_config_asistente_oculto():
+    cfg = cfg_vacia()
+    almacen.guarda_config(cfg, {"asistenteOculto": True})
+    assert cfg["config"]["asistenteOculto"] is True
+
+
 def test_sin_objetivos_no_alerta_de_suma(tmp_path):
     cartera = _cartera_control()
     cartera["config"]["objetivos"] = {}

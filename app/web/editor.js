@@ -291,14 +291,21 @@
     if (!E.cfg) { cont.innerHTML = '<p class="subt" style="margin-top:24px">Cargando tus datos…</p>'; return; }
     let html = "";
     // En la demo ya se ve arriba el aviso con el botón «Empezar con mis datos».
-    if (E.modo !== "demo" && !E.cfg.productos.length) {
-      html += `<section class="tarjeta bienvenida"><h2>Tu cartera está vacía</h2><ol>
-        <li><b>Añade tus productos</b>: fondos, acciones, cripto, tu cuenta del banco, tu plan de pensiones…
-          Usa el buscador para encontrarlos por ISIN o ticker.</li>
-        <li><b>Anota tus compras</b> en «Movimientos», o <b>los saldos</b> de tus cuentas en «Saldos y valores».
-          ¿Tienes muchas? Tráelas de golpe desde <b>«Importar»</b>: MyInvestor, una hoja de Excel o con ayuda de una IA.</li>
-        <li>Vuelve a la pestaña <b>Patrimonio</b> y mira tu panel.</li></ol>
-        <button class="btn prim" data-acc="nuevoProducto">+ Añadir mi primer producto</button></section>`;
+    if (E.modo !== "demo" && !E.cfg.productos.length && !(E.cfg.config || {}).asistenteOculto) {
+      html += `<section class="tarjeta asistente"><header><h2>Empecemos paso a paso</h2>
+          <span class="subt">Tu cartera está vacía. Haz esto una vez; luego es un ratito al mes.</span></header>
+        <ol class="pasosAsist">
+          <li><b>1 · Añade lo que tienes.</b> Cuentas del banco, fondos, acciones, cripto, un plan de pensiones, un piso…
+            <div class="botones"><button class="btn prim" data-acc="nuevoProducto">+ Añadir un activo</button></div></li>
+          <li><b>2 · Añade tus deudas</b> (si las tienes): hipoteca, préstamos, tarjetas.
+            <div class="botones"><button class="btn" data-acc="nuevaDeuda">+ Añadir una deuda</button></div></li>
+          <li><b>3 · Ajusta tu hogar.</b> Titulares, colchón, categorías de ingresos y gastos.
+            <div class="botones"><button class="btn" data-acc="editarConfig">Abrir Configuración</button></div></li>
+          <li><b>4 · ¿Tienes muchos datos?</b> Tráelos de golpe (MyInvestor, Excel o con ayuda de una IA).
+            <div class="botones"><button class="btn" data-acc="irImportar">Ir a Importar</button></div></li>
+        </ol>
+        <p class="ayuda">Cuando tengas algo, vuelve a <b>Panel</b> y verás tus cifras.
+          <button class="btnLink" data-acc="ocultarAsistente">No mostrar este asistente</button></p></section>`;
     }
     html += `<div class="edBarra"><div class="segm" id="edVistas"></div><span class="sp"></span>
       ${!D && E.cfg.productos.length ? '<button class="btn" data-acc="verPanel">Ver mi panel →</button>' : ""}</div>
@@ -1237,6 +1244,10 @@
     verPanel() { recuerda.guarda("patrimonio.tab", "panel"); location.reload(); },
     nuevoProducto: soloPropio(() => formProducto(null)),
     nuevaDeuda: soloPropio(() => formProducto(null, "deuda")),
+    irImportar() { E.vista = "importar"; recuerda.guarda("patrimonio.editor", "importar"); pinta(); },
+    ocultarAsistente: soloPropio(async () => {
+      try { await guardaConfig({ asistenteOculto: true }); pinta(); } catch (x) { alert(x.message); }
+    }),
     editarProducto: soloPropio(id => formProducto(prod(id))),
     borrarProducto: soloPropio(borrarProducto),
     nuevoMov: soloPropio(() => formMovimiento(null)),
