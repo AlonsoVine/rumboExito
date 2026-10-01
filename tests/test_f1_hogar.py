@@ -127,6 +127,30 @@ def test_apartados_y_titulares_en_datos(hogar, tmp_path):
     assert {a["nombre"] for a in d["apartados"]} == {"Impuestos", "Obras"}
 
 
+def test_construir_hasta_mes_pasado(tmp_path):
+    # Ver el panel «como estaba» a fin de un mes pasado.
+    cartera = {
+        "version": 1, "config": {},
+        "productos": [{"id": "c", "nombre": "Cuenta", "corto": "Cuenta", "tipo": "efectivo",
+                       "fuente": "manual", "slot": 1}],
+        "movimientos": [],
+        "valoraciones": [
+            {"id": "v1", "producto": "c", "fecha": "2024-01-31", "valor": 1000.0},
+            {"id": "v2", "producto": "c", "fecha": "2024-02-29", "valor": 5000.0},
+        ],
+    }
+    d = motor.construir(cartera, str(tmp_path), descargar=False)
+    assert d["total"]["patrimonioNeto"] == 5000.0   # último dato
+    assert d["hasta"] is None
+    assert d["mesesDisponibles"] == ["2024-01", "2024-02"]
+
+    d1 = motor.construir(cartera, str(tmp_path), descargar=False, hasta="2024-01")
+    assert d1["total"]["patrimonioNeto"] == 1000.0   # como estaba a fin de enero
+    assert d1["hasta"] == "2024-01"
+    assert d1["fechaExtracto"].startswith("2024-01")
+    assert d1["mesesDisponibles"] == ["2024-01", "2024-02"]   # lista completa aun acotando
+
+
 def test_variacion_mes_y_ano(tmp_path):
     # Cabecera tipo Excel: valor ahora, hace 1 mes, hace 12 meses y variación.
     cartera = {

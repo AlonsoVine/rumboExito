@@ -999,5 +999,11 @@
     "rendimientos": 50.0
    }
   }
- }
+ },
+ "hasta": null,
+ "mesesDisponibles": [
+  "2024-01",
+  "2024-02",
+  "2024-03"
+ ]
 }

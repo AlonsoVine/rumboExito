@@ -643,12 +643,16 @@ def serie_cambio(moneda, carpeta):
 
 # ---------------------------------------------------------------- construccion
 
-def construir(cfg, carpeta, descargar=True):
+def construir(cfg, carpeta, descargar=True, hasta=None):
     """
     Calcula todo lo que pinta el panel a partir de la cartera (productos, movimientos
     y valoraciones) y devuelve el diccionario DATOS. Con descargar=False no sale a
     internet: recalcula con los precios guardados en la cache. Con descargar="faltan"
     solo descarga los precios de productos nuevos.
+
+    Con hasta="AAAA-MM" calcula el panel COMO ESTABA a fin de ese mes: ignora los
+    movimientos, valoraciones y flujos posteriores. No persiste nada (vista de
+    consulta de un mes pasado). Siempre se descarga=False implícito para hasta.
     """
     global CACHE, SIN_RED, SOLO_FALTAN
     CACHE = os.path.join(carpeta, "cache")
@@ -656,6 +660,19 @@ def construir(cfg, carpeta, descargar=True):
     SOLO_FALTAN = descargar == "faltan"
     AVISOS.clear()
     _COTIZACIONES.clear()
+
+    # Meses con datos (siempre la lista completa, aunque luego acotemos con «hasta»).
+    meses_disp = sorted({str(x.get("fecha"))[:7]
+                         for clave in ("movimientos", "valoraciones", "flujos")
+                         for x in (cfg.get(clave) or []) if x.get("fecha")})
+
+    if hasta:
+        anyo, mes = int(hasta[:4]), int(hasta[5:7])
+        lim = f"{anyo:04d}-{mes:02d}-{calendar.monthrange(anyo, mes)[1]:02d}"
+        cfg = dict(cfg,
+                   movimientos=[m for m in cfg.get("movimientos", []) if str(m.get("fecha", "")) <= lim],
+                   valoraciones=[v for v in cfg.get("valoraciones", []) if str(v.get("fecha", "")) <= lim],
+                   flujos=[f for f in (cfg.get("flujos") or []) if str(f.get("fecha", "")) <= lim])
 
     productos_cfg = [dict(p) for p in cfg.get("productos", [])]
     for p in productos_cfg:
@@ -1645,6 +1662,8 @@ def construir(cfg, carpeta, descargar=True):
 
     datos = {
         "generado": dt.datetime.now().replace(microsecond=0).isoformat(),
+        "hasta": hasta,
+        "mesesDisponibles": meses_disp,
         "fiscal": detalle_fiscal(cfg),
         "titular": cfg.get("titular", "Mi patrimonio"),
         "titulares": cfg.get("titulares", []) or [],

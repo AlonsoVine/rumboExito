@@ -223,9 +223,18 @@ def inicio():
 
 @app.get("/datos.js")
 def datos_js():
-    datos = lee_json(ruta_calculado())
-    if datos is None and not os.path.exists(ruta_calculado()):
-        datos = recalcula(descargar=False)
+    # Vista de un mes pasado: recalcula el panel como estaba a fin de ese mes, sin
+    # persistir nada ni salir a la red (usa los precios de la caché).
+    hasta = request.args.get("hasta")
+    if hasta and re.fullmatch(r"\d{4}-\d{2}", hasta):
+        with cerrojo:
+            datos = motor.construir(cartera(), carpeta(), descargar=False, hasta=hasta)
+        if datos is not None:
+            datos["modo"] = modo()
+    else:
+        datos = lee_json(ruta_calculado())
+        if datos is None and not os.path.exists(ruta_calculado()):
+            datos = recalcula(descargar=False)
     cuerpo = "window.DATOS = " + json.dumps(datos, ensure_ascii=False, separators=(",", ":")) + ";\n"
     return Response(cuerpo, mimetype="application/javascript",
                     headers={"Cache-Control": "no-store"})

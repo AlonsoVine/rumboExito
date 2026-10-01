@@ -652,6 +652,14 @@ body.video .tarjetaCanal{display:none}
 .marca .marcaSep{width:1px;height:15px;background:var(--borde)}
 .marca #marcaTexto{font-weight:500;color:var(--tinta2);font-size:13.5px}
 @media(max-width:720px){.marca .marcaSep,.marca #marcaTexto{display:none}}
+/* ---- Mes de referencia (ver un mes pasado) ---- */
+.mesRef{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin:8px 0}
+.mesRef:empty{display:none}
+.mesRef.activo{background:var(--sup);border:1px solid var(--sup2,var(--borde));border-left:4px solid var(--s1);border-radius:10px;padding:10px 14px}
+.mesRef .avisoHasta{color:var(--tinta)}
+.mesRef .mesRefCtrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mesRef label{font-size:13px;color:var(--tinta2)}
+@media print{.mesRefCtrl{display:none !important}}
 /* ---- Impresión / PDF: solo el panel, sin botones ni navegación ---- */
 @media print{
   :root{--fondo:#fff;--sup:#fff;--tinta:#000;--tinta2:#222;--tinta3:#555;--borde:#ccc}
@@ -713,6 +721,7 @@ body.video .tarjetaCanal{display:none}
   </nav>
 
   <div id="filtroTitular" class="filtroTitular"></div>
+  <div id="mesReferencia" class="mesRef"></div>
   <div id="bannerAlertas" class="bannerAlertas"></div>
 
   <!-- ===== PATRIMONIO ===== -->

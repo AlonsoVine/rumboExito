@@ -82,6 +82,25 @@ def test_api_config_en_demo_esta_bloqueada(tmp_path, monkeypatch):
     assert r.get_json()["ok"] is False
 
 
+def test_datos_js_vista_mes_pasado(tmp_path, monkeypatch):
+    from app import servidor
+    monkeypatch.setattr(servidor, "DATOS", str(tmp_path))
+    os.makedirs(str(tmp_path), exist_ok=True)
+    cfg = {"version": 1, "config": {},
+           "productos": [{"id": "c", "nombre": "Cuenta", "corto": "Cuenta", "tipo": "efectivo",
+                          "fuente": "manual", "slot": 1}],
+           "movimientos": [],
+           "valoraciones": [{"id": "v1", "producto": "c", "fecha": "2024-01-31", "valor": 1000.0},
+                            {"id": "v2", "producto": "c", "fecha": "2024-02-29", "valor": 5000.0}]}
+    with open(os.path.join(str(tmp_path), "cartera.json"), "w", encoding="utf-8") as f:
+        json.dump(cfg, f)
+    client = servidor.app.test_client()
+    r = client.get("/datos.js?hasta=2024-01")
+    assert r.status_code == 200
+    assert '"hasta":"2024-01"' in r.get_data(as_text=True)
+    assert client.get("/datos.js").status_code == 200   # vista normal (hoy)
+
+
 def test_cabecera_csp_presente_y_estricta(tmp_path, monkeypatch):
     servidor = _prepara(tmp_path, monkeypatch)
     client = servidor.app.test_client()

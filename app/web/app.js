@@ -922,6 +922,33 @@
       `${f.length} movimientos · ${G.fmtEur(f.reduce((a, r) => a + r.importe, 0), 0)}`;
   }
 
+  /* Mes de referencia: ver el panel como estaba a fin de un mes pasado. */
+  const NOMBRE_MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  function mesBonito(m) { const p = String(m).split("-"); return NOMBRE_MES[+p[1] - 1] + " " + p[0]; }
+  function pintaMesReferencia() {
+    const cont = $("#mesReferencia");
+    if (!cont) return;
+    const meses = (D.mesesDisponibles || []);
+    if (!meses.length) { cont.innerHTML = ""; cont.classList.remove("activo"); return; }
+    const actual = D.hasta || "";
+    const ir = m => {
+      const qs = new URLSearchParams(location.search);
+      if (m) qs.set("hasta", m); else qs.delete("hasta");
+      qs.set("tab", "panel");
+      location.search = qs.toString();
+    };
+    const ops = `<option value="">Hoy (último dato)</option>` +
+      meses.slice().reverse().map(m => `<option value="${esc(m)}"${m === actual ? " selected" : ""}>${esc(mesBonito(m))}</option>`).join("");
+    cont.innerHTML =
+      (actual ? `<span class="avisoHasta">📅 Estás viendo tu patrimonio <b>a fin de ${esc(mesBonito(actual))}</b>, no los datos de hoy.</span>` : "") +
+      `<span class="mesRefCtrl"><label for="selMesRef">Ver a fecha:</label>
+        <select id="selMesRef">${ops}</select>
+        ${actual ? '<button class="btn" id="btnHoy">Volver a hoy</button>' : ""}</span>`;
+    $("#selMesRef").onchange = e => ir(e.target.value || null);
+    const bh = $("#btnHoy"); if (bh) bh.onclick = () => ir(null);
+    cont.classList.toggle("activo", !!actual);
+  }
+
   /* Informe fiscal (IRPF): ganancias/pérdidas por FIFO y dividendos, por año. */
   function pintaFiscal() {
     const fisc = D.fiscal || {};
@@ -980,6 +1007,7 @@
     pintaHero(mVis, mTodo);
     pintaKPIs(mVis);
     pintaAlertas();
+    pintaMesReferencia();
     pintaFiltroTitular();
     pintaHogar();
     pintaDeudas();

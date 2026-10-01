@@ -46,6 +46,15 @@ test("el panel se dibuja sin errores y con cifras", () => {
   assert.ok(hero && hero !== "—", "el patrimonio del hero debería tener valor, es: " + hero);
 });
 
+test("el selector de mes de referencia aparece con los meses disponibles", () => {
+  const { window, errores } = montaPanel();
+  const sel = window.document.getElementById("selMesRef");
+  assert.ok(sel, "debería existir el selector de mes de referencia");
+  // «Hoy» + un option por cada mes disponible.
+  assert.strictEqual(sel.querySelectorAll("option").length, 1 + 3);
+  assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
+});
+
 test("el informe fiscal se dibuja con ventas y rendimientos", () => {
   const { window, errores } = montaPanel();
   window.document.querySelector('#subtabs button[data-pv="fiscal"]').click();
