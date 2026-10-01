@@ -145,6 +145,9 @@
   const visibles = () => TODOS().filter(p =>
     !estado.ocultos.has(p.id) && (!filtroTit() || (p.titular || "Sin asignar") === estado.titular));
   const filtrando = () => estado.ocultos.size > 0 || filtroTit();
+
+  // Iconito ⓘ con explicación (sale al pasar el ratón o al enfocar con el teclado).
+  const info = t => ` <span class="info" tabindex="0" role="note" aria-label="${t.replace(/"/g, "'")}">i<span class="infoPop">${t}</span></span>`;
   const buscaProd = id => TODOS().find(p => p.id === id);
 
   /* ---------------------------------------------- precio en vivo */
@@ -412,7 +415,7 @@
         n: m.rentabilidad != null ? G.fmtPctSigno(m.rentabilidad) + " sobre el coste" : "sin coste registrado",
         cl: m.plusvalia >= 0 ? "pos" : "neg"
       },
-      { e: "TIR anualizada", v: G.fmtPctSigno(m.tir), n: "rentabilidad real del dinero", cl: m.tir >= 0 ? "pos" : "neg" },
+      { e: "TIR anualizada" + info("La rentabilidad real de tu dinero: tiene en cuenta cuándo metiste y sacaste cada euro. En % anual."), v: G.fmtPctSigno(m.tir), n: "rentabilidad real del dinero", cl: m.tir >= 0 ? "pos" : "neg" },
       { e: "Ritmo mensual", v: G.fmtEur(m.ritmo, 0), n: "media de los últimos 12 meses" },
       { e: "Racha", v: m.racha + (m.racha === 1 ? " mes" : " meses"), n: "aportando sin fallar" },
       { e: "Peor caída", v: G.fmtPctSigno(m.caida), n: m.caidaFecha ? "del patrimonio, el " + G.fmtFecha(m.caidaFecha) : "", cl: "neg" },
@@ -434,13 +437,13 @@
     const tiles = [
       { e: "Patrimonio bruto", v: G.fmtEur(t.patrimonioBruto, 0), n: "todo lo que tienes" },
       { e: "Deudas", v: G.fmtEur(t.deudas, 0), n: "lo que debes", cl: t.deudas ? "neg" : "" },
-      { e: "Patrimonio neto", v: G.fmtEur(t.patrimonioNeto, 0), n: "bruto − deudas" },
-      { e: "Disponible", v: G.fmtEur(t.disponible, 0), n: "liquidez inmediata" },
+      { e: "Patrimonio neto" + info("Todo lo que tienes menos lo que debes (patrimonio bruto − deudas)."), v: G.fmtEur(t.patrimonioNeto, 0), n: "bruto − deudas" },
+      { e: "Disponible" + info("Dinero que puedes usar ya, sin penalización (cuentas, efectivo). Lo marcas en la ficha de cada producto."), v: G.fmtEur(t.disponible, 0), n: "liquidez inmediata" },
       { e: "No disponible", v: G.fmtEur(t.noDisponible, 0), n: "inversiones, inmuebles…" },
       { e: "Apartados", v: G.fmtEur(t.apartadosTotal, 0), n: "dinero reservado" },
       { e: "Colchón", v: G.fmtEur(t.colchon, 0), n: "liquidez que quieres mantener" },
       {
-        e: "Dinero libre para invertir", v: G.fmtEur(t.dineroLibre, 0),
+        e: "Dinero libre para invertir" + info("Lo que te queda de verdad para invertir: disponible − apartados − colchón."), v: G.fmtEur(t.dineroLibre, 0),
         n: "disponible − apartados − colchón", cl: t.dineroLibre < 0 ? "neg" : "pos"
       },
     ];
@@ -468,9 +471,10 @@
     const tiles = [
       { e: "Capital pendiente", v: G.fmtEur(t.deudas, 0), n: `${ds.length} deuda${ds.length > 1 ? "s" : ""}` },
       { e: "Cuota mensual", v: G.fmtEur(t.cuotaMensualDeudas, 0), n: "suma de cuotas" },
-      { e: "Intereses/año (est.)", v: G.fmtEur(t.interesAnualDeudas, 0), n: "capital × TAE" },
+      { e: "Intereses/año (est.)" + info("Lo que pagarías de intereses en un año: capital pendiente × TAE. Es una estimación."), v: G.fmtEur(t.interesAnualDeudas, 0), n: "capital × TAE" },
       {
-        e: "Deudas / activos", v: t.ratioDeudaActivos != null ? G.fmtPct(t.ratioDeudaActivos, 0) : "—",
+        e: "Deudas / activos" + info("Cuánto debes frente a lo que tienes. Cuanto más bajo, menos apalancado estás."),
+        v: t.ratioDeudaActivos != null ? G.fmtPct(t.ratioDeudaActivos, 0) : "—",
         n: "apalancamiento", cl: t.ratioDeudaActivos > 0.5 ? "neg" : ""
       },
     ];
@@ -509,7 +513,7 @@
         cl: em.ahorro >= 0 ? "pos" : "neg"
       },
       {
-        e: "Tasa de ahorro", v: pct(em.tasaAhorro), n: "media 12m " + pct(m12.tasaAhorro),
+        e: "Tasa de ahorro" + info("Qué parte de tus ingresos ahorras: (ingresos − gastos) / ingresos."), v: pct(em.tasaAhorro), n: "media 12m " + pct(m12.tasaAhorro),
         cl: (em.tasaAhorro || 0) >= 0 ? "pos" : "neg"
       },
     ];

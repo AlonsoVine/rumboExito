@@ -211,10 +211,38 @@
       <div class="tablaTools" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
         <label class="buscaTabla">${LUPA}<input type="search" data-buscar
           placeholder="Buscar…" aria-label="Buscar en la tabla" autocomplete="off"></label>
-        <span class="ordenaHint">↕ Ordena pulsando una columna</span></div>
+        <span class="ordenaHint">↕ Ordena pulsando una columna</span>
+        <span class="sp"></span>
+        <button type="button" class="btn" data-csv title="Descargar esta tabla en CSV (para Excel)">⤓ CSV</button></div>
       <div class="tablaEnv${alto ? " alto" : ""}"><table class="dt orden"><thead>${thead}</thead>
         <tbody>${filas}</tbody></table></div></div>`;
   }
+  // Descarga la tabla visible (respetando búsqueda y orden) como CSV para Excel.
+  function descargaTablaCSV(bloque) {
+    const tabla = _tablaDe(bloque);
+    if (!tabla || !tabla.tHead) return;
+    const ths = [...tabla.tHead.rows[0].cells];
+    const cols = ths.map((th, i) => ({ i, nombre: th.textContent.replace(/[↕▲▼]/g, "").trim() }))
+      .filter(c => c.nombre);                         // se saltan las columnas sin título (acciones)
+    const comilla = s => '"' + String(s == null ? "" : s).replace(/"/g, '""') + '"';
+    const filas = [cols.map(c => comilla(c.nombre)).join(";")];
+    [...(tabla.tBodies[0] ? tabla.tBodies[0].rows : [])]
+      .filter(r => r.style.display !== "none")
+      .forEach(r => filas.push(cols.map(c => comilla(r.cells[c.i] ? r.cells[c.i].textContent.trim() : "")).join(";")));
+    const csv = "﻿" + filas.join("\r\n");          // BOM para que Excel lea los acentos
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = (bloque.dataset.tabla || "tabla") + "_" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-csv]");
+    const bloque = b && b.closest("[data-tabla]");
+    if (bloque) descargaTablaCSV(bloque);
+  });
+
   // Listeners únicos (delegados): buscar al teclear y ordenar al pulsar una cabecera.
   document.addEventListener("input", e => {
     const inp = e.target.closest("[data-buscar]");
