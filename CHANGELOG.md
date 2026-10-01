@@ -6,6 +6,16 @@ del Excel `Gestor_Patrimonial`), manteniéndose 100 % local. Ver
 
 ## No publicado — rama `feat/gestor-patrimonial-f0`
 
+### Baterías de mejoras A · B · C
+- **A1** Presupuestos por categoría (real vs. presupuesto, margen) · **A3** gráficas
+  de evolución del hogar (patrimonio neto y deudas; ingresos/gastos/ahorro).
+- **B1** Rebalanceo (cuánto aportar/reducir por tipo) · **B2** filtro por titular en
+  el Panel · **B3** recordatorio «hace N días que no anotas» (configurable) ·
+  **B4** cierre del mes.
+- **C1** Tests de frontend con jsdom (y en el CI) · **C2** exportar tablas a CSV ·
+  **C3** asistente de primer uso (ocultable) · **C4** accesibilidad (texto grande,
+  atajos, móvil) · **C5** iconos ⓘ de ayuda.
+
 ### Ajustes de UX y correcciones
 - **Objetivo de patrimonio configurable** (antes fijo en 100.000 €): en
   Configuración, campo «Objetivo de patrimonio».
