@@ -874,7 +874,7 @@
     return `<section class="tarjeta"><header><h2>Saldos y valores</h2>
         <span class="subt">Lo que no tiene precio en internet. Cuanto más a menudo lo anotes (una vez al mes basta),
         mejor sale su curva.</span><span class="sp"></span>
-        <button class="btn prim" data-acc="todosValores">Anotar todos de una vez</button></header></section>
+        <button class="btn prim" data-acc="todosValores">Cierre del mes: anotar saldos</button></header></section>
       <div class="saldos">${tarjetas}</div>`;
   }
 
@@ -906,15 +906,22 @@
   function todosValores() {
     const lista = E.cfg.productos.filter(manual);
     const ultimo = id => E.cfg.valoraciones.filter(v => v.producto === id).sort((a, b) => a.fecha < b.fecha ? 1 : -1)[0];
-    abreModal("Anotar todos los saldos", `
-      <div class="rejilla">${campo("Fecha", `<input type="date" name="fecha" max="${hoy()}" value="${hoy()}">`)}</div>
+    const h = hoy();
+    const fin = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().slice(0, 10);
+    const finMes = fin > h ? h : fin;   // fin de mes, sin pasar de hoy
+    const mesRef = finMes.slice(0, 7);
+    abreModal("Cierre del mes", `
+      <p class="ayuda" style="margin:0 0 12px">El gesto de cada mes: abre tu banco y copia el saldo de fin de mes de cada
+        cuenta, depósito, plan, inmueble o deuda. Deja en blanco los que no quieras tocar.</p>
+      <div class="rejilla">${campo("Fecha (fin de mes)", `<input type="date" name="fecha" max="${h}" value="${finMes}">`)}</div>
       <div class="listaValores">${lista.map(p => {
         const u = ultimo(p.id);
-        return `<label class="filaValor"><span><span class="nm"><i class="pt" style="background:var(--s${p.slot || 1})"></i>${esc(nombre(p))}</span>
+        const yaEste = E.cfg.valoraciones.some(v => v.producto === p.id && (v.fecha || "").slice(0, 7) === mesRef);
+        return `<label class="filaValor"><span><span class="nm"><i class="pt" style="background:var(--s${p.slot || 1})"></i>${esc(nombre(p))}${yaEste ? ' <small class="pos">✓ este mes</small>' : ""}</span>
           <small>${u ? `Último: ${eur(u.valor)} el ${fecha(u.fecha)}` : "Sin valores todavía"}</small></span>
           <span class="conSufijo"><input name="v_${esc(p.id)}" inputmode="decimal" placeholder="${u ? decimal(u.valor) : "0,00"}"><span>€</span></span></label>`;
       }).join("")}</div>
-      <div class="resumen"><span>Deja en blanco los que no quieras tocar. Es el gesto de cada mes: abre tu banco y copia los saldos.</span></div>`,
+      <div class="resumen"><span>Los marcados con «✓ este mes» ya tienen saldo en el mes de la fecha elegida.</span></div>`,
     async f => {
       const d = campos(f);
       const pendientes = lista.filter(p => String(d["v_" + p.id] || "").trim());
