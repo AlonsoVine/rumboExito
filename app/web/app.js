@@ -905,7 +905,7 @@
       `<thead><tr>${cols.map(c => `<th class="orden" data-c="${c[0]}">${c[1]}${o.col === c[0] ? (o.desc ? " ↓" : " ↑") : ""}</th>`).join("")}</tr></thead>
        <tbody>${f.map(r => `<tr>
         <td>${G.fmtFecha(r.fecha)}</td>
-        <td><i class="pt" style="background:${r.color}"></i>${r.producto}</td>
+        <td><i class="pt" style="background:${r.color}"></i>${esc(r.producto)}</td>
         <td>${G.fmtEur(r.importe)}</td>
         <td>${r.valor != null ? G.fmtEur(r.valor) : "—"}</td>
         <td class="${r.pl >= 0 ? "pos" : "neg"}">${r.pl != null ? G.fmtEurSigno(r.pl) : "—"}</td>
@@ -1217,7 +1217,7 @@
         <div class="sep"></div>
         ${hayVL ? '<div class="segm" id="segSerie"></div>' : ""}
       </header>
-      ${p.papel ? `<div class="papel">${p.papel}</div>` : ""}
+      ${p.papel ? `<div class="papel">${esc(p.papel)}</div>` : ""}
       ${p.indiceDetalle ? `<p style="color:var(--tinta2);font-size:13.5px;margin:0 0 16px">${p.indiceDetalle}</p>` : ""}
       <div class="ficha">${campos.map(c => `<div><dt>${c[0]}</dt><dd>${c[1]}</dd></div>`).join("")}</div>
       <div id="ventanas"></div>
@@ -1467,7 +1467,7 @@
   /* ---------------------------------------------- avisos y pie */
   function pintaComun() {
     $("#avisos").innerHTML = (D.avisos || [])
-      .map(a => `<div class="av"><span>⚠</span><span>${a}</span></div>`).join("");
+      .map(a => `<div class="av"><span>⚠</span><span>${esc(a)}</span></div>`).join("");
     const pa = D.preciosActualizados;
     const fuentes = [...new Set(D.productos.map(p => p.fuentePrecio).filter(Boolean))];
     $("#pie").innerHTML =
@@ -1515,11 +1515,19 @@
   }
 
   /* ---------------------------------------------- pestañas */
+  // Recarga volviendo a HOY: al cambiar de cartera, editar o actualizar precios no
+  // queremos seguir «viendo un mes pasado» (daría una foto antigua y confusa).
+  function recargaHoy() {
+    const q = new URLSearchParams(location.search);
+    if (q.has("hasta")) { q.delete("hasta"); location.search = q.toString(); }
+    else location.reload();
+  }
+
   function irA(tab) {
     // Si has cambiado datos en «Mis datos», el panel se recarga con las cifras nuevas.
     if (window.EDITOR_SUCIO && tab !== "datos") {
       recuerda.guarda("patrimonio.tab", tab);
-      location.reload();
+      recargaHoy();
       return;
     }
     estado.tab = tab;
@@ -1583,7 +1591,7 @@
           await post("api/cartera/activar", { id: v });
         } else { return; }
         recuerda.guarda("patrimonio.tab", "panel");
-        location.reload();
+        recargaHoy();
       } catch (e) { alert("No he podido cambiar de cartera."); sel.value = j.activa; }
     };
   }
@@ -1604,7 +1612,7 @@
       const r = await fetch("api/actualizar", { method: "POST" });
       const j = await r.json();
       if (!j.ok) throw new Error(j.error);
-      location.reload();
+      recargaHoy();
     } catch (e) {
       alert(e.message || "No he podido actualizar los precios. ¿Tienes conexión a internet?");
       b.disabled = false;

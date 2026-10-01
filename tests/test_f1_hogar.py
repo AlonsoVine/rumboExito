@@ -151,6 +151,39 @@ def test_construir_hasta_mes_pasado(tmp_path):
     assert d1["mesesDisponibles"] == ["2024-01", "2024-02"]   # lista completa aun acotando
 
 
+def test_hasta_acota_precios_de_productos_cotizados(tmp_path, monkeypatch):
+    # Precio en caché que llega hasta 2026 (como en una cartera real). La vista
+    # «a fin de marzo 2023» NO debe usar ese precio de hoy.
+    monkeypatch.setattr(motor, "precio_eur",
+                        lambda p, series, tolerancia=0.03: {"2023-01-02": 10.0, "2026-09-30": 10.0})
+    cartera = {
+        "version": 1, "config": {},
+        "productos": [{"id": "x", "nombre": "Acción", "corto": "Acción", "tipo": "accion",
+                       "fuente": "yahoo", "codigo": "X", "slot": 1}],
+        "movimientos": [{"id": "m", "producto": "x", "tipo": "compra", "fecha": "2023-02-01",
+                         "unidades": "100", "importe": "1000"}],
+        "valoraciones": [],
+    }
+    d = motor.construir(cartera, str(tmp_path), descargar=False, hasta="2023-03")
+    assert d["fechaExtracto"] == "2023-03-31"          # a fin de mes, no hoy
+    assert not (tmp_path / "historico.json").exists()  # vista de consulta: no persiste
+
+
+def test_vista_normal_si_escribe_historico(tmp_path, monkeypatch):
+    monkeypatch.setattr(motor, "precio_eur",
+                        lambda p, series, tolerancia=0.03: {"2023-02-01": 10.0})
+    cartera = {
+        "version": 1, "config": {},
+        "productos": [{"id": "x", "nombre": "Acción", "corto": "Acción", "tipo": "accion",
+                       "fuente": "yahoo", "codigo": "X", "slot": 1}],
+        "movimientos": [{"id": "m", "producto": "x", "tipo": "compra", "fecha": "2023-02-01",
+                         "unidades": "100", "importe": "1000"}],
+        "valoraciones": [],
+    }
+    motor.construir(cartera, str(tmp_path), descargar=False)
+    assert (tmp_path / "historico.json").exists()      # la vista normal sí persiste
+
+
 def test_variacion_mes_y_ano(tmp_path):
     # Cabecera tipo Excel: valor ahora, hace 1 mes, hace 12 meses y variación.
     cartera = {

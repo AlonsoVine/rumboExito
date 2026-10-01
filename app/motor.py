@@ -699,6 +699,11 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
         if s and movs_por.get(p["id"]):
             ultimas.append(max(s))
     fecha_extracto = min(d(max(ultimas)), hoy()) if ultimas else hoy()
+    if hasta:
+        # Vista «a fin de mes»: aunque la cotización en caché llegue hasta hoy, la foto
+        # debe quedar a fin del mes pedido (si no, mezclaríamos cantidades de entonces
+        # con precios de ahora).
+        fecha_extracto = min(fecha_extracto, d(lim))
     print(f"  Datos valorados a {fecha_extracto}")
 
     # Tipo de cambio manual (F5): factor a euros para productos «a mano» en otra
@@ -1737,16 +1742,19 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
         for k in [k for k in p if k.startswith("_")]:
             p.pop(k)
 
-    # historico: un resumen por cada fecha calculada, para no perder el rastro
-    hist_ruta = os.path.join(carpeta, "historico.json")
-    hist = lee_cache(hist_ruta) or []
-    hist = [h for h in hist if h.get("fecha") != fecha_extracto.isoformat()]
-    hist.append({"fecha": fecha_extracto.isoformat(), "patrimonio": patrimonio,
-                 "aportado": aportado_total, "plusvalia": plusvalia_total,
-                 "porProducto": {p["id"]: p["valor"] for p in productos}})
-    hist.sort(key=lambda h: h["fecha"])
-    with open(hist_ruta, "w", encoding="utf-8") as f:
-        json.dump(hist, f, ensure_ascii=False, indent=1)
+    # historico: un resumen por cada fecha calculada, para no perder el rastro.
+    # En la vista «a fin de mes» (hasta) NO se persiste: es una consulta de solo
+    # lectura y escribir aquí sobrescribiría la entrada real con datos recortados.
+    if not hasta:
+        hist_ruta = os.path.join(carpeta, "historico.json")
+        hist = lee_cache(hist_ruta) or []
+        hist = [h for h in hist if h.get("fecha") != fecha_extracto.isoformat()]
+        hist.append({"fecha": fecha_extracto.isoformat(), "patrimonio": patrimonio,
+                     "aportado": aportado_total, "plusvalia": plusvalia_total,
+                     "porProducto": {p["id"]: p["valor"] for p in productos}})
+        hist.sort(key=lambda h: h["fecha"])
+        with open(hist_ruta, "w", encoding="utf-8") as f:
+            json.dump(hist, f, ensure_ascii=False, indent=1)
 
     print()
     print("=" * 62)

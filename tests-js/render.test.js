@@ -70,16 +70,21 @@ test("un nombre con HTML malicioso se escapa y no se ejecuta (XSS)", () => {
   // debe mostrarlo como TEXTO, nunca crear un <img onerror> que ejecute código.
   const d = JSON.parse(DATOS);
   const payload = '<img src=x onerror="window.__xss=1">';
-  if (d.productos && d.productos[0]) { d.productos[0].nombre = payload; d.productos[0].corto = payload; }
+  if (d.productos && d.productos[0]) {
+    d.productos[0].nombre = payload; d.productos[0].corto = payload; d.productos[0].papel = payload;
+  }
   if (d.total) d.total.titular = payload;
   d.titular = payload;
+  d.avisos = [payload];            // también los avisos del motor
   const { window, errores } = montaPanel(JSON.stringify(d));
+  // Pasa por las vistas que pintan nombre de producto (rentabilidad) y la ficha.
+  window.document.querySelector('#subtabs button[data-pv="rentabilidad"]').click();
   assert.strictEqual(window.__xss, undefined, "el onerror NO debería ejecutarse");
-  // No debe existir una imagen real inyectada desde el nombre.
+  // No debe existir una imagen real inyectada desde ningún nombre/campo.
   const imgs = [...window.document.querySelectorAll("img")].filter(i => i.getAttribute("src") === "x");
   assert.strictEqual(imgs.length, 0, "no debería crearse el <img> del payload");
   // Y el texto escapado sí aparece en el HTML.
-  assert.ok(/&lt;img/.test(window.document.body.innerHTML), "el nombre debería aparecer escapado");
+  assert.ok(/&lt;img/.test(window.document.body.innerHTML), "el texto debería aparecer escapado");
   assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
 });
 
