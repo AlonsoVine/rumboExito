@@ -708,7 +708,12 @@
         ${campo("Categorías de gastos (una por línea; opcional «= presupuesto»)", '<textarea name="catGas" rows="5" placeholder="Vivienda = 750\nAlimentación = 600\nTransporte\nOcio = 250"></textarea>', "", "ancho")}
       </div>
       <p class="ayuda">Aparecen en el desplegable al anotar. En los gastos puedes añadir un presupuesto mensual con
-        «= importe» (p. ej. <code>Alimentación = 600</code>); el Panel te dirá si te pasas. Si las dejas vacías, escribes la categoría a mano.</p>`,
+        «= importe» (p. ej. <code>Alimentación = 600</code>); el Panel te dirá si te pasas. Si las dejas vacías, escribes la categoría a mano.</p>
+      ${seccion("Privacidad")}
+      <div class="rejilla">
+        <label class="interruptor ancho"><input type="checkbox" name="buscarActualizaciones"><span class="pista"></span>
+          <span><b>Buscar actualizaciones</b><small>Si lo activas, la app comprueba en GitHub (una vez al día) si hay una versión nueva. Apagado, la app no sale a internet salvo para descargar los precios. Viene apagado.</small></span></label>
+      </div>`,
     async f => {
       const d = campos(f);
       const objetivos = {};
@@ -737,6 +742,7 @@
         desviacionMax: d.desviacionMax,
         diasAviso: d.diasAviso,
         diasSinAnotar: d.diasSinAnotar,
+        buscarActualizaciones: f.elements.buscarActualizaciones.checked,
         objetivos, monedas, categorias,
       });
       // El nombre sale en el selector de arriba: recargar para que se vea al momento.
@@ -751,6 +757,7 @@
     f.elements.desviacionMax.value = pct(conf.desviacionMax);
     f.elements.diasAviso.value = conf.diasAviso != null ? conf.diasAviso : "";
     f.elements.diasSinAnotar.value = conf.diasSinAnotar != null ? conf.diasSinAnotar : "";
+    f.elements.buscarActualizaciones.checked = !!conf.buscarActualizaciones;
     Object.entries(obj).forEach(([clave, frac]) => {
       const el = f.elements["obj_" + clave];
       if (el) el.value = pct(frac);

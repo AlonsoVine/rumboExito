@@ -82,6 +82,18 @@ def test_api_config_en_demo_esta_bloqueada(tmp_path, monkeypatch):
     assert r.get_json()["ok"] is False
 
 
+def test_version_por_defecto_no_sale_a_internet(tmp_path, monkeypatch):
+    # Por defecto el chequeo de versión está apagado: no debe salir a la red.
+    servidor = _prepara(tmp_path, monkeypatch)
+
+    def _no_red(*a, **k):
+        raise AssertionError("no debería salir a internet con el chequeo apagado")
+    monkeypatch.setattr(servidor.urllib.request, "urlopen", _no_red)
+    client = servidor.app.test_client()
+    j = client.get("/api/version").get_json()
+    assert j["desactivado"] is True and j["hayNueva"] is False
+
+
 def test_cartera_corrupta_devuelve_400_no_500(tmp_path, monkeypatch):
     # Si cartera.json se daña, un POST debe responder 400 con mensaje claro,
     # nunca un 500 opaco.

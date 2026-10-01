@@ -440,6 +440,8 @@ def guarda_config(cfg, datos):
         conf["diasSinAnotar"] = int(ds) if ds is not None else 30
     if "asistenteOculto" in datos:
         conf["asistenteOculto"] = bool(datos.get("asistenteOculto"))
+    if "buscarActualizaciones" in datos:
+        conf["buscarActualizaciones"] = bool(datos.get("buscarActualizaciones"))
     if "objetivos" in datos:
         objs = {}
         for clave, val in (datos.get("objetivos") or {}).items():

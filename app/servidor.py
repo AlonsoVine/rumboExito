@@ -568,8 +568,13 @@ def version_actual():
 
 @app.get("/api/version")
 def api_version():
-    """Compara esta versión con la publicada en GitHub (se consulta como mucho una vez al día)."""
+    """Compara esta versión con la publicada en GitHub (se consulta como mucho una vez
+    al día). Solo sale a internet si lo activas en Configuración: por defecto está
+    apagado, para que la app sea 100 % local salvo la descarga de precios."""
     actual = version_actual()
+    activado = bool((cartera().get("config") or {}).get("buscarActualizaciones"))
+    if not activado:
+        return jsonify(actual=actual, ultima=None, repo=REPO, hayNueva=False, desactivado=True)
     if not _VERSION or dt.datetime.now() - _VERSION["cuando"] > dt.timedelta(hours=24):
         try:
             url = REPO.replace("github.com", "raw.githubusercontent.com") + "/main/app/VERSION"

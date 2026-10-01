@@ -184,6 +184,14 @@ def test_config_asistente_oculto():
     assert cfg["config"]["asistenteOculto"] is True
 
 
+def test_config_buscar_actualizaciones():
+    cfg = cfg_vacia()
+    almacen.guarda_config(cfg, {"buscarActualizaciones": True})
+    assert cfg["config"]["buscarActualizaciones"] is True
+    almacen.guarda_config(cfg, {"buscarActualizaciones": False})
+    assert cfg["config"]["buscarActualizaciones"] is False
+
+
 def test_sin_objetivos_no_alerta_de_suma(tmp_path):
     cartera = _cartera_control()
     cartera["config"]["objetivos"] = {}
