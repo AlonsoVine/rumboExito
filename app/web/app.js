@@ -26,6 +26,23 @@
     recuerda.guarda("patrimonio.tema", raiz.dataset.tema);
   };
 
+  // Texto más grande (accesibilidad): se aplica siempre, con datos o sin ellos.
+  function conectaTexto() {
+    const b = $("#btnTexto");
+    if (!b) return;
+    const aplica = g => {
+      document.body.classList.toggle("textoGrande", g);
+      b.classList.toggle("act", g);
+    };
+    aplica(recuerda.lee("patrimonio.texto") === "grande");
+    b.onclick = () => {
+      const g = !document.body.classList.contains("textoGrande");
+      aplica(g);
+      recuerda.guarda("patrimonio.texto", g ? "grande" : "normal");
+    };
+  }
+  conectaTexto();
+
   if (!D) {
     $("#btnTema").onclick = cambiaTema;
     // Cartera vacía: solo se enseña «Mis datos», para empezar a meter productos.

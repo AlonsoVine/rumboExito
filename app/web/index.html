@@ -114,6 +114,14 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 .selCartera{font:inherit;font-size:14px;font-weight:600;color:var(--tinta);background:var(--sup);
   border:1px solid var(--borde);border-radius:8px;padding:5px 8px;cursor:pointer;max-width:220px}
 .selCartera:hover{border-color:var(--tinta3)}
+/* Accesibilidad: texto más grande (C4). Escala toda la interfaz. */
+body.textoGrande{zoom:1.15}
+#btnTexto.act{color:var(--tinta);border-color:var(--s1)}
+@media(max-width:640px){
+  .topFila{flex-wrap:wrap;row-gap:6px}
+  .tabsPrin button{font-size:14.5px;padding:10px 13px 11px}
+  .subtabs button{font-size:13px;padding:8px 13px}
+}
 .asistente .pasosAsist{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:16px}
 .asistente .pasosAsist li{line-height:1.55}
 .asistente .pasosAsist .botones{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
@@ -659,6 +667,7 @@ body.video .tarjetaCanal{display:none}
       <span class="meta" id="metaFecha"></span>
       <button class="btn" id="btnPrecios" title="Descarga los precios de hoy de cada producto">↻ Actualizar precios</button>
       <button class="btn" id="btnTema" title="Cambiar entre claro y oscuro">◐ Tema</button>
+      <button class="btn" id="btnTexto" title="Agrandar o reducir el tamaño del texto">A+ Texto</button>
       <button class="btn" id="btnVideo" title="Oculta los controles y agranda las cifras">▶ Modo vídeo</button>
     </div>
     <nav class="tabs tabsPrin" id="tabs" role="tablist">
@@ -1038,6 +1047,15 @@ body.video .tarjetaCanal{display:none}
     <details class="faq"><summary>¿Para qué sirve «Repartir colores»?</summary><div>
       <p>En <b>Mis datos → Activos</b>, da a cada activo un color distinto (útil cuando tienes muchos y se repiten).
       El cambio se ve en los gráficos del panel.</p></div></details>
+
+    <details class="faq"><summary>Se me ve pequeño. ¿Puedo agrandar el texto? ¿Hay atajos de teclado?</summary><div>
+      <p>Arriba a la derecha tienes <b>«A+ Texto»</b>: agranda toda la interfaz (se recuerda la próxima vez). También está
+      <b>«◐ Tema»</b> para alternar claro/oscuro y <b>«▶ Modo vídeo»</b> para agrandar las cifras y ocultar los controles.</p>
+      <p>Atajos de teclado (cuando no estás escribiendo en un campo):</p>
+      <ul>
+        <li><b>1…6</b>: cambian de pestaña dentro del Panel (Patrimonio, Distribución, Rentabilidad, Evolución, Ingresos y gastos, Deudas y vencimientos).</li>
+        <li><b>V</b>: modo vídeo. <b>L</b>: ver solo lo de largo plazo. <b>Esc</b>: quitar el filtro.</li>
+      </ul></div></details>
 
     <p class="ayudaPie" id="ayudaVersion">¿Otra duda? Mira la página del proyecto en GitHub.</p>
   </section>
