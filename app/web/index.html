@@ -83,16 +83,11 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 .pv[hidden]{display:none}
 /* Línea-guía en lenguaje llano al inicio de cada vista. */
 .ayudaVista{color:var(--tinta2);font-size:13.5px;margin:4px 0 16px;line-height:1.5}
-/* Iconito de ayuda (ⓘ) con explicación al pasar el ratón o al enfocar. */
-.info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
+/* Iconito de ayuda (ⓘ): muestra su explicación con el tooltip nativo al pasar el ratón. */
+.info{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
   border-radius:50%;border:1px solid var(--borde);color:var(--tinta3);font-size:11px;font-weight:700;
   cursor:help;margin-left:6px;vertical-align:middle;user-select:none}
-.info:hover,.info:focus{color:var(--tinta);border-color:var(--tinta3);outline:none}
-.info .infoPop{position:absolute;top:135%;right:0;z-index:30;width:min(280px,72vw);
-  background:var(--sup);border:1px solid var(--borde);border-radius:10px;padding:10px 12px;
-  font-size:12.5px;font-weight:400;line-height:1.5;color:var(--tinta2);box-shadow:0 10px 28px rgba(0,0,0,.16);
-  opacity:0;visibility:hidden;transform:translateY(-4px);transition:.14s;text-align:left;white-space:normal}
-.info:hover .infoPop,.info:focus .infoPop{opacity:1;visibility:visible;transform:none}
+.info:hover,.info:focus{color:var(--tinta);border-color:var(--tinta3);background:var(--sup2);outline:none}
 .panel[hidden]{display:none}
 
 /* ============================ hero ============================ */
@@ -924,7 +919,7 @@ body.video .tarjetaCanal{display:none}
         <li><b>Busca por ISIN</b> (12 caracteres, como <code>IE00BYX5NX33</code>). Lo tienes en la ficha del producto en tu banco. Es la forma más fiable, sobre todo para fondos.</li>
         <li>Para acciones y ETF, prueba el <b>ticker con la bolsa</b>: <code>SAN.MC</code> (Madrid), <code>IWDA.AS</code> (Ámsterdam), <code>EUNL.DE</code> (Xetra), <code>AAPL</code> (EE. UU.).</li>
         <li>Para criptomonedas, escribe su nombre en inglés (<code>bitcoin</code>, <code>ethereum</code>).</li>
-        <li>Si no cotiza en ningún sitio (un plan de pensiones, un depósito, oro físico, un piso), créalo igualmente y elige <b>«Valor anotado a mano»</b> como fuente del precio. Luego anota su valor de vez en cuando en «Saldos y valores».</li>
+        <li>Si no cotiza en ningún sitio (un plan de pensiones, un depósito, oro físico, un piso), créalo igualmente y elige <b>«Valor anotado a mano»</b> como fuente del precio. Luego anota su valor de vez en cuando en «Saldos y movimientos».</li>
       </ol></div></details>
 
     <details class="faq"><summary>El valor no coincide con el que veo en mi banco</summary><div>
@@ -945,8 +940,8 @@ body.video .tarjetaCanal{display:none}
 
     <details class="faq"><summary>¿Cómo meto mi cuenta del banco, un plan de pensiones o un piso?</summary><div>
       <ol>
-        <li>En <b>Mis datos → Productos</b>, añade el producto. Para una cuenta elige el tipo «Cuenta / efectivo»; para lo demás, la fuente «Valor anotado a mano».</li>
-        <li>En <b>Saldos y valores</b>, anota su valor con la fecha. Una vez al mes basta: con <b>«Anotar todos de una vez»</b> lo haces en un minuto.</li>
+        <li>En <b>Mis datos → Activos</b>, añade el producto. Para una cuenta elige el tipo «Cuenta / efectivo»; para lo demás, la fuente «Valor anotado a mano».</li>
+        <li>En <b>Saldos y movimientos</b>, anota su valor con la fecha. Una vez al mes basta: con <b>«Cierre del mes»</b> lo haces en un minuto.</li>
         <li>Si sabes cuánto llevas aportado (por ejemplo, a un plan de pensiones), anótalo también: así el panel calcula su rentabilidad.</li>
       </ol></div></details>
 

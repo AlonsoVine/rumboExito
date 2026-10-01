@@ -163,8 +163,12 @@
     !estado.ocultos.has(p.id) && (!filtroTit() || (p.titular || "Sin asignar") === estado.titular));
   const filtrando = () => estado.ocultos.size > 0 || filtroTit();
 
-  // Iconito ⓘ con explicación (sale al pasar el ratón o al enfocar con el teclado).
-  const info = t => ` <span class="info" tabindex="0" role="note" aria-label="${t.replace(/"/g, "'")}">i<span class="infoPop">${t}</span></span>`;
+  // Iconito ⓘ con explicación al pasar el ratón (tooltip nativo: nunca se recorta,
+  // ni dentro de los cuadros con scroll). aria-label para lectores de pantalla.
+  const info = t => {
+    const a = String(t).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    return ` <span class="info" tabindex="0" role="note" title="${a}" aria-label="${a}">i</span>`;
+  };
   const buscaProd = id => TODOS().find(p => p.id === id);
 
   /* ---------------------------------------------- precio en vivo */
@@ -1111,7 +1115,7 @@
       ${p.indiceDetalle ? `<p style="color:var(--tinta2);font-size:13.5px;margin:0 0 16px">${p.indiceDetalle}</p>` : ""}
       <div class="ficha">${campos.map(c => `<div><dt>${c[0]}</dt><dd>${c[1]}</dd></div>`).join("")}</div>
       <div id="ventanas"></div>
-      ${pocos ? '<p class="subt" style="margin:0 0 12px">Solo hay un valor anotado, así que aún no hay curva. Anota más en «Mis datos → Saldos y valores».</p>' : ""}
+      ${pocos ? '<p class="subt" style="margin:0 0 12px">Solo hay un valor anotado, así que aún no hay curva. Anota más en «Mis datos → Saldos y movimientos».</p>' : ""}
       <div class="envGraf" id="grafFondo"></div>
       <div class="tramos" id="tramosLey"></div>`;
 

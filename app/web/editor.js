@@ -403,8 +403,9 @@
   const campo = (et, control, pista = "", clase = "") =>
     `<label class="campo ${clase}"><span class="et">${et}${pista ? ` <em>${pista}</em>` : ""}</span>${control}</label>`;
   const seccion = t => `<div class="secc">${t}</div>`;
-  // Iconito ⓘ con explicación (al pasar el ratón o enfocar con el teclado).
-  const info = t => ` <span class="info" tabindex="0" role="note" aria-label="${esc(t)}">i<span class="infoPop">${esc(t)}</span></span>`;
+  // Iconito ⓘ con explicación al pasar el ratón (tooltip nativo: nunca se recorta,
+  // ni dentro del modal con scroll). aria-label para lectores de pantalla.
+  const info = t => ` <span class="info" tabindex="0" role="note" title="${esc(t)}" aria-label="${esc(t)}">i</span>`;
   const LUPA = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
   const COLOR_FUENTE = { morningstar: "var(--s3)", yahoo: "var(--s7)", coingecko: "var(--s4)" };
   const decimal = v => v == null || v === "" ? "" : String(v).replace(".", ",");
@@ -415,7 +416,8 @@
     const clases = [...new Set(E.cfg.productos.map(x => x.clase).filter(Boolean))];
     const colores = Array.from({ length: 12 }, (_, i) =>
       `<label class="color" style="--c:var(--s${i + 1})" title="Color ${i + 1}"><input type="radio" name="slot" value="${i + 1}"><i></i></label>`).join("");
-    const f = abreModal(nuevo ? "Añadir producto" : "Editar " + esc(nombre(p)), `
+    const tituloNuevo = (tipoInicial === "deuda" || p.tipo === "deuda") ? "Añadir deuda" : "Añadir activo";
+    const f = abreModal(nuevo ? tituloNuevo : "Editar " + esc(nombre(p)), `
       <div class="buscador">
         <div class="tit">Busca tu producto</div>
         <div class="sub">Por ISIN, ticker o nombre. Comprobamos que tiene precio antes de proponerlo.</div>
@@ -454,7 +456,7 @@
         ${campo("Próxima revisión", '<input name="fechaRevision" type="date">')}
         ${campo("Fecha de cancelación", '<input name="fechaCancelacion" type="date">', "si ya la pagaste")}
       </div>
-      <p class="ayuda">El <b>capital pendiente</b> lo anotas cada mes en «Saldos y valores» (es el saldo de la deuda).
+      <p class="ayuda">El <b>capital pendiente</b> lo anotas cada mes en «Saldos y movimientos» (es el saldo de la deuda).
         Aquí van los datos fijos del préstamo; los intereses anuales se estiman como capital × TAE.</p></div>
 
       ${seccion("Cómo se muestra")}
@@ -851,7 +853,7 @@
 
   function formMovimiento(m, productoId) {
     const cotizables = E.cfg.productos.filter(p => !soloSaldo(p));
-    if (!cotizables.length) { alert("Primero añade un producto en «Productos»."); return; }
+    if (!cotizables.length) { alert("Primero añade un activo en «Activos»."); return; }
     const nuevo = !m;
     m = m || { fecha: hoy(), tipo: "compra", producto: productoId || (E.filtro !== "todos" ? E.filtro : cotizables[0].id) };
     const pildoras = Object.entries(E.tiposMov).map(([k, v]) =>
@@ -909,7 +911,7 @@
     if (!lista.length) {
       return `<section class="tarjeta"><header><h2>Saldos y valores</h2></header>
         <p class="subt">Aquí aparecen tus cuentas, deudas, planes de pensiones y todo lo que no tiene precio en
-        internet. Añádelos en «Productos» (tipo «Cuenta / efectivo», o fuente del precio «Valor anotado a mano»).</p></section>`;
+        internet. Añádelos en «Activos» (tipo «Cuenta / efectivo», o fuente del precio «Valor anotado a mano»).</p></section>`;
     }
     const tarjetas = lista.map(p => {
       const vals = E.cfg.valoraciones.filter(v => v.producto === p.id).sort((a, b) => a.fecha < b.fecha ? 1 : -1);
