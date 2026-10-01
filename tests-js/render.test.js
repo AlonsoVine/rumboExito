@@ -46,6 +46,17 @@ test("el panel se dibuja sin errores y con cifras", () => {
   assert.ok(hero && hero !== "—", "el patrimonio del hero debería tener valor, es: " + hero);
 });
 
+test("el botón de imprimir existe y llama a window.print", () => {
+  const { window, errores } = montaPanel();
+  let llamado = 0;
+  window.print = () => { llamado++; };
+  const b = window.document.getElementById("btnImprimir");
+  assert.ok(b, "debería existir el botón de imprimir");
+  b.click();
+  assert.strictEqual(llamado, 1, "al pulsar debería llamar a window.print");
+  assert.strictEqual(errores.length, 0, "no debería haber errores: " + errores.join(" | "));
+});
+
 test("cada sub-pestaña del Panel se dibuja sin errores", () => {
   const { window, errores } = montaPanel();
   const botones = [...window.document.querySelectorAll("#subtabs button")];

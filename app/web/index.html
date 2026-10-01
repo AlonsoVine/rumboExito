@@ -652,6 +652,19 @@ body.video .tarjetaCanal{display:none}
 .marca .marcaSep{width:1px;height:15px;background:var(--borde)}
 .marca #marcaTexto{font-weight:500;color:var(--tinta2);font-size:13.5px}
 @media(max-width:720px){.marca .marcaSep,.marca #marcaTexto{display:none}}
+/* ---- Impresión / PDF: solo el panel, sin botones ni navegación ---- */
+@media print{
+  :root{--fondo:#fff;--sup:#fff;--tinta:#000;--tinta2:#222;--tinta3:#555;--borde:#ccc}
+  body{background:#fff;color:#000;zoom:1}
+  .topFila,.tabsPrin,#subtabs,#btnPrecios,#btnTema,#btnTexto,#btnImprimir,#btnVideo,
+  .tarjetaCanal,#bannerDemo,#bannerVersion,#filtroTitular,.aviso-legal,
+  #tab-datos,#tab-ayuda{display:none !important}
+  .pv,.panel{display:block !important}
+  .pv[hidden]{display:none !important}
+  section,.tarjeta,.card,table{break-inside:avoid}
+  .env{max-width:none;margin:0;padding:0}
+  a[href]:after{content:""}
+}
 </style>
 </head>
 <body>
@@ -665,6 +678,7 @@ body.video .tarjetaCanal{display:none}
       <button class="btn" id="btnPrecios" title="Descarga los precios de hoy de cada producto">↻ Actualizar precios</button>
       <button class="btn" id="btnTema" title="Cambiar entre claro y oscuro">◐ Tema</button>
       <button class="btn" id="btnTexto" title="Agrandar o reducir el tamaño del texto">A+ Texto</button>
+      <button class="btn" id="btnImprimir" title="Imprimir esta vista o guardarla como PDF (elige «Guardar como PDF» en el destino)">🖨 Imprimir</button>
       <button class="btn" id="btnVideo" title="Oculta los controles y agranda las cifras">▶ Modo vídeo</button>
     </div>
     <nav class="tabs tabsPrin" id="tabs" role="tablist">

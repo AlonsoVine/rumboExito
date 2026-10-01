@@ -1489,6 +1489,7 @@
   $("#metaFecha").textContent = "Datos a " + G.fmtFecha(D.fechaExtracto);
 
   $("#btnTema").onclick = () => { cambiaTema(); pintar(); };
+  if ($("#btnImprimir")) $("#btnImprimir").onclick = () => window.print();
   if ($("#btnPrecios")) $("#btnPrecios").onclick = async () => {
     const b = $("#btnPrecios");
     b.disabled = true;
