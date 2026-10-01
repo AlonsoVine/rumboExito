@@ -18,6 +18,7 @@ import json
 import os
 import random
 import re
+from html import escape as _escape  # alias: dentro de pagina() «html» es la página
 
 # Campos con euros (o unidades, que multiplicadas por el precio darían euros).
 CAMPOS_DINERO = {
@@ -111,11 +112,16 @@ def pagina(web, datos, ocultar=False, titulo="Mi patrimonio"):
     html = html.replace('src="icono-64.png"', f'src="{icono}"')
     html = re.sub(r'\s*<link rel="(icon|apple-touch-icon)"[^>]*>', "", html)
     desc = "Panel de patrimonio neto e inversiones hecho con Rumbo." + (" Importes ocultos." if ocultar else "")
+    # Escapar antes de interpolar: «titulo» es el nombre que pone el usuario y
+    # podría llevar comillas o «<» que romperían el atributo e inyectarían markup
+    # en la página que se comparte.
+    titulo_s = _escape(titulo, quote=True)
+    desc_s = _escape(desc, quote=True)
     cabeceras = ('<meta name="robots" content="noindex, nofollow">\n'
                  f'<link rel="icon" type="image/png" href="{icono}">\n'
-                 f'<meta property="og:title" content="{titulo} · Rumbo">\n'
-                 f'<meta property="og:description" content="{desc}">\n'
-                 f'<meta name="description" content="{desc}">\n'
+                 f'<meta property="og:title" content="{titulo_s} · Rumbo">\n'
+                 f'<meta property="og:description" content="{desc_s}">\n'
+                 f'<meta name="description" content="{desc_s}">\n'
                  f'<!-- Exportado el {dt.datetime.now():%d/%m/%Y %H:%M} -->')
     html = html.replace("</head>", cabeceras + "\n</head>", 1)
     return html
