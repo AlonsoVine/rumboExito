@@ -116,7 +116,6 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 .selCartera:hover{border-color:var(--tinta3)}
 /* Accesibilidad: texto más grande (C4). Escala toda la interfaz. */
 body.textoGrande{zoom:1.15}
-#btnTexto.act{color:var(--tinta);border-color:var(--s1)}
 @media(max-width:640px){
   .topFila{flex-wrap:wrap;row-gap:6px}
   .tabsPrin button{font-size:14.5px;padding:10px 13px 11px}
@@ -683,7 +682,6 @@ body.video .tarjetaCanal{display:none}
 
 <div class="env">
 
-<div class="banner" id="bannerVersion" hidden><span id="bannerVersionTexto"></span></div>
 <div class="banner" id="bannerDemo" hidden>
   <span><b>Estás viendo una cartera de ejemplo:</b> es la cartera real de <span class="autorCanal"></span>,
   que cada mes cuenta cómo evoluciona en su <a class="enlaceCanal" target="_blank" rel="noopener">canal de YouTube</a>.
@@ -908,6 +906,7 @@ body.video .tarjetaCanal{display:none}
 <div class="panel" id="tab-datos" role="tabpanel" hidden><div id="editor"></div></div>
 
 <div class="panel" id="tab-ayuda" role="tabpanel" hidden>
+  <div class="banner" id="bannerVersion" hidden><span id="bannerVersionTexto"></span></div>
   <section class="tarjeta ayudaTarjeta ayudaVideo">
     <div><b>¿Prefieres verlo en vídeo?</b>
       <p>En el canal de <span class="autorCanal"></span> tienes el tutorial paso a paso: instalación, cómo meter

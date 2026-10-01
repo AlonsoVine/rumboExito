@@ -403,6 +403,8 @@
   const campo = (et, control, pista = "", clase = "") =>
     `<label class="campo ${clase}"><span class="et">${et}${pista ? ` <em>${pista}</em>` : ""}</span>${control}</label>`;
   const seccion = t => `<div class="secc">${t}</div>`;
+  // Iconito ⓘ con explicación (al pasar el ratón o enfocar con el teclado).
+  const info = t => ` <span class="info" tabindex="0" role="note" aria-label="${esc(t)}">i<span class="infoPop">${esc(t)}</span></span>`;
   const LUPA = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>';
   const COLOR_FUENTE = { morningstar: "var(--s3)", yahoo: "var(--s7)", coingecko: "var(--s4)" };
   const decimal = v => v == null || v === "" ? "" : String(v).replace(".", ",");
@@ -860,9 +862,9 @@
         ${campo("Producto", `<select name="producto">${cotizables.map(p =>
           `<option value="${esc(p.id)}">${esc(nombre(p))}</option>`).join("")}</select>`, "", "ancho")}
         ${campo("Fecha", `<input type="date" name="fecha" max="${hoy()}">`)}
-        ${campo("Unidades", '<input name="unidades" inputmode="decimal" placeholder="0">', "participaciones, acciones…", "siUnid")}
-        ${campo("Importe total", '<div class="conSufijo"><input name="importe" inputmode="decimal" placeholder="0,00"><span>€</span></div>')}
-        ${campo("Comisión", '<div class="conSufijo"><input name="comision" inputmode="decimal" placeholder="0,00"><span>€</span></div>', "ya incluida en el importe", "siCom")}
+        ${campo("Unidades" + info("Cuántas participaciones, acciones, títulos u onzas compraste o vendiste. En productos que se valoran a mano son opcionales."), '<input name="unidades" inputmode="decimal" placeholder="0">', "participaciones, acciones…", "siUnid")}
+        ${campo("Importe total" + info("El dinero total de la operación. En una COMPRA: lo que salió de tu cuenta, con las comisiones ya incluidas. En una VENTA o un DIVIDENDO: lo que te ingresaron. No se le resta nada: pon la cifra tal cual."), '<div class="conSufijo"><input name="importe" inputmode="decimal" placeholder="0,00"><span>€</span></div>')}
+        ${campo("Comisión" + info("Solo informativo: la comisión que te cobraron en esta operación, que YA va dentro del importe total. No se vuelve a restar; sirve para saber cuánto pagas en comisiones."), '<div class="conSufijo"><input name="comision" inputmode="decimal" placeholder="0,00"><span>€</span></div>', "ya incluida en el importe", "siCom")}
         ${campo("Nota", '<input name="nota" maxlength="200" placeholder="Por ejemplo: aportación mensual">', "opcional", "ancho")}
       </div>
       <div class="resumen"><span id="mAyuda"></span><b id="mPrecio"></b></div>`,
