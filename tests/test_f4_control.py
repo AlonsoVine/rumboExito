@@ -75,6 +75,31 @@ def test_vencimientos_ordenados_y_estados(tmp_path):
     assert v[1]["fecha"] == "2024-07-15" and v[1]["estado"] == "Próximo"
 
 
+def test_tipodetalle_separa_en_portipo_sin_romper_disponible(tmp_path):
+    # Paridad con el Excel: el detalle del tipo (subtipo libre) da granularidad
+    # en la foto por tipo, sin cambiar la clase ni el «disponible».
+    cartera = {
+        "version": 1, "config": {},
+        "productos": [
+            {"id": "cc", "nombre": "Nómina", "corto": "Nómina", "tipo": "efectivo",
+             "tipoDetalle": "Cuenta corriente", "fuente": "manual", "slot": 1},
+            {"id": "cr", "nombre": "Ahorro", "corto": "Ahorro", "tipo": "efectivo",
+             "tipoDetalle": "Cuenta remunerada", "fuente": "manual", "slot": 2},
+        ],
+        "movimientos": [],
+        "valoraciones": [
+            {"id": "v1", "producto": "cc", "fecha": "2024-06-30", "valor": 1000.0},
+            {"id": "v2", "producto": "cr", "fecha": "2024-06-30", "valor": 3000.0},
+        ],
+    }
+    d = motor.construir(cartera, str(tmp_path), descargar=False)
+    tipos = {x["nombre"] for x in d["total"]["porTipo"]}
+    assert "Cuenta corriente" in tipos and "Cuenta remunerada" in tipos
+    # Siguen siendo efectivo -> disponible, y una sola clase «Efectivo».
+    assert d["total"]["disponible"] == 4000.0
+    assert {x["nombre"] for x in d["total"]["porClase"]} == {"Efectivo"}
+
+
 def test_vencimientos_incluye_apartados_y_revision_de_deuda(tmp_path):
     # Paridad con el Excel: los vencimientos deben recoger también la fecha
     # prevista de los apartados y la fecha de revisión del tipo de las deudas.

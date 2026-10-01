@@ -433,6 +433,7 @@
         ${campo("Nombre", '<input name="nombre" required>', "", "ancho")}
         ${campo("Nombre corto", '<input name="corto" maxlength="24">', "para los gráficos")}
         ${campo("Tipo", `<select name="tipo">${opciones(E.tipos, p.tipo)}</select>`)}
+        ${campo("Detalle del tipo" + info("Afina el tipo para la foto por categorías, como en el Excel: p. ej. Tipo «Cuenta / efectivo» con detalle «Cuenta remunerada» o «Depósito». Si lo dejas vacío se usa el tipo general. Para las cuentas que puedas usar ya, deja el Tipo en «Cuenta / efectivo» para que cuenten como disponible."), '<input name="tipoDetalle" placeholder="Cuenta remunerada, Depósito…">', "opcional")}
         ${campo("ISIN o ticker", '<input name="identificador">', "opcional")}
         ${campo("Banco o bróker", '<input name="entidad">', "opcional")}
         ${campo("Titular", `<input name="titular" list="edTitulares" placeholder="Mar, Común…">
