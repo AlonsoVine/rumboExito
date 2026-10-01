@@ -125,3 +125,21 @@ def test_apartados_y_titulares_en_datos(hogar, tmp_path):
     d = motor.construir(hogar, str(tmp_path), descargar=False)
     assert d["titulares"] == ["Mar", "Común", "Antonio"]
     assert {a["nombre"] for a in d["apartados"]} == {"Impuestos", "Obras"}
+
+
+def test_pesos_composicion_sobre_bruto_no_neto(hogar, tmp_path):
+    # Con deuda, el neto (25000) es menor que el bruto (105000). Los pesos de
+    # composición deben calcularse sobre el BRUTO; usar el neto los dispararía
+    # por encima del 100 % (p. ej. el piso saldría al 400 %).
+    d = motor.construir(hogar, str(tmp_path), descargar=False)
+    prod = {p["nombre"]: p for p in d["productos"]}
+    assert prod["Piso"]["peso"] == pytest.approx(100000 / 105000, abs=1e-4)   # 0.95, no 4.0
+    # Ningún activo supera el 100 %.
+    assert all(0 <= p["peso"] <= 1 for p in d["productos"])
+    # Los agregados por clase suman ~100 % (solo activos); la cuenta de efectivo
+    # aporta su 5000/105000 aunque no salga como producto individual.
+    por_clase = {x["nombre"]: x["peso"] for x in d["total"]["porClase"]}
+    assert por_clase["Inmuebles"] == pytest.approx(100000 / 105000, abs=1e-3)
+    assert por_clase["Efectivo"] == pytest.approx(5000 / 105000, abs=1e-3)
+    assert sum(x["peso"] for x in d["total"]["porTipo"]) == pytest.approx(1.0, abs=1e-3)
+    assert sum(x["peso"] for x in d["total"]["porClase"]) == pytest.approx(1.0, abs=1e-3)

@@ -901,6 +901,11 @@ def construir(cfg, carpeta, descargar=True):
     serie_deuda = [round(-sum((e["serie"][i] or 0) for e in ser_pasivos), 2) for i in range(n)] if ser_pasivos else None
 
     patrimonio = round(serie_total[-1], 2)
+    # Denominador de los pesos de composición: el patrimonio BRUTO (solo activos).
+    # Usar el neto (patrimonio) dispararía los % por encima de 100 % en cuanto hay
+    # deuda, y además descuadraría con «asignacion»/«concentracionEntidad» (que ya
+    # usan el bruto). Coincide con «bruto» (definido más abajo, línea ~1273).
+    bruto_activos = round(sum(p["valor"] for p in productos + ser_otros), 2)
     aportado_total = round(sum(p["aportado"] or 0 for p in productos), 2)
     plusvalia_total = round(valor_conocido - aportado_total, 2)
     flujos_globales.append((fecha_extracto, valor_tir))
@@ -908,7 +913,7 @@ def construir(cfg, carpeta, descargar=True):
     realizado_total = round(sum(p.get("realizado") or 0 for p in productos), 2)
 
     for p in productos + ser_otros + ser_pasivos:
-        p["peso"] = r4(p["valor"] / patrimonio) if patrimonio else 0
+        p["peso"] = r4(p["valor"] / bruto_activos) if bruto_activos else 0
 
     # agregados
     def agrupar(campo):
@@ -923,7 +928,7 @@ def construir(cfg, carpeta, descargar=True):
             acc[k] += e["valor"]
             slot.setdefault(k, e.get("slot", 8))
         return [{"nombre": k, "valor": round(v, 2),
-                 "peso": r4(v / patrimonio) if patrimonio else 0,
+                 "peso": r4(v / bruto_activos) if bruto_activos else 0,
                  "color": PALETA.get(slot[k], PALETA[8])}
                 for k, v in sorted(acc.items(), key=lambda x: -x[1])]
 
