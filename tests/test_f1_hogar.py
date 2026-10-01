@@ -127,6 +127,27 @@ def test_apartados_y_titulares_en_datos(hogar, tmp_path):
     assert {a["nombre"] for a in d["apartados"]} == {"Impuestos", "Obras"}
 
 
+def test_variacion_mes_y_ano(tmp_path):
+    # Cabecera tipo Excel: valor ahora, hace 1 mes, hace 12 meses y variación.
+    cartera = {
+        "version": 1, "config": {},
+        "productos": [{"id": "c", "nombre": "Cuenta", "corto": "Cuenta", "tipo": "efectivo",
+                       "fuente": "manual", "slot": 1}],
+        "movimientos": [],
+        "valoraciones": [
+            {"id": "v1", "producto": "c", "fecha": "2024-01-15", "valor": 1000.0},
+            {"id": "v2", "producto": "c", "fecha": "2024-02-15", "valor": 1500.0},
+        ],
+    }
+    d = motor.construir(cartera, str(tmp_path), descargar=False)
+    v = d["total"]["variacion"]["neto"]
+    assert v["ahora"] == 1500.0
+    assert v["hace1Mes"] == 1000.0
+    assert v["varMes"] == 500.0
+    # Con solo un mes de datos no hay referencia de hace 12 meses.
+    assert v["hace12Meses"] is None and v["varAno"] is None
+
+
 def test_pesos_composicion_sobre_bruto_no_neto(hogar, tmp_path):
     # Con deuda, el neto (25000) es menor que el bruto (105000). Los pesos de
     # composición deben calcularse sobre el BRUTO; usar el neto los dispararía

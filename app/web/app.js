@@ -472,6 +472,28 @@
       `<div class="kpi"><div class="e">${k.e}</div>
        <div class="v ${k.cl || ""}">${k.v}</div><div class="n">${k.n}</div></div>`).join("");
 
+    // Cómo ha cambiado: ahora vs. hace 1 y 12 meses (cabecera tipo Excel).
+    const vr = t.variacion, cv = $("#hogarVariacion");
+    if (!vr || !vr.neto) { cv.innerHTML = ""; } else {
+      const val = x => x == null ? "—" : G.fmtEur(x, 0);
+      const delta = (x, invert) => {
+        if (x == null) return "—";
+        const bueno = invert ? x <= 0 : x >= 0;
+        return `<span style="color:${bueno ? "var(--bien)" : "var(--mal)"}">${x >= 0 ? "+" : ""}${G.fmtEur(x, 0)}</span>`;
+      };
+      const d2 = ' style="text-align:right"';
+      const fila = (et, r, invert) => !r ? "" :
+        `<tr><td>${et}</td><td${d2}>${val(r.ahora)}</td><td${d2}>${val(r.hace1Mes)}</td>
+         <td${d2}>${delta(r.varMes, invert)}</td><td${d2}>${val(r.hace12Meses)}</td>
+         <td${d2}>${delta(r.varAno, invert)}</td></tr>`;
+      cv.innerHTML =
+        `<h3 style="font-size:13px;margin:0 0 6px;color:var(--tinta2)">Cómo ha cambiado${info("Compara tu patrimonio de ahora con el de hace un mes y hace un año, según los saldos que has anotado. «—» significa que todavía no hay datos de esa fecha.")}</h3>
+         <table class="leyenda">
+           <thead><tr><th></th><th${d2}>Ahora</th><th${d2}>Hace 1 mes</th><th${d2}>Δ mes</th><th${d2}>Hace 12 meses</th><th${d2}>Δ año</th></tr></thead>
+           <tbody>${fila("Patrimonio neto", vr.neto)}${fila("Patrimonio bruto", vr.bruto)}${fila("Deudas", vr.deuda, true)}</tbody>
+         </table>`;
+    }
+
     const pt = t.porTitular || [];
     const hayTit = pt.length > 1 || (pt.length === 1 && pt[0].nombre !== "Sin asignar");
     const cont = $("#hogarTitular");

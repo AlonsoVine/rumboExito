@@ -1,1 +1,973 @@
-{"generado": "2026-10-01T14:23:06", "titular": "Hogar de prueba", "titulares": ["Mar", "Común"], "apartados": [{"id": "a1", "nombre": "Impuestos", "finalidad": "", "titular": "Común", "importe": 1200.0, "fechaPrevista": ""}], "deudas": [{"id": "hip", "nombre": "Hipoteca", "acreedor": "Banco", "titular": "Común", "capitalPendiente": 80000.0, "capitalInicial": 100000, "tae": 0.03, "cuota": 500, "interesAnual": 2400.0, "fechaInicio": null, "fechaVencimiento": "2040-01-01", "fechaRevision": null, "color": ["#e34948", "#e66767"]}], "flujos": {"meses": ["2023-07", "2023-08", "2023-09", "2023-10", "2023-11", "2023-12", "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06"], "ingresos": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2000.0, 2000.0], "gastos": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 800.0, 750.0], "ahorro": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1200.0, 1250.0], "tasaAhorro": [null, null, null, null, null, null, null, null, null, null, 0.6, 0.625], "esteMes": {"ingresos": 2000.0, "gastos": 750.0, "ahorro": 1250.0, "tasaAhorro": 0.625}, "anio": {"ingresos": 4000.0, "gastos": 1550.0, "ahorro": 2450.0, "tasaAhorro": 0.6125}, "media12": {"ingresos": 333.33, "gastos": 129.17, "ahorro": 204.17, "tasaAhorro": 0.6125}, "porCategoria": [{"categoria": "Nómina", "tipo": "ingreso", "total12": 4000.0, "media": 333.33, "mes": 2000.0, "anio": 4000.0, "presupuesto": null, "diferencia": null}, {"categoria": "Vivienda", "tipo": "gasto", "total12": 1550.0, "media": 129.17, "mes": 750.0, "anio": 1550.0, "presupuesto": 700, "diferencia": 50.0}], "presupuestoMensual": 700}, "asignacion": [{"tipoClave": "inmueble", "tipo": "Inmueble", "valor": 101000.0, "peso": 0.9528, "objetivo": 0.6, "desviacion": 0.3528, "ajuste": -37400.0, "estado": "Sobreponderado", "concentracion": true, "color": ["#2a78d6", "#3987e5"]}, {"tipoClave": "efectivo", "tipo": "Cuenta / efectivo", "valor": 5000.0, "peso": 0.0472, "objetivo": 0.4, "desviacion": -0.3528, "ajuste": 37400.0, "estado": "Infraponderado", "concentracion": false, "color": ["#eb6834", "#d95926"]}], "concentracionEntidad": [{"entidad": "Sin entidad", "valor": 106000.0, "peso": 1.0, "concentracion": true, "color": ["#2a78d6", "#3987e5"]}], "vencimientos": [{"nombre": "Hipoteca", "clase": "Deuda", "tipo": "Deuda / préstamo", "entidad": "Banco", "titular": "Común", "fecha": "2040-01-01", "diasRestantes": 5663, "estado": "OK", "saldo": 80000.0}], "alertas": [{"texto": "Tipos de activo por encima del umbral de concentración.", "n": 1, "nivel": "aviso"}, {"texto": "Entidades por encima del umbral de concentración.", "n": 1, "nivel": "aviso"}, {"texto": "Tipos de activo fuera del objetivo (más allá de la desviación máxima).", "n": 2, "nivel": "aviso"}, {"texto": "Hace 823 días que no anotas nada (saldos, movimientos o gastos).", "n": 1, "nivel": "info"}], "control": {"umbral": 0.4, "desviacionMax": 0.05, "diasAviso": 90, "sumaObjetivos": 1.0}, "monedas": [], "moneda": "EUR", "fechaExtracto": "2024-06-30", "fechas": ["2024-05-31", "2024-06-01", "2024-06-02", "2024-06-03", "2024-06-04", "2024-06-05", "2024-06-06", "2024-06-07", "2024-06-08", "2024-06-09", "2024-06-10", "2024-06-11", "2024-06-12", "2024-06-13", "2024-06-14", "2024-06-15", "2024-06-16", "2024-06-17", "2024-06-18", "2024-06-19", "2024-06-20", "2024-06-21", "2024-06-22", "2024-06-23", "2024-06-24", "2024-06-25", "2024-06-26", "2024-06-27", "2024-06-28", "2024-06-29", "2024-06-30"], "productos": [{"id": "piso", "nombre": "Piso", "corto": "Piso", "tipo": "Inmueble", "fuente": "manual", "titular": "Común", "disponible": false, "slot": 2, "tipoClave": "inmueble", "clase": "Inmuebles", "fuentePrecio": "Valor anotado a mano", "etqPrecio": "Precio", "etqUnidades": "Unidades", "etqVentanas": "El precio", "fuenteTexto": "Valor anotado a mano", "aportaciones": [{"fecha": "2024-05-31", "importe": null, "valor": 100000.0, "tipo": "snapshot"}, {"fecha": "2024-06-30", "importe": null, "valor": 101000.0, "tipo": "snapshot"}], "realizado": 0.0, "origen": "manual", "snapshots": [["2024-05-31", 100000.0, 100000.0], ["2024-06-30", 101000.0, 100000.0]], "slotColor": ["#eb6834", "#d95926"], "serie": [100000.0, 100033.33, 100066.67, 100100.0, 100133.33, 100166.67, 100200.0, 100233.33, 100266.67, 100300.0, 100333.33, 100366.67, 100400.0, 100433.33, 100466.67, 100500.0, 100533.33, 100566.67, 100600.0, 100633.33, 100666.67, 100700.0, 100733.33, 100766.67, 100800.0, 100833.33, 100866.67, 100900.0, 100933.33, 100966.67, 101000.0], "serieAportado": [100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0], "navSerie": null, "valor": 101000.0, "aportado": 100000.0, "desde": "2024-05-31", "flujos": [], "plusvalia": 1000.0, "rentabilidad": 0.01, "tir": null, "peso": 3.8846}], "otrosActivos": [{"id": "cuenta", "nombre": "Cuenta", "corto": "Cuenta", "tipo": "Cuenta / efectivo", "fuente": "manual", "titular": "Mar", "slot": 1, "tipoClave": "efectivo", "clase": "Efectivo", "fuentePrecio": "Valor anotado a mano", "etqPrecio": "Precio", "etqUnidades": "Unidades", "etqVentanas": "El precio", "fuenteTexto": "Valor anotado a mano", "aportaciones": [], "snapshots": [["2024-05-31", 4800.0, null], ["2024-06-30", 5000.0, null]], "serie": [4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 4800.0, 5000.0], "serieAportado": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "valor": 5000.0, "aportado": null, "plusvalia": null, "rentabilidad": null, "tir": null, "desde": "2024-05-31", "slotColor": ["#2a78d6", "#3987e5"], "peso": 0.1923}], "pasivos": [{"id": "hip", "nombre": "Hipoteca", "corto": "Hipoteca", "tipo": "Deuda / préstamo", "fuente": "manual", "entidad": "Banco", "titular": "Común", "tae": 0.03, "cuota": 500, "capitalInicial": 100000, "fechaVencimiento": "2040-01-01", "slot": 8, "tipoClave": "deuda", "clase": "Deudas", "fuentePrecio": "Valor anotado a mano", "etqPrecio": "Precio", "etqUnidades": "Unidades", "etqVentanas": "El precio", "fuenteTexto": "Valor anotado a mano", "aportaciones": [], "snapshots": [["2024-05-31", 80500.0, null], ["2024-06-30", 80000.0, null]], "serie": [-80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80500.0, -80000.0], "serieAportado": [null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null], "valor": -80000.0, "aportado": null, "plusvalia": null, "rentabilidad": null, "tir": null, "desde": "2024-05-31", "slotColor": ["#e34948", "#e66767"], "peso": -3.0769}], "total": {"patrimonio": 26000.0, "patrimonioBruto": 106000.0, "patrimonioNeto": 26000.0, "deudas": 80000.0, "disponible": 5000.0, "noDisponible": 101000.0, "apartadosTotal": 1200.0, "colchon": 3000.0, "dineroLibre": 800.0, "porTitular": [{"nombre": "Común", "valor": 21000.0, "peso": 0.8077, "color": ["#2a78d6", "#3987e5"]}, {"nombre": "Mar", "valor": 5000.0, "peso": 0.1923, "color": ["#eb6834", "#d95926"]}], "cuotaMensualDeudas": 500.0, "interesAnualDeudas": 2400.0, "ratioDeudaActivos": 0.7547, "cuotaSobreIngresos": 0.25, "tasaAhorro": 0.6125, "aportado": 100000.0, "valorConCoste": 101000.0, "plusvalia": 1000.0, "rentabilidad": 0.01, "tir": null, "realizado": 0, "serie": [24300.0, 24333.33, 24366.67, 24400.0, 24433.33, 24466.67, 24500.0, 24533.33, 24566.67, 24600.0, 24633.33, 24666.67, 24700.0, 24733.33, 24766.67, 24800.0, 24833.33, 24866.67, 24900.0, 24933.33, 24966.67, 25000.0, 25033.33, 25066.67, 25100.0, 25133.33, 25166.67, 25200.0, 25233.33, 25266.67, 26000.0], "serieAportado": [100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0, 100000.0], "serieDeuda": [80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80500.0, 80000.0], "porClase": [{"nombre": "Inmuebles", "valor": 101000.0, "peso": 3.8846, "color": ["#eb6834", "#d95926"]}, {"nombre": "Efectivo", "valor": 5000.0, "peso": 0.1923, "color": ["#2a78d6", "#3987e5"]}], "porEntidad": [{"nombre": "Otros", "valor": 106000.0, "peso": 4.0769, "color": ["#eb6834", "#d95926"]}], "porTipo": [{"nombre": "Inmueble", "valor": 101000.0, "peso": 3.8846, "color": ["#eb6834", "#d95926"]}, {"nombre": "Cuenta / efectivo", "valor": 5000.0, "peso": 0.1923, "color": ["#2a78d6", "#3987e5"]}], "hitos": [], "racha": 0, "ritmoMensual": 0.0, "numAportaciones": 0, "diasInvertido": 30, "caidaMaxima": 0.0, "caidaMaximaFecha": null}, "aportacionesMensuales": {"meses": [], "porProducto": {"piso": []}, "total": []}, "objetivo": null, "comisiones": {"lineas": [], "anual": 0, "base": 0.0, "terPonderado": null, "compraventaPagada": 0.0}, "rentabilidadAnual": {"anos": ["2024"], "cartera": [0.0], "parcial": [true], "porProducto": {}, "desde": {}}, "resumenMensual": [{"mes": "2024-05", "inicio": 0.0, "fin": 24300.0, "aportado": 0.0, "nuevo": -75700.0, "mercado": 100000.0, "rentabilidad": 0.0, "porProducto": {"piso": {"inicio": 0.0, "fin": 100000.0, "aportado": 0.0, "nuevo": 0.0, "mercado": 100000.0}, "cuenta": {"inicio": 0.0, "fin": 4800.0, "aportado": 0.0, "nuevo": 4800.0, "mercado": 0.0}, "hip": {"inicio": 0.0, "fin": -80500.0, "aportado": 0.0, "nuevo": -80500.0, "mercado": 0.0}}}, {"mes": "2024-06", "inicio": 24300.0, "fin": 26000.0, "aportado": 0.0, "nuevo": 0.0, "mercado": 1700.0, "rentabilidad": 0.0, "porProducto": {"piso": {"inicio": 100000.0, "fin": 101000.0, "aportado": 0.0, "nuevo": 0.0, "mercado": 1000.0}, "cuenta": {"inicio": 4800.0, "fin": 5000.0, "aportado": 0.0, "nuevo": 0.0, "mercado": 200.0}, "hip": {"inicio": -80500.0, "fin": -80000.0, "aportado": 0.0, "nuevo": 0.0, "mercado": 500.0}}}], "comparador": [], "comparacion": null, "indiceCartera": [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0], "vivo": null, "avisos": [], "modo": "propio"}
+{
+ "generado": "2026-10-01T14:23:06",
+ "titular": "Hogar de prueba",
+ "titulares": [
+  "Mar",
+  "Común"
+ ],
+ "apartados": [
+  {
+   "id": "a1",
+   "nombre": "Impuestos",
+   "finalidad": "",
+   "titular": "Común",
+   "importe": 1200.0,
+   "fechaPrevista": ""
+  }
+ ],
+ "deudas": [
+  {
+   "id": "hip",
+   "nombre": "Hipoteca",
+   "acreedor": "Banco",
+   "titular": "Común",
+   "capitalPendiente": 80000.0,
+   "capitalInicial": 100000,
+   "tae": 0.03,
+   "cuota": 500,
+   "interesAnual": 2400.0,
+   "fechaInicio": null,
+   "fechaVencimiento": "2040-01-01",
+   "fechaRevision": null,
+   "color": [
+    "#e34948",
+    "#e66767"
+   ]
+  }
+ ],
+ "flujos": {
+  "meses": [
+   "2023-07",
+   "2023-08",
+   "2023-09",
+   "2023-10",
+   "2023-11",
+   "2023-12",
+   "2024-01",
+   "2024-02",
+   "2024-03",
+   "2024-04",
+   "2024-05",
+   "2024-06"
+  ],
+  "ingresos": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   2000.0,
+   2000.0
+  ],
+  "gastos": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   800.0,
+   750.0
+  ],
+  "ahorro": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   1200.0,
+   1250.0
+  ],
+  "tasaAhorro": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   0.6,
+   0.625
+  ],
+  "esteMes": {
+   "ingresos": 2000.0,
+   "gastos": 750.0,
+   "ahorro": 1250.0,
+   "tasaAhorro": 0.625
+  },
+  "anio": {
+   "ingresos": 4000.0,
+   "gastos": 1550.0,
+   "ahorro": 2450.0,
+   "tasaAhorro": 0.6125
+  },
+  "media12": {
+   "ingresos": 333.33,
+   "gastos": 129.17,
+   "ahorro": 204.17,
+   "tasaAhorro": 0.6125
+  },
+  "porCategoria": [
+   {
+    "categoria": "Nómina",
+    "tipo": "ingreso",
+    "total12": 4000.0,
+    "media": 333.33,
+    "mes": 2000.0,
+    "anio": 4000.0,
+    "presupuesto": null,
+    "diferencia": null
+   },
+   {
+    "categoria": "Vivienda",
+    "tipo": "gasto",
+    "total12": 1550.0,
+    "media": 129.17,
+    "mes": 750.0,
+    "anio": 1550.0,
+    "presupuesto": 700,
+    "diferencia": 50.0
+   }
+  ],
+  "presupuestoMensual": 700
+ },
+ "asignacion": [
+  {
+   "tipoClave": "inmueble",
+   "tipo": "Inmueble",
+   "valor": 101000.0,
+   "peso": 0.9528,
+   "objetivo": 0.6,
+   "desviacion": 0.3528,
+   "ajuste": -37400.0,
+   "estado": "Sobreponderado",
+   "concentracion": true,
+   "color": [
+    "#2a78d6",
+    "#3987e5"
+   ]
+  },
+  {
+   "tipoClave": "efectivo",
+   "tipo": "Cuenta / efectivo",
+   "valor": 5000.0,
+   "peso": 0.0472,
+   "objetivo": 0.4,
+   "desviacion": -0.3528,
+   "ajuste": 37400.0,
+   "estado": "Infraponderado",
+   "concentracion": false,
+   "color": [
+    "#eb6834",
+    "#d95926"
+   ]
+  }
+ ],
+ "concentracionEntidad": [
+  {
+   "entidad": "Sin entidad",
+   "valor": 106000.0,
+   "peso": 1.0,
+   "concentracion": true,
+   "color": [
+    "#2a78d6",
+    "#3987e5"
+   ]
+  }
+ ],
+ "vencimientos": [
+  {
+   "nombre": "Hipoteca",
+   "clase": "Deuda",
+   "tipo": "Deuda / préstamo",
+   "entidad": "Banco",
+   "titular": "Común",
+   "fecha": "2040-01-01",
+   "diasRestantes": 5663,
+   "estado": "OK",
+   "saldo": 80000.0
+  }
+ ],
+ "alertas": [
+  {
+   "texto": "Tipos de activo por encima del umbral de concentración.",
+   "n": 1,
+   "nivel": "aviso"
+  },
+  {
+   "texto": "Entidades por encima del umbral de concentración.",
+   "n": 1,
+   "nivel": "aviso"
+  },
+  {
+   "texto": "Tipos de activo fuera del objetivo (más allá de la desviación máxima).",
+   "n": 2,
+   "nivel": "aviso"
+  },
+  {
+   "texto": "Hace 823 días que no anotas nada (saldos, movimientos o gastos).",
+   "n": 1,
+   "nivel": "info"
+  }
+ ],
+ "control": {
+  "umbral": 0.4,
+  "desviacionMax": 0.05,
+  "diasAviso": 90,
+  "sumaObjetivos": 1.0
+ },
+ "monedas": [],
+ "moneda": "EUR",
+ "fechaExtracto": "2024-06-30",
+ "fechas": [
+  "2024-05-31",
+  "2024-06-01",
+  "2024-06-02",
+  "2024-06-03",
+  "2024-06-04",
+  "2024-06-05",
+  "2024-06-06",
+  "2024-06-07",
+  "2024-06-08",
+  "2024-06-09",
+  "2024-06-10",
+  "2024-06-11",
+  "2024-06-12",
+  "2024-06-13",
+  "2024-06-14",
+  "2024-06-15",
+  "2024-06-16",
+  "2024-06-17",
+  "2024-06-18",
+  "2024-06-19",
+  "2024-06-20",
+  "2024-06-21",
+  "2024-06-22",
+  "2024-06-23",
+  "2024-06-24",
+  "2024-06-25",
+  "2024-06-26",
+  "2024-06-27",
+  "2024-06-28",
+  "2024-06-29",
+  "2024-06-30"
+ ],
+ "productos": [
+  {
+   "id": "piso",
+   "nombre": "Piso",
+   "corto": "Piso",
+   "tipo": "Inmueble",
+   "fuente": "manual",
+   "titular": "Común",
+   "disponible": false,
+   "slot": 2,
+   "tipoClave": "inmueble",
+   "clase": "Inmuebles",
+   "fuentePrecio": "Valor anotado a mano",
+   "etqPrecio": "Precio",
+   "etqUnidades": "Unidades",
+   "etqVentanas": "El precio",
+   "fuenteTexto": "Valor anotado a mano",
+   "aportaciones": [
+    {
+     "fecha": "2024-05-31",
+     "importe": null,
+     "valor": 100000.0,
+     "tipo": "snapshot"
+    },
+    {
+     "fecha": "2024-06-30",
+     "importe": null,
+     "valor": 101000.0,
+     "tipo": "snapshot"
+    }
+   ],
+   "realizado": 0.0,
+   "origen": "manual",
+   "snapshots": [
+    [
+     "2024-05-31",
+     100000.0,
+     100000.0
+    ],
+    [
+     "2024-06-30",
+     101000.0,
+     100000.0
+    ]
+   ],
+   "slotColor": [
+    "#eb6834",
+    "#d95926"
+   ],
+   "serie": [
+    100000.0,
+    100033.33,
+    100066.67,
+    100100.0,
+    100133.33,
+    100166.67,
+    100200.0,
+    100233.33,
+    100266.67,
+    100300.0,
+    100333.33,
+    100366.67,
+    100400.0,
+    100433.33,
+    100466.67,
+    100500.0,
+    100533.33,
+    100566.67,
+    100600.0,
+    100633.33,
+    100666.67,
+    100700.0,
+    100733.33,
+    100766.67,
+    100800.0,
+    100833.33,
+    100866.67,
+    100900.0,
+    100933.33,
+    100966.67,
+    101000.0
+   ],
+   "serieAportado": [
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0,
+    100000.0
+   ],
+   "navSerie": null,
+   "valor": 101000.0,
+   "aportado": 100000.0,
+   "desde": "2024-05-31",
+   "flujos": [],
+   "plusvalia": 1000.0,
+   "rentabilidad": 0.01,
+   "tir": null,
+   "peso": 3.8846
+  }
+ ],
+ "otrosActivos": [
+  {
+   "id": "cuenta",
+   "nombre": "Cuenta",
+   "corto": "Cuenta",
+   "tipo": "Cuenta / efectivo",
+   "fuente": "manual",
+   "titular": "Mar",
+   "slot": 1,
+   "tipoClave": "efectivo",
+   "clase": "Efectivo",
+   "fuentePrecio": "Valor anotado a mano",
+   "etqPrecio": "Precio",
+   "etqUnidades": "Unidades",
+   "etqVentanas": "El precio",
+   "fuenteTexto": "Valor anotado a mano",
+   "aportaciones": [],
+   "snapshots": [
+    [
+     "2024-05-31",
+     4800.0,
+     null
+    ],
+    [
+     "2024-06-30",
+     5000.0,
+     null
+    ]
+   ],
+   "serie": [
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    4800.0,
+    5000.0
+   ],
+   "serieAportado": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "valor": 5000.0,
+   "aportado": null,
+   "plusvalia": null,
+   "rentabilidad": null,
+   "tir": null,
+   "desde": "2024-05-31",
+   "slotColor": [
+    "#2a78d6",
+    "#3987e5"
+   ],
+   "peso": 0.1923
+  }
+ ],
+ "pasivos": [
+  {
+   "id": "hip",
+   "nombre": "Hipoteca",
+   "corto": "Hipoteca",
+   "tipo": "Deuda / préstamo",
+   "fuente": "manual",
+   "entidad": "Banco",
+   "titular": "Común",
+   "tae": 0.03,
+   "cuota": 500,
+   "capitalInicial": 100000,
+   "fechaVencimiento": "2040-01-01",
+   "slot": 8,
+   "tipoClave": "deuda",
+   "clase": "Deudas",
+   "fuentePrecio": "Valor anotado a mano",
+   "etqPrecio": "Precio",
+   "etqUnidades": "Unidades",
+   "etqVentanas": "El precio",
+   "fuenteTexto": "Valor anotado a mano",
+   "aportaciones": [],
+   "snapshots": [
+    [
+     "2024-05-31",
+     80500.0,
+     null
+    ],
+    [
+     "2024-06-30",
+     80000.0,
+     null
+    ]
+   ],
+   "serie": [
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80500.0,
+    -80000.0
+   ],
+   "serieAportado": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "valor": -80000.0,
+   "aportado": null,
+   "plusvalia": null,
+   "rentabilidad": null,
+   "tir": null,
+   "desde": "2024-05-31",
+   "slotColor": [
+    "#e34948",
+    "#e66767"
+   ],
+   "peso": -3.0769
+  }
+ ],
+ "total": {
+  "patrimonio": 26000.0,
+  "patrimonioBruto": 106000.0,
+  "patrimonioNeto": 26000.0,
+  "deudas": 80000.0,
+  "disponible": 5000.0,
+  "noDisponible": 101000.0,
+  "apartadosTotal": 1200.0,
+  "colchon": 3000.0,
+  "dineroLibre": 800.0,
+  "porTitular": [
+   {
+    "nombre": "Común",
+    "valor": 21000.0,
+    "peso": 0.8077,
+    "color": [
+     "#2a78d6",
+     "#3987e5"
+    ]
+   },
+   {
+    "nombre": "Mar",
+    "valor": 5000.0,
+    "peso": 0.1923,
+    "color": [
+     "#eb6834",
+     "#d95926"
+    ]
+   }
+  ],
+  "cuotaMensualDeudas": 500.0,
+  "interesAnualDeudas": 2400.0,
+  "ratioDeudaActivos": 0.7547,
+  "cuotaSobreIngresos": 0.25,
+  "tasaAhorro": 0.6125,
+  "aportado": 100000.0,
+  "valorConCoste": 101000.0,
+  "plusvalia": 1000.0,
+  "rentabilidad": 0.01,
+  "tir": null,
+  "realizado": 0,
+  "serie": [
+   24300.0,
+   24333.33,
+   24366.67,
+   24400.0,
+   24433.33,
+   24466.67,
+   24500.0,
+   24533.33,
+   24566.67,
+   24600.0,
+   24633.33,
+   24666.67,
+   24700.0,
+   24733.33,
+   24766.67,
+   24800.0,
+   24833.33,
+   24866.67,
+   24900.0,
+   24933.33,
+   24966.67,
+   25000.0,
+   25033.33,
+   25066.67,
+   25100.0,
+   25133.33,
+   25166.67,
+   25200.0,
+   25233.33,
+   25266.67,
+   26000.0
+  ],
+  "serieAportado": [
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0,
+   100000.0
+  ],
+  "serieDeuda": [
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80500.0,
+   80000.0
+  ],
+  "porClase": [
+   {
+    "nombre": "Inmuebles",
+    "valor": 101000.0,
+    "peso": 3.8846,
+    "color": [
+     "#eb6834",
+     "#d95926"
+    ]
+   },
+   {
+    "nombre": "Efectivo",
+    "valor": 5000.0,
+    "peso": 0.1923,
+    "color": [
+     "#2a78d6",
+     "#3987e5"
+    ]
+   }
+  ],
+  "porEntidad": [
+   {
+    "nombre": "Otros",
+    "valor": 106000.0,
+    "peso": 4.0769,
+    "color": [
+     "#eb6834",
+     "#d95926"
+    ]
+   }
+  ],
+  "porTipo": [
+   {
+    "nombre": "Inmueble",
+    "valor": 101000.0,
+    "peso": 3.8846,
+    "color": [
+     "#eb6834",
+     "#d95926"
+    ]
+   },
+   {
+    "nombre": "Cuenta / efectivo",
+    "valor": 5000.0,
+    "peso": 0.1923,
+    "color": [
+     "#2a78d6",
+     "#3987e5"
+    ]
+   }
+  ],
+  "hitos": [],
+  "racha": 0,
+  "ritmoMensual": 0.0,
+  "numAportaciones": 0,
+  "diasInvertido": 30,
+  "caidaMaxima": 0.0,
+  "caidaMaximaFecha": null,
+  "variacion": {
+   "neto": {
+    "ahora": 26000.0,
+    "hace1Mes": 12000.0,
+    "hace12Meses": 9000.0,
+    "varMes": 500.0,
+    "varAno": 3000.0
+   },
+   "bruto": {
+    "ahora": 106000.0,
+    "hace1Mes": 14000.0,
+    "hace12Meses": 11000.0,
+    "varMes": 600.0,
+    "varAno": 3500.0
+   },
+   "deuda": {
+    "ahora": 80000.0,
+    "hace1Mes": 2200.0,
+    "hace12Meses": 2500.0,
+    "varMes": -100.0,
+    "varAno": -400.0
+   }
+  }
+ },
+ "aportacionesMensuales": {
+  "meses": [],
+  "porProducto": {
+   "piso": []
+  },
+  "total": []
+ },
+ "objetivo": null,
+ "comisiones": {
+  "lineas": [],
+  "anual": 0,
+  "base": 0.0,
+  "terPonderado": null,
+  "compraventaPagada": 0.0
+ },
+ "rentabilidadAnual": {
+  "anos": [
+   "2024"
+  ],
+  "cartera": [
+   0.0
+  ],
+  "parcial": [
+   true
+  ],
+  "porProducto": {},
+  "desde": {}
+ },
+ "resumenMensual": [
+  {
+   "mes": "2024-05",
+   "inicio": 0.0,
+   "fin": 24300.0,
+   "aportado": 0.0,
+   "nuevo": -75700.0,
+   "mercado": 100000.0,
+   "rentabilidad": 0.0,
+   "porProducto": {
+    "piso": {
+     "inicio": 0.0,
+     "fin": 100000.0,
+     "aportado": 0.0,
+     "nuevo": 0.0,
+     "mercado": 100000.0
+    },
+    "cuenta": {
+     "inicio": 0.0,
+     "fin": 4800.0,
+     "aportado": 0.0,
+     "nuevo": 4800.0,
+     "mercado": 0.0
+    },
+    "hip": {
+     "inicio": 0.0,
+     "fin": -80500.0,
+     "aportado": 0.0,
+     "nuevo": -80500.0,
+     "mercado": 0.0
+    }
+   }
+  },
+  {
+   "mes": "2024-06",
+   "inicio": 24300.0,
+   "fin": 26000.0,
+   "aportado": 0.0,
+   "nuevo": 0.0,
+   "mercado": 1700.0,
+   "rentabilidad": 0.0,
+   "porProducto": {
+    "piso": {
+     "inicio": 100000.0,
+     "fin": 101000.0,
+     "aportado": 0.0,
+     "nuevo": 0.0,
+     "mercado": 1000.0
+    },
+    "cuenta": {
+     "inicio": 4800.0,
+     "fin": 5000.0,
+     "aportado": 0.0,
+     "nuevo": 0.0,
+     "mercado": 200.0
+    },
+    "hip": {
+     "inicio": -80500.0,
+     "fin": -80000.0,
+     "aportado": 0.0,
+     "nuevo": 0.0,
+     "mercado": 500.0
+    }
+   }
+  }
+ ],
+ "comparador": [],
+ "comparacion": null,
+ "indiceCartera": [
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0,
+  100.0
+ ],
+ "vivo": null,
+ "avisos": [],
+ "modo": "propio"
+}

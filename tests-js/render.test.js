@@ -46,6 +46,15 @@ test("el panel se dibuja sin errores y con cifras", () => {
   assert.ok(hero && hero !== "—", "el patrimonio del hero debería tener valor, es: " + hero);
 });
 
+test("la tabla de variación (ahora / 1 mes / 12 meses) se dibuja", () => {
+  const { window, errores } = montaPanel();
+  const cont = window.document.getElementById("hogarVariacion");
+  assert.ok(cont, "debería existir el contenedor de variación");
+  assert.ok(/Cómo ha cambiado/.test(cont.innerHTML), "debería mostrar el título de variación");
+  assert.ok(cont.querySelector("table"), "debería dibujar la tabla de variación");
+  assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
+});
+
 test("el botón de imprimir existe y llama a window.print", () => {
   const { window, errores } = montaPanel();
   let llamado = 0;

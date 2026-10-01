@@ -10,6 +10,7 @@ panel: series diarias, aportado, plusvalias, TIR, rentabilidad por ano...
 Lo llama el servidor (servidor.py); no hace falta ejecutarlo a mano.
 """
 
+import calendar
 import datetime as dt
 import json
 import math
@@ -1539,6 +1540,43 @@ def construir(cfg, carpeta, descargar=True):
     control = {"umbral": r4(umbral), "desviacionMax": r4(desv_max), "diasAviso": dias_aviso,
                "sumaObjetivos": r4(suma_obj)}
 
+    # --- variación respecto a hace 1 y 12 meses (como la cabecera del Excel) ---
+    def _menos_meses(fecha, meses):
+        m = fecha.month - 1 - meses
+        anyo = fecha.year + m // 12
+        mes = m % 12 + 1
+        dia = min(fecha.day, calendar.monthrange(anyo, mes)[1])
+        return dt.date(anyo, mes, dia)
+
+    def _valor_en(serie, objetivo):
+        val = None
+        for i, f in enumerate(eje_iso):
+            if d(f) <= objetivo:
+                if serie[i] is not None:
+                    val = serie[i]
+            else:
+                break
+        return val
+
+    def _variacion(serie):
+        if not serie:
+            return None
+        ahora = serie[-1]
+        h1 = _valor_en(serie, _menos_meses(fecha_extracto, 1))
+        h12 = _valor_en(serie, _menos_meses(fecha_extracto, 12))
+        return {
+            "ahora": r2(ahora),
+            "hace1Mes": r2(h1) if h1 is not None else None,
+            "hace12Meses": r2(h12) if h12 is not None else None,
+            "varMes": r2(ahora - h1) if h1 is not None else None,
+            "varAno": r2(ahora - h12) if h12 is not None else None,
+        }
+
+    serie_bruto = [round(serie_total[i] + (serie_deuda[i] if serie_deuda else 0), 2)
+                   for i in range(n)]
+    variacion = {"neto": _variacion(serie_total), "bruto": _variacion(serie_bruto),
+                 "deuda": _variacion(serie_deuda) if serie_deuda else None}
+
     datos = {
         "generado": dt.datetime.now().replace(microsecond=0).isoformat(),
         "titular": cfg.get("titular", "Mi patrimonio"),
@@ -1562,6 +1600,7 @@ def construir(cfg, carpeta, descargar=True):
             "patrimonio": patrimonio,
             "patrimonioBruto": bruto,
             "patrimonioNeto": neto,
+            "variacion": variacion,
             "deudas": deudas_total,
             "disponible": disponible,
             "noDisponible": no_disponible,
