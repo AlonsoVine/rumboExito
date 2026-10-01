@@ -47,6 +47,7 @@
   const estado = {
     tab: "panel",
     pv: "patrimonio",
+    titular: "todos",
     rango: "todo",
     vista: "apilado",
     dist: "clase",
@@ -140,8 +141,10 @@
   }
 
   const TODOS = () => D.productos.concat(D.otrosActivos || [], D.pasivos || []);
-  const visibles = () => TODOS().filter(p => !estado.ocultos.has(p.id));
-  const filtrando = () => estado.ocultos.size > 0;
+  const filtroTit = () => estado.titular && estado.titular !== "todos";
+  const visibles = () => TODOS().filter(p =>
+    !estado.ocultos.has(p.id) && (!filtroTit() || (p.titular || "Sin asignar") === estado.titular));
+  const filtrando = () => estado.ocultos.size > 0 || filtroTit();
   const buscaProd = id => TODOS().find(p => p.id === id);
 
   /* ---------------------------------------------- precio en vivo */
@@ -337,7 +340,7 @@
     const esLargo = cortos.length > 0 && cortos.length === estado.ocultos.size &&
       cortos.every(id => estado.ocultos.has(id));
     [
-      { id: "todo", et: "Ver todo", act: !filtrando(), fn: () => estado.ocultos.clear() },
+      { id: "todo", et: "Ver todo", act: !filtrando(), fn: () => { estado.ocultos.clear(); estado.titular = "todos"; } },
       { id: "largo", et: "Solo largo plazo", act: esLargo, fn: () => { estado.ocultos = new Set(cortos); } },
     ].forEach(pr => {
       if (pr.id === "largo" && !cortos.length) return;
@@ -384,7 +387,7 @@
     }
     $("#heroSub").innerHTML = partes.join('<span style="color:var(--tinta3)">·</span>');
     const reset = $("#btnReset");
-    if (reset) reset.onclick = () => { estado.ocultos.clear(); pintaPatrimonio(); };
+    if (reset) reset.onclick = () => { estado.ocultos.clear(); estado.titular = "todos"; pintaPatrimonio(); };
 
     if (filtro) { $("#progEnv").hidden = true; return; }
 
@@ -551,6 +554,21 @@
            ${hayPres ? `<p class="subt" style="margin-top:8px">«Margen» = presupuesto − gasto del mes: en verde te sobra, en rojo te has pasado. Presupuesto mensual total de gastos: ${G.fmtEur(f.presupuestoMensual || 0, 0)}.</p>` : '<p class="subt" style="margin-top:8px">Pon un presupuesto por categoría en «Mis datos → Configuración» para ver si te pasas.</p>'}`
         : "";
     }
+  }
+
+  /* Selector para ver el Panel de un solo titular (o de todos). */
+  function pintaFiltroTitular() {
+    const cont = $("#filtroTitular");
+    if (!cont) return;
+    const tits = (D.titulares && D.titulares.length)
+      ? D.titulares
+      : [...new Set(TODOS().map(p => p.titular).filter(Boolean))];
+    if (!tits.length) { cont.innerHTML = ""; return; }
+    if (!["todos", ...tits].includes(estado.titular)) estado.titular = "todos";
+    cont.innerHTML = `<label for="selTitular">Ver de:</label>
+      <select id="selTitular"><option value="todos">Todos los titulares</option>
+      ${tits.map(t => `<option value="${t}"${t === estado.titular ? " selected" : ""}>${t}</option>`).join("")}</select>`;
+    $("#selTitular").onchange = e => { estado.titular = e.target.value; pintaPatrimonio(); };
   }
 
   /* Evolución del hogar: patrimonio neto frente a deudas en el tiempo. */
@@ -860,6 +878,7 @@
     pintaHero(mVis, mTodo);
     pintaKPIs(mVis);
     pintaAlertas();
+    pintaFiltroTitular();
     pintaHogar();
     pintaDeudas();
     pintaFlujos();

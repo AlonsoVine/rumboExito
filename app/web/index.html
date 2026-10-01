@@ -114,6 +114,10 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 .selCartera{font:inherit;font-size:14px;font-weight:600;color:var(--tinta);background:var(--sup);
   border:1px solid var(--borde);border-radius:8px;padding:5px 8px;cursor:pointer;max-width:220px}
 .selCartera:hover{border-color:var(--tinta3)}
+.filtroTitular{margin:12px 0 0}
+.filtroTitular:empty{display:none}
+.filtroTitular label{font-size:13px;color:var(--tinta2);margin-right:8px}
+.filtroTitular select{font:inherit;font-size:14px;font-weight:600;padding:6px 10px;border:1px solid var(--borde);border-radius:8px;background:var(--sup);color:var(--tinta);cursor:pointer}
 .bannerAlertas{margin:14px 0 0;display:flex;flex-direction:column;gap:6px}
 .bannerAlertas:empty{display:none}
 .avisoLinea{background:var(--sup);border:1px solid var(--borde);border-radius:9px;padding:9px 12px;font-size:13px}
@@ -684,6 +688,7 @@ body.video .tarjetaCanal{display:none}
     <button data-pv="deudas" aria-selected="false">Deudas y vencimientos</button>
   </nav>
 
+  <div id="filtroTitular" class="filtroTitular"></div>
   <div id="bannerAlertas" class="bannerAlertas"></div>
 
   <!-- ===== PATRIMONIO ===== -->
