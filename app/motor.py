@@ -499,11 +499,16 @@ def aplicar_movimientos(p, movs):
                 lotes[0] = [lu - toma, lc - parte, ref]
                 if lotes[0][0] <= 1e-9:
                     lotes.pop(0)
+            vendidas_u = u - quedan   # unidades realmente vendidas (puede ser < u)
+            # Si se venden más unidades de las que hay, se cobra solo la parte
+            # proporcional a lo vendido; usar el importe completo contra un coste
+            # parcial inflaría la plusvalía realizada y la TIR.
+            cobrado = imp * vendidas_u / u if u else imp
             if quedan > 1e-6:
                 aviso(f"{p['corto']}: el {f} vendes más unidades de las que tienes. Revisa sus movimientos.")
-            realizado += imp - coste
-            eventos.append((f, -(u - quedan), -coste))
-            flujos.append((f, imp))
+            realizado += cobrado - coste
+            eventos.append((f, -vendidas_u, -coste))
+            flujos.append((f, cobrado))
         elif t == "dividendo":
             realizado += imp
             flujos.append((f, imp))

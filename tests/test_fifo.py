@@ -46,3 +46,19 @@ def test_compra_marca_flujo_negativo():
     r = aplicar_movimientos(p, [mov("2020-01-01", "compra", 5, 500)])
     assert r["flujos"] == [("2020-01-01", -500)]
     assert r["eventos"] == [("2020-01-01", 5, 500)]
+
+
+def test_fifo_sobreventa_prorratea_el_cobro():
+    # Vender más unidades de las que hay: el cobro se prorratea a lo realmente
+    # vendido; usar el importe completo inflaría realizado y la TIR.
+    p = {"id": "x", "corto": "X"}
+    movs = [
+        mov("2020-01-01", "compra", 10, 1000),   # 100/u
+        mov("2021-01-01", "venta", 25, 2500),    # intenta vender 25, solo hay 10
+    ]
+    r = aplicar_movimientos(p, movs)
+    # Solo se venden 10 uds: cobrado = 2500 * 10/25 = 1000; coste 1000 -> realizado 0.
+    assert r["realizado"] == 0.0
+    assert ("2021-01-01", 1000.0) in r["flujos"]
+    # Las unidades netas quedan en 0 (no en -15).
+    assert round(sum(du for _, du, _ in r["eventos"]), 6) == 0.0
