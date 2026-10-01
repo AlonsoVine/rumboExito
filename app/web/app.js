@@ -922,6 +922,55 @@
       `${f.length} movimientos · ${G.fmtEur(f.reduce((a, r) => a + r.importe, 0), 0)}`;
   }
 
+  /* Informe fiscal (IRPF): ganancias/pérdidas por FIFO y dividendos, por año. */
+  function pintaFiscal() {
+    const fisc = D.fiscal || {};
+    const anios = Object.keys(fisc).sort().reverse();
+    const cont = $("#fiscalContenido"), selC = $("#selFiscalCont");
+    if (!anios.length) {
+      selC.innerHTML = "";
+      cont.innerHTML = '<p class="vacio">Todavía no hay ventas ni dividendos anotados. Cuando los tengas, aquí verás el resumen por año, listo para imprimir.</p>';
+      return;
+    }
+    if (!estado.anioFiscal || !fisc[estado.anioFiscal]) estado.anioFiscal = anios[0];
+    selC.innerHTML = `<label for="selAnioFisc" style="font-size:13px;color:var(--tinta2)">Año fiscal: </label>
+      <select id="selAnioFisc">${anios.map(a => `<option value="${esc(a)}"${a === estado.anioFiscal ? " selected" : ""}>${esc(a)}</option>`).join("")}</select>`;
+    $("#selAnioFisc").onchange = e => { estado.anioFiscal = e.target.value; pintaFiscal(); };
+
+    const dat = fisc[estado.anioFiscal], t = dat.totales;
+    const eur = v => G.fmtEur(v);
+    const signo = v => `<span style="color:${v >= 0 ? "var(--bien)" : "var(--mal)"}">${v >= 0 ? "+" : ""}${eur(v)}</span>`;
+    const dr = ' style="text-align:right"';
+    $("#fiscalTitulo").textContent = "Informe fiscal " + estado.anioFiscal;
+    $("#fiscalSub").textContent = (D.titular || "Patrimonio") + " · ejercicio " + estado.anioFiscal;
+
+    const resumen = `<div class="kpis" style="margin-bottom:16px">
+      <div class="kpi"><div class="e">Ganancias</div><div class="v">${eur(t.ganancias)}</div><div class="n">ventas con beneficio</div></div>
+      <div class="kpi"><div class="e">Pérdidas</div><div class="v">${eur(t.perdidas)}</div><div class="n">ventas con pérdida</div></div>
+      <div class="kpi"><div class="e">Resultado neto</div><div class="v ${t.gananciaNeta >= 0 ? "pos" : "neg"}">${eur(t.gananciaNeta)}</div><div class="n">ganancia o pérdida patrimonial</div></div>
+      <div class="kpi"><div class="e">Dividendos y cupones</div><div class="v">${eur(t.rendimientos)}</div><div class="n">rendimiento del capital</div></div>
+    </div>`;
+
+    const hTit = txt => `<h3 style="font-size:14px;margin:18px 0 8px">${txt}</h3>`;
+    const ventas = dat.ventas.length ? hTit("Ganancias y pérdidas patrimoniales (ventas)") +
+      `<div class="tablaEnv"><table class="dt"><thead><tr>
+        <th>Producto</th><th>Fecha de adquisición</th><th>Fecha de venta</th><th${dr}>Unidades</th>
+        <th${dr}>Valor de adquisición</th><th${dr}>Valor de transmisión</th><th${dr}>Ganancia/Pérdida</th></tr></thead>
+      <tbody>${dat.ventas.map(v => `<tr>
+        <td>${esc(v.producto)}</td><td>${esc(v.fechaAdquisicion)}</td><td>${G.fmtFecha(v.fecha)}</td>
+        <td${dr}>${v.unidades}</td><td${dr}>${eur(v.adquisicion)}</td><td${dr}>${eur(v.transmision)}</td><td${dr}>${signo(v.ganancia)}</td></tr>`).join("")}</tbody>
+      <tfoot><tr><td colspan="4">Totales</td><td${dr}>${eur(t.adquisicion)}</td><td${dr}>${eur(t.transmision)}</td><td${dr}>${signo(t.gananciaNeta)}</td></tr></tfoot>
+      </table></div>` : `<p class="vacio">No hay ventas en ${esc(estado.anioFiscal)}.</p>`;
+
+    const rend = dat.rendimientos.length ? hTit("Rendimientos del capital mobiliario (dividendos y cupones)") +
+      `<div class="tablaEnv"><table class="dt"><thead><tr><th>Producto</th><th>Fecha</th><th${dr}>Importe</th></tr></thead>
+      <tbody>${dat.rendimientos.map(r => `<tr><td>${esc(r.producto)}</td><td>${G.fmtFecha(r.fecha)}</td><td${dr}>${eur(r.importe)}</td></tr>`).join("")}</tbody>
+      <tfoot><tr><td colspan="2">Total</td><td${dr}>${eur(t.rendimientos)}</td></tr></tfoot></table></div>`
+      : `<p class="vacio">No hay dividendos ni cupones en ${esc(estado.anioFiscal)}.</p>`;
+
+    cont.innerHTML = resumen + ventas + rend;
+  }
+
   function pintaPatrimonio() {
     const mTodo = metricas(TODOS());
     const mVis = filtrando() ? metricas(visibles()) : mTodo;
@@ -944,6 +993,7 @@
     else if (pv === "distribucion") pintaDistribucion();
     else if (pv === "rentabilidad") { pintaProyeccion(); pintaTabla(); pintaRendimiento(); }
     else if (pv === "ingresos") pintaFlujosGraf();
+    else if (pv === "fiscal") pintaFiscal();
     else if (pv === "producto") pintaFondos();
     // Segmentos: sus callbacks redibujan la vista activa.
     pintaSegm($("#segRango"), RANGOS, estado.rango, id => { estado.rango = id; pintaPatrimonio(); });

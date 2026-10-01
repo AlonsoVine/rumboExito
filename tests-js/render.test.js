@@ -46,6 +46,16 @@ test("el panel se dibuja sin errores y con cifras", () => {
   assert.ok(hero && hero !== "—", "el patrimonio del hero debería tener valor, es: " + hero);
 });
 
+test("el informe fiscal se dibuja con ventas y rendimientos", () => {
+  const { window, errores } = montaPanel();
+  window.document.querySelector('#subtabs button[data-pv="fiscal"]').click();
+  const cont = window.document.getElementById("fiscalContenido");
+  assert.ok(/patrimoniales/i.test(cont.innerHTML), "debería listar ganancias/pérdidas");
+  assert.ok(/capital mobiliario/i.test(cont.innerHTML), "debería listar rendimientos");
+  assert.ok(window.document.getElementById("selAnioFisc"), "debería haber selector de año");
+  assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
+});
+
 test("un nombre con HTML malicioso se escapa y no se ejecuta (XSS)", () => {
   // Metemos un payload en el nombre de un producto y en el titular. El panel
   // debe mostrarlo como TEXTO, nunca crear un <img onerror> que ejecute código.

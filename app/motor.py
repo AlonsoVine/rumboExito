@@ -521,6 +521,72 @@ def aplicar_movimientos(p, movs):
             "vendidas": vendidas}
 
 
+def detalle_fiscal(cfg):
+    """Datos para la declaración de la renta (IRPF), por año:
+      - ganancias/pérdidas patrimoniales de cada venta, con coste FIFO (valor de
+        adquisición) y valor de transmisión, como las pide Hacienda;
+      - rendimientos del capital mobiliario (dividendos y cupones cobrados).
+    Importes en la moneda en que se anotaron los movimientos (normalmente euros).
+    Devuelve {anio: {ventas, rendimientos, totales}}.
+    """
+    por_prod = defaultdict(list)
+    for m in cfg.get("movimientos", []):
+        por_prod[m.get("producto")].append(m)
+    nombres = {p["id"]: (p.get("corto") or p.get("nombre") or p["id"]) for p in cfg.get("productos", [])}
+    anios = defaultdict(lambda: {"ventas": [], "rendimientos": []})
+
+    for pid, movs in por_prod.items():
+        lotes = []   # cada lote: [unidades, coste, fecha_compra]
+        for m in sorted(movs, key=lambda x: (x["fecha"], ORDEN_TIPO.get(x.get("tipo"), 9))):
+            t, f = m.get("tipo"), m["fecha"]
+            anio = str(f)[:4]
+            u, imp = float(m.get("unidades") or 0), float(m.get("importe") or 0)
+            if t == "compra":
+                lotes.append([u, imp, f])
+            elif t == "venta":
+                quedan, coste, fechas_adq = u, 0.0, []
+                while quedan > 1e-9 and lotes:
+                    lu, lc, lf = lotes[0]
+                    toma = min(lu, quedan)
+                    coste += lc * toma / lu if lu else 0.0
+                    quedan -= toma
+                    fechas_adq.append(lf)
+                    lotes[0] = [lu - toma, lc - (lc * toma / lu if lu else 0.0), lf]
+                    if lotes[0][0] <= 1e-9:
+                        lotes.pop(0)
+                vendidas = u - quedan
+                cobrado = imp * vendidas / u if u else imp
+                fa = sorted(set(fechas_adq))
+                anios[anio]["ventas"].append({
+                    "producto": nombres.get(pid, pid), "fecha": f,
+                    "unidades": round(vendidas, 6),
+                    "adquisicion": round(coste, 2),
+                    "transmision": round(cobrado, 2),
+                    "ganancia": round(cobrado - coste, 2),
+                    "fechaAdquisicion": fa[0] if len(fa) == 1 else (f"{fa[0]} … {fa[-1]}" if fa else ""),
+                })
+            elif t == "dividendo":
+                anios[anio]["rendimientos"].append({
+                    "producto": nombres.get(pid, pid), "fecha": f, "importe": round(imp, 2)})
+
+    out = {}
+    for anio, dat in anios.items():
+        ventas = sorted(dat["ventas"], key=lambda x: x["fecha"])
+        rend = sorted(dat["rendimientos"], key=lambda x: x["fecha"])
+        out[anio] = {
+            "ventas": ventas, "rendimientos": rend,
+            "totales": {
+                "transmision": round(sum(v["transmision"] for v in ventas), 2),
+                "adquisicion": round(sum(v["adquisicion"] for v in ventas), 2),
+                "ganancias": round(sum(v["ganancia"] for v in ventas if v["ganancia"] > 0), 2),
+                "perdidas": round(sum(v["ganancia"] for v in ventas if v["ganancia"] < 0), 2),
+                "gananciaNeta": round(sum(v["ganancia"] for v in ventas), 2),
+                "rendimientos": round(sum(r["importe"] for r in rend), 2),
+            },
+        }
+    return out
+
+
 def descarga_series(productos_cfg, series=None):
     """Descarga (o lee de la cache) las series que necesitan esos productos.
     Devuelve el diccionario de series que usa precio_eur()."""
@@ -1579,6 +1645,7 @@ def construir(cfg, carpeta, descargar=True):
 
     datos = {
         "generado": dt.datetime.now().replace(microsecond=0).isoformat(),
+        "fiscal": detalle_fiscal(cfg),
         "titular": cfg.get("titular", "Mi patrimonio"),
         "titulares": cfg.get("titulares", []) or [],
         "apartados": apartados_out,

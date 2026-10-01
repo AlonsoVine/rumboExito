@@ -969,5 +969,35 @@
  ],
  "vivo": null,
  "avisos": [],
- "modo": "propio"
+ "modo": "propio",
+ "fiscal": {
+  "2024": {
+   "ventas": [
+    {
+     "producto": "Fondo World",
+     "fecha": "2024-05-10",
+     "unidades": 10,
+     "adquisicion": 2000.0,
+     "transmision": 2500.0,
+     "ganancia": 500.0,
+     "fechaAdquisicion": "2021-01-15"
+    }
+   ],
+   "rendimientos": [
+    {
+     "producto": "Acción Z",
+     "fecha": "2024-03-01",
+     "importe": 50.0
+    }
+   ],
+   "totales": {
+    "transmision": 2500.0,
+    "adquisicion": 2000.0,
+    "ganancias": 500.0,
+    "perdidas": 0.0,
+    "gananciaNeta": 500.0,
+    "rendimientos": 50.0
+   }
+  }
+ }
 }

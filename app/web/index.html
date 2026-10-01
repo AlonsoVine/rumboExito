@@ -709,6 +709,7 @@ body.video .tarjetaCanal{display:none}
     <button data-pv="evolucion" aria-selected="false">Evolución</button>
     <button data-pv="ingresos" aria-selected="false">Ingresos y gastos</button>
     <button data-pv="deudas" aria-selected="false">Deudas y vencimientos</button>
+    <button data-pv="fiscal" aria-selected="false">Informe fiscal</button>
   </nav>
 
   <div id="filtroTitular" class="filtroTitular"></div>
@@ -909,6 +910,20 @@ body.video .tarjetaCanal{display:none}
       <div class="tablaEnv"><table class="dt" id="vencTabla"></table></div>
     </section>
     <p class="subt" id="deudasVacio" hidden>No tienes deudas ni vencimientos registrados. Puedes añadirlos en «Mis datos → Deudas».</p>
+  </div>
+
+  <div class="pv" id="pv-fiscal" hidden>
+    <p class="ayudaVista">Resumen para la declaración de la renta (IRPF): ganancias y pérdidas de tus ventas
+      (con coste FIFO, como las calcula Hacienda) y los dividendos y cupones cobrados. Elige el año y pulsa «🖨 Imprimir» arriba.</p>
+    <div class="selAnioFiscal" id="selFiscalCont" style="margin:4px 0 12px"></div>
+    <section class="tarjeta" id="tarjetaFiscal">
+      <header>
+        <h2 id="fiscalTitulo">Informe fiscal</h2>
+        <span class="subt" id="fiscalSub">Datos para tu declaración</span>
+      </header>
+      <div id="fiscalContenido"></div>
+    </section>
+    <p class="aviso-legal" style="margin-top:12px;font-size:12px;color:var(--tinta3)">Este resumen es orientativo y se calcula con los datos que has anotado (importes en la moneda en que los introdujiste). No sustituye el asesoramiento fiscal ni los certificados de tu banco o bróker; contrástalo con ellos antes de declarar.</p>
   </div>
 
 </div>
