@@ -82,6 +82,17 @@ def test_api_config_en_demo_esta_bloqueada(tmp_path, monkeypatch):
     assert r.get_json()["ok"] is False
 
 
+def test_cabecera_csp_presente_y_estricta(tmp_path, monkeypatch):
+    servidor = _prepara(tmp_path, monkeypatch)
+    client = servidor.app.test_client()
+    r = client.get("/")
+    csp = r.headers.get("Content-Security-Policy")
+    assert csp and "script-src 'self'" in csp
+    # No debe permitir scripts inline (eso reabriría el XSS).
+    assert "'unsafe-inline'" not in csp.split("script-src")[1].split(";")[0]
+    assert r.headers.get("X-Content-Type-Options") == "nosniff"
+
+
 def test_version_por_defecto_no_sale_a_internet(tmp_path, monkeypatch):
     # Por defecto el chequeo de versión está apagado: no debe salir a la red.
     servidor = _prepara(tmp_path, monkeypatch)

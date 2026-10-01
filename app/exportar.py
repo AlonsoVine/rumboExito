@@ -102,7 +102,7 @@ def pagina(web, datos, ocultar=False, titulo="Mi patrimonio"):
     trozos = [previo + "window.DATOS = " + json.dumps(datos, ensure_ascii=False, separators=(",", ":")) + ";"]
     trozos += [lee(n) for n in ("canal.js", "graficos.js", "app.js")]
     scripts = "\n".join("<script>\n" + t.replace("</script>", "<\\/script>") + "\n</script>" for t in trozos)
-    html, n = re.subn(r"<script>\s*/\* Carga los scripts.*?</script>", lambda m: scripts, html, flags=re.S)
+    html, n = re.subn(r'<script src="cargador\.js[^"]*">\s*</script>', lambda m: scripts, html, flags=re.S)
     if not n:
         raise RuntimeError("No encuentro el cargador de scripts en index.html.")
 

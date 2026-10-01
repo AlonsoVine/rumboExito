@@ -60,6 +60,26 @@ def _error_validacion(e):
     return jsonify(ok=False, errores=e.errores), 400
 
 
+# Cabecera de seguridad (CSP): el navegador solo ejecuta el JS de la propia app
+# (script-src 'self', sin inline), así que un nombre con HTML inyectado no puede
+# ejecutar código aunque se colara. Se permiten los estilos inline (no ejecutan
+# JS) y las conexiones del navegador a las fuentes de precio en vivo.
+CSP = ("default-src 'self'; "
+       "script-src 'self'; "
+       "style-src 'self' 'unsafe-inline'; "
+       "img-src 'self' data:; "
+       "connect-src 'self' https://api.binance.com https://api.coingecko.com; "
+       "base-uri 'self'; object-src 'none'; frame-ancestors 'none'")
+
+
+@app.after_request
+def _cabeceras_seguridad(resp):
+    resp.headers.setdefault("Content-Security-Policy", CSP)
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("Referrer-Policy", "no-referrer")
+    return resp
+
+
 # ---------------------------------------------------------------- archivos
 
 def lee_json(ruta, defecto=None):

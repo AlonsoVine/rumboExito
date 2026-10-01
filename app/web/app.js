@@ -8,6 +8,12 @@
   const $ = s => document.querySelector(s);
   const raiz = document.documentElement;
 
+  // Escapa texto del usuario (nombres de productos, titulares, categorías…) antes
+  // de meterlo en innerHTML, para que nunca se interprete como HTML. Igual que en
+  // editor.js. Úsalo SIEMPRE que interpoles un dato de texto de DATOS.
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
+    c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
   const recuerda = {
     lee(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     guarda(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* da igual */ } },
@@ -348,7 +354,7 @@
       b.style.setProperty("--c", color(p));
       b.setAttribute("aria-pressed", String(on));
       b.title = on ? "Quitar del gráfico y de las métricas" : "Volver a incluirlo";
-      b.innerHTML = `<i></i>${p.corto || p.nombre}<span class="im">${G.fmtEurCorto(valorDe(p))}</span>`;
+      b.innerHTML = `<i></i>${esc(p.corto || p.nombre)}<span class="im">${G.fmtEurCorto(valorDe(p))}</span>`;
       b.onclick = () => {
         if (on) { if (visibles().length <= 1) return; estado.ocultos.add(p.id); }
         else estado.ocultos.delete(p.id);
@@ -500,7 +506,7 @@
     cont.innerHTML = !hayTit ? "" :
       `<h3 style="font-size:13px;margin:0 0 6px;color:var(--tinta2)">Patrimonio neto por titular</h3>
        <table class="leyenda">` + pt.map(x =>
-        `<tr><td><i style="background:${(x.color && x.color[0]) || "#888"}"></i>${x.nombre}</td>
+        `<tr><td><i style="background:${(x.color && x.color[0]) || "#888"}"></i>${esc(x.nombre)}</td>
          <td>${G.fmtEur(x.valor, 0)}</td><td>${G.fmtPct(x.peso, 0)}</td></tr>`).join("") +
       `</table>`;
   }
@@ -527,8 +533,8 @@
 
     const cel = (v, r) => `<td${r ? ' style="text-align:right"' : ""}>${v}</td>`;
     const filas = ds.map(x => `<tr>
-      <td><i class="pt" style="background:${(x.color && x.color[0]) || "#888"}"></i>${x.nombre}${x.acreedor ? ` <small>${x.acreedor}</small>` : ""}</td>
-      ${cel(x.titular || "")}
+      <td><i class="pt" style="background:${(x.color && x.color[0]) || "#888"}"></i>${esc(x.nombre)}${x.acreedor ? ` <small>${esc(x.acreedor)}</small>` : ""}</td>
+      ${cel(esc(x.titular || ""))}
       ${cel(G.fmtEur(x.capitalPendiente, 0), true)}
       ${cel(x.tae != null ? G.fmtPct(x.tae, 2) : "—", true)}
       ${cel(x.cuota != null ? G.fmtEur(x.cuota, 0) : "—", true)}
@@ -585,7 +591,7 @@
         return `<span class="${cl}">${G.fmtEurSigno(-d)}</span>`;   // +: te sobra; −: te pasas
       };
       const fil = cats.map(c => `<tr>
-        <td>${c.categoria}</td>
+        <td>${esc(c.categoria)}</td>
         <td><span class="${c.tipo === "ingreso" ? "pos" : "neg"}">${c.tipo === "ingreso" ? "Ingreso" : "Gasto"}</span></td>
         <td style="text-align:right">${G.fmtEur(c.mes, 0)}</td>
         <td style="text-align:right">${G.fmtEur(c.anio, 0)}</td>
@@ -614,7 +620,7 @@
     if (!["todos", ...tits].includes(estado.titular)) estado.titular = "todos";
     cont.innerHTML = `<label for="selTitular">Ver de:</label>
       <select id="selTitular"><option value="todos">Todos los titulares</option>
-      ${tits.map(t => `<option value="${t}"${t === estado.titular ? " selected" : ""}>${t}</option>`).join("")}</select>`;
+      ${tits.map(t => `<option value="${esc(t)}"${t === estado.titular ? " selected" : ""}>${esc(t)}</option>`).join("")}</select>`;
     $("#selTitular").onchange = e => { estado.titular = e.target.value; pintaPatrimonio(); };
   }
 
@@ -680,7 +686,7 @@
       return `<span class="${cl}">${verbo}${G.fmtEur(Math.abs(x.ajuste), 0)}</span>`;
     };
     const filas = a.map(x => `<tr>
-      <td><i class="pt" style="background:${(x.color && x.color[0]) || "#888"}"></i>${x.tipo}${x.concentracion ? ' <span style="color:var(--mal)" title="Concentración por encima del umbral">●</span>' : ""}</td>
+      <td><i class="pt" style="background:${(x.color && x.color[0]) || "#888"}"></i>${esc(x.tipo)}${x.concentracion ? ' <span style="color:var(--mal)" title="Concentración por encima del umbral">●</span>' : ""}</td>
       <td style="text-align:right">${G.fmtEur(x.valor, 0)}</td>
       <td style="text-align:right">${G.fmtPct(x.peso, 0)}</td>
       <td style="text-align:right">${x.objetivo != null ? G.fmtPct(x.objetivo, 0) : "—"}</td>
@@ -696,7 +702,7 @@
       const mov = a.filter(x => x.ajuste != null && Math.abs(x.ajuste) >= 1);
       cont.innerHTML = (conObj && mov.length)
         ? `<p class="subt" style="margin-top:10px">Para volver a tu objetivo: ` + mov.map(x =>
-          `${x.ajuste > 0 ? "aporta " : "reduce "}<b>${G.fmtEur(Math.abs(x.ajuste), 0)}</b> ${x.ajuste > 0 ? "a" : "de"} ${x.tipo}`).join(" · ") + ".</p>"
+          `${x.ajuste > 0 ? "aporta " : "reduce "}<b>${G.fmtEur(Math.abs(x.ajuste), 0)}</b> ${x.ajuste > 0 ? "a" : "de"} ${esc(x.tipo)}`).join(" · ") + ".</p>"
         : "";
     }
   }
@@ -711,7 +717,7 @@
       return `<span style="color:${c}">${e}</span>`;
     };
     const filas = v.map(x => `<tr>
-      <td>${x.nombre}</td><td>${x.clase}</td><td>${x.entidad || ""}</td><td>${x.titular || ""}</td>
+      <td>${esc(x.nombre)}</td><td>${esc(x.clase)}</td><td>${esc(x.entidad || "")}</td><td>${esc(x.titular || "")}</td>
       <td>${G.fmtFecha(x.fecha)}</td><td style="text-align:right">${x.diasRestantes} d</td>
       <td>${tag(x.estado)}</td></tr>`).join("");
     $("#vencTabla").innerHTML =
@@ -787,7 +793,7 @@
       const plTarjeta = plusvaliaDe(p);
       const rent = plTarjeta ? plTarjeta.pct : null;
       b.innerHTML = `<span class="barra"></span>
-        <div class="nm"><i></i>${p.corto || p.nombre}</div>
+        <div class="nm"><i></i>${esc(p.corto || p.nombre)}</div>
         <div class="vl">${G.fmtEur(valorDe(p))}</div>
         <div class="pi"><span>${oculto ? "fuera del gráfico" : G.fmtPct(p.peso, 1) + " del total"}</span>
           <span class="${rent == null ? "" : rent >= 0 ? "pos" : "neg"}">${rent == null ? "—" : G.fmtPctSigno(rent, 1)}</span></div>
@@ -812,7 +818,7 @@
       onClick: d => { if (d.id) { estado.fondo = d.id; irVista("producto"); } }
     });
     $("#leyendaDist").innerHTML = datos.map(d =>
-      `<tr><td><i style="background:${d.color}"></i>${d.nombre}</td>
+      `<tr><td><i style="background:${d.color}"></i>${esc(d.nombre)}</td>
        <td>${G.fmtEur(d.valor)}</td><td>${G.fmtPct(d.valor / total, 1)}</td></tr>`).join("");
   }
 
@@ -1052,7 +1058,7 @@
        <tbody>${filas.map(({ p, d }) => {
         const var_ = d.fin - d.inicio;
         return `<tr>
-          <td><i class="pt" style="background:${color(p)}"></i>${p.corto || p.nombre}</td>
+          <td><i class="pt" style="background:${color(p)}"></i>${esc(p.corto || p.nombre)}</td>
           <td>${G.fmtEur(d.inicio)}</td>
           <td>${d.aportado ? G.fmtEur(d.aportado) : "—"}</td>
           <td class="${d.mercado >= 0 ? "pos" : "neg"}">${G.fmtEurSigno(d.mercado)}</td>
@@ -1093,7 +1099,7 @@
       const b = document.createElement("button");
       b.style.setProperty("--c", color(x));
       b.setAttribute("aria-pressed", String(x.id === estado.fondo));
-      b.innerHTML = `<i></i>${x.corto || x.nombre}`;
+      b.innerHTML = `<i></i>${esc(x.corto || x.nombre)}`;
       b.onclick = () => { estado.fondo = x.id; pintaFondos(); };
       $("#selFondo").appendChild(b);
     });
@@ -1129,7 +1135,7 @@
 
     sec.innerHTML = `
       <header>
-        <h2><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${color(p)};margin-right:9px"></span>${p.nombre}</h2>
+        <h2><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${color(p)};margin-right:9px"></span>${esc(p.nombre)}</h2>
         <div class="sep"></div>
         ${hayVL ? '<div class="segm" id="segSerie"></div>' : ""}
       </header>
@@ -1311,7 +1317,7 @@
         `<thead><tr><th>Producto</th>${ra.anos.map((a, i) =>
           `<th>${a}${ra.parcial[i] ? " *" : ""}</th>`).join("")}</tr></thead>
          <tbody>${prods.map(p => `<tr>
-           <td><i class="pt" style="background:${color(p)}"></i>${p.corto}</td>
+           <td><i class="pt" style="background:${color(p)}"></i>${esc(p.corto)}</td>
            ${tabla[p.id].map((v, i) => celda(v, (desde[p.id] || [])[i])).join("")}
          </tr>`).join("")}</tbody>` +
         (verProducto ? "" : `<tfoot><tr><td>Tu cartera</td>${ra.cartera.map(v =>
@@ -1347,7 +1353,7 @@
          <tbody>${comp.map((c, i) => {
           const m = c.metricas;
           return `<tr class="${c.real ? "destacada" : ""}">
-            <td><i class="pt" style="background:${series[i].color}"></i>${c.nombre}</td>
+            <td><i class="pt" style="background:${series[i].color}"></i>${esc(c.nombre)}</td>
             <td class="${m.rentTotal >= 0 ? "pos" : "neg"}">${G.fmtPctSigno(m.rentTotal, 1)}</td>
             <td class="${m.cagr >= 0 ? "pos" : "neg"}">${G.fmtPctSigno(m.cagr, 1)}</td>
             <td>${G.fmtPct(m.vol, 1)}</td>
@@ -1371,7 +1377,7 @@
       $("#tablaComisiones").innerHTML =
         `<thead><tr><th>Producto</th><th>Comisión</th><th>Sobre</th><th>Al año</th><th>Al mes</th></tr></thead>
          <tbody>${c.lineas.map(l => `<tr>
-            <td><i class="pt" style="background:${temaOscuro() ? l.color[1] : l.color[0]}"></i>${l.nombre}</td>
+            <td><i class="pt" style="background:${temaOscuro() ? l.color[1] : l.color[0]}"></i>${esc(l.nombre)}</td>
             <td>${G.fmtPct(l.ter, 2)}</td><td>${G.fmtEur(l.valor, 0)}</td>
             <td>${G.fmtEur(l.anual)}</td><td>${G.fmtEur(l.anual / 12)}</td></tr>`).join("")}</tbody>
          <tfoot><tr><td>Total</td><td>${G.fmtPct(c.terPonderado, 3)}</td>
@@ -1482,7 +1488,7 @@
     if (txt) txt.hidden = true;
     sel.hidden = false;
     sel.innerHTML = j.carteras.map(c =>
-      `<option value="${c.id}"${c.id === j.activa ? " selected" : ""}>${c.nombre}</option>`).join("")
+      `<option value="${esc(c.id)}"${c.id === j.activa ? " selected" : ""}>${esc(c.nombre)}</option>`).join("")
       + '<option value="__nueva__">＋ Nueva cartera…</option>';
     sel.onchange = async () => {
       const v = sel.value;

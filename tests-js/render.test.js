@@ -17,7 +17,7 @@ const GRAFICOS = leer("app/web/graficos.js");
 const APP = leer("app/web/app.js");
 const DATOS = fs.readFileSync(path.join(__dirname, "fixtures", "datos.json"), "utf8");
 
-function montaPanel() {
+function montaPanel(datos) {
   const errores = [];
   const vc = new VirtualConsole();
   vc.on("jsdomError", e => errores.push(e.detail || e));
@@ -34,7 +34,7 @@ function montaPanel() {
     window.document.body.appendChild(s);
   };
   inyecta(GRAFICOS);                 // define window.G
-  inyecta("window.DATOS = " + DATOS + ";");
+  inyecta("window.DATOS = " + (datos || DATOS) + ";");
   inyecta(APP);                      // ejecuta el panel (registra jsdomError si peta)
   return { window, errores };
 }
@@ -44,6 +44,24 @@ test("el panel se dibuja sin errores y con cifras", () => {
   assert.strictEqual(errores.length, 0, "errores al cargar: " + errores.join(" | "));
   const hero = window.document.getElementById("heroCifra").textContent.trim();
   assert.ok(hero && hero !== "—", "el patrimonio del hero debería tener valor, es: " + hero);
+});
+
+test("un nombre con HTML malicioso se escapa y no se ejecuta (XSS)", () => {
+  // Metemos un payload en el nombre de un producto y en el titular. El panel
+  // debe mostrarlo como TEXTO, nunca crear un <img onerror> que ejecute código.
+  const d = JSON.parse(DATOS);
+  const payload = '<img src=x onerror="window.__xss=1">';
+  if (d.productos && d.productos[0]) { d.productos[0].nombre = payload; d.productos[0].corto = payload; }
+  if (d.total) d.total.titular = payload;
+  d.titular = payload;
+  const { window, errores } = montaPanel(JSON.stringify(d));
+  assert.strictEqual(window.__xss, undefined, "el onerror NO debería ejecutarse");
+  // No debe existir una imagen real inyectada desde el nombre.
+  const imgs = [...window.document.querySelectorAll("img")].filter(i => i.getAttribute("src") === "x");
+  assert.strictEqual(imgs.length, 0, "no debería crearse el <img> del payload");
+  // Y el texto escapado sí aparece en el HTML.
+  assert.ok(/&lt;img/.test(window.document.body.innerHTML), "el nombre debería aparecer escapado");
+  assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
 });
 
 test("la tabla de variación (ahora / 1 mes / 12 meses) se dibuja", () => {
