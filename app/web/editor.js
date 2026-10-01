@@ -307,19 +307,31 @@
         <p class="ayuda">Cuando tengas algo, vuelve a <b>Panel</b> y verás tus cifras.
           <button class="btnLink" data-acc="ocultarAsistente">No mostrar este asistente</button></p></section>`;
     }
-    html += `<div class="edBarra"><div class="segm" id="edVistas"></div><span class="sp"></span>
+    html += `<div class="edBarra"><div class="edVistas" id="edVistas"></div><span class="sp"></span>
       ${!D && E.cfg.productos.length ? '<button class="btn" data-acc="verPanel">Ver mi panel →</button>' : ""}</div>
       <div id="edAvisos" class="avisos"></div><div id="edCuerpo"></div>`;
     cont.innerHTML = html;
 
-    const vistas = [["activos", "Activos"], ["deudas", "Deudas"], ["apartados", "Apartados"], ["flujos", "Ingresos y gastos"], ["saldos", "Saldos y movimientos"], ["config", "Configuración"], ["importar", "Importar"], ["copias", "Copias y seguridad"]];
+    // Tres áreas al mismo nivel pero visualmente distintas: lo que tienes,
+    // el día a día (flujos y saldos) y las herramientas.
+    const grupos = [
+      [["activos", "Activos"], ["deudas", "Deudas"], ["apartados", "Apartados"]],
+      [["flujos", "Ingresos y gastos"], ["saldos", "Saldos y movimientos"]],
+      [["config", "Configuración"], ["importar", "Importar"], ["copias", "Copias y seguridad"]],
+    ];
     const seg = $("#edVistas");
-    vistas.forEach(([id, et]) => {
-      const b = document.createElement("button");
-      b.textContent = et;
-      b.setAttribute("aria-pressed", String(id === E.vista));
-      b.onclick = () => { E.vista = id; recuerda.guarda("patrimonio.editor", id); pinta(); };
-      seg.appendChild(b);
+    seg.innerHTML = "";
+    grupos.forEach(grupo => {
+      const g = document.createElement("div");
+      g.className = "segm edGrupo";
+      grupo.forEach(([id, et]) => {
+        const b = document.createElement("button");
+        b.textContent = et;
+        b.setAttribute("aria-pressed", String(id === E.vista));
+        b.onclick = () => { E.vista = id; recuerda.guarda("patrimonio.editor", id); pinta(); };
+        g.appendChild(b);
+      });
+      seg.appendChild(g);
     });
     $("#edCuerpo").innerHTML = ({ activos: vistaActivos, deudas: vistaDeudas, apartados: vistaApartados,
       flujos: vistaFlujos, saldos: vistaSaldosMov, config: vistaConfig,
@@ -499,11 +511,16 @@
     f.elements.fuente.onchange = ajusta;
     ajusta();
 
-    // En un producto nuevo, «disponible» se propone según el tipo (efectivo = sí).
+    // El interruptor «disponible» debe reflejar lo MISMO que calcula el motor:
+    // un producto sin ese campo se trata según su tipo (efectivo = disponible).
+    // Si no, al editar un efectivo antiguo el interruptor salía apagado aunque
+    // el panel ya lo contaba como disponible (desajuste que confundía).
     if (nuevo) {
       const defDisp = () => { f.elements.disponible.checked = f.elements.tipo.value === "efectivo"; };
       defDisp();
       f.elements.tipo.addEventListener("change", defDisp);
+    } else if (p.disponible == null) {
+      f.elements.disponible.checked = (f.elements.tipo.value === "efectivo");
     }
 
     const buscar = async () => {
