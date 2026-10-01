@@ -1186,6 +1186,13 @@ def construir(cfg, carpeta, descargar=True):
     # --- resumen mes a mes ---
     meses_nat = sorted({f[:7] for f in eje_iso})
     resumen_mensual = []
+    # El efectivo y las deudas no tienen "mercado": cualquier cambio de saldo es
+    # dinero que entra o sale (ingresos, gastos, amortización), no revalorización.
+    ids_pasivos = {id(e) for e in ser_pasivos}
+
+    def sin_mercado(p):
+        return id(p) in ids_pasivos or p.get("tipoClave") == "efectivo"
+
     for mes in meses_nat:
         idxs = [i for i, f in enumerate(eje_iso) if f[:7] == mes]
         i_ini, i_fin, ant = idxs[0], idxs[-1], idxs[0] - 1
@@ -1194,21 +1201,28 @@ def construir(cfg, carpeta, descargar=True):
             return sum((p["serie"][i] or 0) for p in todos_p) if i >= 0 else 0.0
 
         v0, v1 = suma(ant), suma(i_fin)
-        ap = sum(flujo_dia[i] for i in idxs)
+        ap = sum(flujo_dia[i] for i in idxs)   # flujos de inversión (compras/ventas)
         nuevos, detalle = 0.0, {}
         for p in todos_p:
             s = p["serie"]
             pv0 = (s[ant] or 0) if ant >= 0 else 0.0
             pv1 = s[i_fin] or 0.0
-            pap = sum(flujo_prod.get(p["id"], [0.0] * n)[i] for i in idxs)
-            # Un producto sin coste registrado (efectivo, pensiones) que aparece
-            # a mitad de mes no es "el mercado subiendo": es que entra al panel.
-            estrena = (ant < 0 or s[ant] is None) and s[i_fin] is not None
-            pnuevo = pv1 if (estrena and p.get("aportado") is None) else 0.0
-            nuevos += pnuevo
+            if sin_mercado(p):
+                # Toda la variación del saldo cuenta como aportado; mercado = 0.
+                pap = r2(pv1 - pv0)
+                ap += pap
+                pnuevo = pmercado = 0.0
+            else:
+                pap = r2(sum(flujo_prod.get(p["id"], [0.0] * n)[i] for i in idxs))
+                # Un producto de inversión sin coste registrado que aparece a mitad
+                # de mes no es "el mercado subiendo": es que entra al panel.
+                estrena = (ant < 0 or s[ant] is None) and s[i_fin] is not None
+                pnuevo = pv1 if (estrena and p.get("aportado") is None) else 0.0
+                nuevos += pnuevo
+                pmercado = r2(pv1 - pv0 - pap - pnuevo)
             if pv1 or pv0 or pap:
                 detalle[p["id"]] = {"inicio": r2(pv0), "fin": r2(pv1), "aportado": r2(pap),
-                                    "nuevo": r2(pnuevo), "mercado": r2(pv1 - pv0 - pap - pnuevo)}
+                                    "nuevo": r2(pnuevo), "mercado": pmercado}
         b = idx_cartera[ant] if ant >= 0 else idx_cartera[i_ini]
         resumen_mensual.append({
             "mes": mes, "inicio": r2(v0), "fin": r2(v1), "aportado": r2(ap),
