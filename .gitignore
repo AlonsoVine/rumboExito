@@ -16,3 +16,8 @@ htmlcov/
 
 # Node (solo para tests de frontend)
 node_modules/
+
+# PyInstaller
+build/
+dist/
+*.exe

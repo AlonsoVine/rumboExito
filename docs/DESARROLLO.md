@@ -126,3 +126,29 @@ Reglas:
 - Un commit = un cambio coherente, con sus tests en verde.
 - El mensaje explica el **qué** y el **porqué**, no el cómo.
 - No mezclar refactor y cambio de comportamiento en el mismo commit.
+
+## Empaquetar en un ejecutable (Rumbo.exe)
+
+La app se puede distribuir como **un único ejecutable** (no hace falta Python en
+el ordenador de destino). Se usa [PyInstaller](https://pyinstaller.org/) con el
+spec `Rumbo.spec`.
+
+- **Windows:** doble clic en `Construir_ejecutable.bat` (o, en terminal):
+
+  ```
+  .venv\Scripts\python.exe -m PyInstaller Rumbo.spec --noconfirm --clean
+  ```
+
+- **Mac/Linux:**
+
+  ```
+  .venv/bin/python -m PyInstaller Rumbo.spec --noconfirm --clean
+  ```
+
+El resultado es `dist/Rumbo.exe` (unos 12 MB). Al ejecutarlo arranca la app como
+siempre (servidor local + navegador) y crea su carpeta **`mis_datos`** al lado del
+ejecutable, así que basta con mover el `.exe` a donde se quiera.
+
+Detalles: el punto de entrada es `lanzar.py`; los recursos de solo lectura (web,
+demo, VERSION, prompt) se incluyen en el bundle y `servidor.py` los localiza en
+`sys._MEIPASS` cuando está empaquetado. `build/` y `dist/` están en `.gitignore`.

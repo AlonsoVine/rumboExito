@@ -24,11 +24,26 @@ from werkzeug.serving import make_server
 
 from . import almacen, buscar, exportar, importar, motor, plantilla
 
-RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def _base_recursos():
+    """Dónde viven los recursos de solo lectura (web, demo, VERSION). Al empaquetar
+    con PyInstaller están en sys._MEIPASS; si no, en la carpeta del proyecto."""
+    return getattr(sys, "_MEIPASS", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def _base_datos():
+    """Dónde van los datos del usuario (mis_datos): JUNTO al ejecutable cuando está
+    empaquetado (deben ser escribibles), o en la carpeta del proyecto si no."""
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+RAIZ = _base_recursos()
 WEB = os.path.join(RAIZ, "app", "web")
-# Otra carpeta de datos, solo para pruebas o capturas: PATRIMONIO_DATOS=ruta
-DATOS = os.environ.get("PATRIMONIO_DATOS") or os.path.join(RAIZ, "mis_datos")
 DEMO = os.path.join(RAIZ, "demo", "cartera.json")
+# Otra carpeta de datos, solo para pruebas o capturas: PATRIMONIO_DATOS=ruta
+DATOS = os.environ.get("PATRIMONIO_DATOS") or os.path.join(_base_datos(), "mis_datos")
 PUERTO = int(os.environ.get("PATRIMONIO_PUERTO") or 8765)
 HORAS_PRECIOS = 6          # al arrancar, se actualizan si tienen más de esto
 
