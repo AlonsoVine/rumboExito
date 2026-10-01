@@ -48,6 +48,30 @@ def test_api_apartados_crea_y_borra(tmp_path, monkeypatch):
     assert cartera["apartados"] == []
 
 
+def test_api_guardar_producto_manual(tmp_path, monkeypatch):
+    servidor = _prepara(tmp_path, monkeypatch)
+    client = servidor.app.test_client()
+    r = client.post("/api/productos", json={"nombre": "Cuenta ING", "tipo": "efectivo",
+                                            "fuente": "manual"})
+    assert r.get_json()["ok"] is True
+    cartera = client.get("/api/cartera").get_json()["cartera"]
+    assert any(p["nombre"] == "Cuenta ING" for p in cartera["productos"])
+
+
+def test_api_guardar_producto_online_sin_precio_da_400(tmp_path, monkeypatch):
+    # El precio online se comprueba fuera del cerrojo; si no hay, 400 claro.
+    servidor = _prepara(tmp_path, monkeypatch)
+    monkeypatch.setattr(servidor.buscar, "probar", lambda *a, **k: False)
+    client = servidor.app.test_client()
+    r = client.post("/api/productos", json={"nombre": "Fondo X", "tipo": "fondo",
+                                            "fuente": "yahoo", "codigo": "NOPE"})
+    assert r.status_code == 400
+    assert "No encuentro precio" in " ".join(r.get_json()["errores"])
+    # No se ha guardado nada.
+    cartera = client.get("/api/cartera").get_json()["cartera"]
+    assert cartera["productos"] == []
+
+
 def test_api_config_en_demo_esta_bloqueada(tmp_path, monkeypatch):
     # Sin cartera.json el modo es «demo» y no se puede guardar nada.
     from app import servidor

@@ -7,6 +7,7 @@ en 127.0.0.1) y abre el navegador. Tus datos nunca salen de la carpeta mis_datos
 a internet solo se sale para descargar precios.
 """
 
+import copy
 import datetime as dt
 import json
 import logging
@@ -263,17 +264,22 @@ def api_guardar(coleccion):
         return jsonify(ok=False, errores=["No sé guardar eso."]), 404
     datos = request.get_json(silent=True) or {}
 
-    def fn(cfg):
-        if coleccion != "productos":
-            return GUARDAR[coleccion](cfg, datos)
-        prod, cambio = almacen.guarda_producto(cfg, datos)
-        # Antes de guardar un producto con precio online, se comprueba que lo hay.
-        if cambio and prod["fuente"] != "manual" and not buscar.probar(prod["fuente"], prod["codigo"]):
-            raise almacen.ErrorValidacion([
-                f"No encuentro precio para «{prod['codigo']}» en {motor.FUENTES[prod['fuente']]}. "
-                "Revisa el código con el buscador o elige «a mano» y anota tú su valor."])
-        return prod
-    return cambia(fn)
+    if coleccion == "productos":
+        # La comprobación del precio online es una llamada de red lenta: se hace
+        # ANTES de tomar el cerrojo para no congelar el resto de la app. Para
+        # saber la fuente/código normalizados y si cambian, se normaliza en una
+        # copia (guarda_producto no sale a la red; la prueba la hace el servidor).
+        if modo() != "demo":
+            try:
+                prod, cambio = almacen.guarda_producto(copy.deepcopy(cartera()), datos)
+            except almacen.ErrorValidacion as e:
+                return jsonify(ok=False, errores=e.errores), 400
+            if cambio and prod["fuente"] != "manual" and not buscar.probar(prod["fuente"], prod["codigo"]):
+                return jsonify(ok=False, errores=[
+                    f"No encuentro precio para «{prod['codigo']}» en {motor.FUENTES[prod['fuente']]}. "
+                    "Revisa el código con el buscador o elige «a mano» y anota tú su valor."]), 400
+        return cambia(lambda cfg: almacen.guarda_producto(cfg, datos)[0])
+    return cambia(lambda cfg: GUARDAR[coleccion](cfg, datos))
 
 
 @app.delete("/api/<coleccion>/<ident>")
