@@ -56,3 +56,18 @@ def test_api_config_en_demo_esta_bloqueada(tmp_path, monkeypatch):
     r = client.post("/api/config", json={"colchon": "1000"})
     assert r.status_code == 403
     assert r.get_json()["ok"] is False
+
+
+def test_cartera_corrupta_devuelve_400_no_500(tmp_path, monkeypatch):
+    # Si cartera.json se daña, un POST debe responder 400 con mensaje claro,
+    # nunca un 500 opaco.
+    from app import servidor
+    monkeypatch.setattr(servidor, "DATOS", str(tmp_path))
+    os.makedirs(str(tmp_path), exist_ok=True)
+    with open(os.path.join(str(tmp_path), "cartera.json"), "w", encoding="utf-8") as f:
+        f.write("{roto")
+    client = servidor.app.test_client()
+    r = client.post("/api/config", json={"colchon": "1000"})
+    assert r.status_code == 400
+    j = r.get_json()
+    assert j["ok"] is False and "dañado" in " ".join(j["errores"]).lower()

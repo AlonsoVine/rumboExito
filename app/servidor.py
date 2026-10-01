@@ -52,6 +52,13 @@ app.json.sort_keys = False   # respeta el orden de tipos y listas al mandarlos a
 cerrojo = threading.RLock()  # el motor no admite dos cálculos (ni dos escrituras) a la vez
 
 
+@app.errorhandler(almacen.ErrorValidacion)
+def _error_validacion(e):
+    # Cualquier ErrorValidacion no capturado (p. ej. cartera.json dañado al leerlo)
+    # se devuelve como 400 con mensaje claro, nunca como un 500 opaco.
+    return jsonify(ok=False, errores=e.errores), 400
+
+
 # ---------------------------------------------------------------- archivos
 
 def lee_json(ruta, defecto=None):
@@ -240,8 +247,8 @@ def cambia(fn):
         return jsonify(ok=False, errores=[AVISO_DEMO]), 403
     with cerrojo:
         ruta = os.path.join(carpeta(), "cartera.json")
-        cfg = almacen.carga(ruta)
         try:
+            cfg = almacen.carga(ruta)
             item = fn(cfg)
         except almacen.ErrorValidacion as e:
             return jsonify(ok=False, errores=e.errores), 400

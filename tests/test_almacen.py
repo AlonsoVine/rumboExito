@@ -124,3 +124,17 @@ def test_borra_producto_arrastra_movimientos_y_valoraciones():
     almacen.borra_producto(cfg, pid)
     assert cfg["productos"] == []
     assert cfg["movimientos"] == []
+
+
+def test_carga_json_corrupto_da_error_controlado(tmp_path):
+    ruta = tmp_path / "cartera.json"
+    ruta.write_text("{esto no es json valido", encoding="utf-8")
+    with pytest.raises(ErrorValidacion) as exc:
+        almacen.carga(str(ruta))
+    assert "dañado" in " ".join(exc.value.errores).lower()
+
+
+def test_carga_json_valido_ok(tmp_path):
+    ruta = tmp_path / "cartera.json"
+    ruta.write_text('{"version": 1, "productos": []}', encoding="utf-8")
+    assert almacen.carga(str(ruta))["version"] == 1

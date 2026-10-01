@@ -47,8 +47,16 @@ class ErrorValidacion(Exception):
 # ---------------------------------------------------------------- disco
 
 def carga(ruta):
-    with open(ruta, encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(ruta, encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        # Fichero dañado (edición manual, disco lleno a mitad de escritura…).
+        # Mejor un error claro que un 500: hay copias automáticas en «copias/».
+        raise ErrorValidacion([
+            f"El archivo de datos está dañado y no se puede leer ({e}). "
+            "Puedes recuperar una copia de seguridad desde «Mis datos → Copias»."
+        ]) from e
 
 
 def guarda(ruta, cfg):
