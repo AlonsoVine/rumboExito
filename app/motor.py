@@ -1503,7 +1503,8 @@ def construir(cfg, carpeta, descargar=True):
         _al("Monedas sin tipo de cambio configurado (se toman en euros): "
             + ", ".join(sorted(monedas_faltan)) + ".", len(monedas_faltan))
     # Recordatorio (B3): hace mucho que no anotas nada. Umbral configurable.
-    dias_sin = int((cfg.get("config") or {}).get("diasSinAnotar") or 30)
+    _ds = (cfg.get("config") or {}).get("diasSinAnotar")
+    dias_sin = int(_ds) if _ds is not None else 30   # respeta el 0 (avisar siempre)
     fechas_datos = ([m.get("fecha") for m in cfg.get("movimientos", [])]
                     + [v.get("fecha") for v in cfg.get("valoraciones", [])]
                     + [f.get("fecha") for f in (cfg.get("flujos") or [])])

@@ -138,6 +138,21 @@ def test_config_dias_sin_anotar():
     assert cfg["config"]["diasSinAnotar"] == 20
 
 
+def test_config_dias_sin_anotar_cero():
+    # 0 es un valor válido (recordar siempre); no debe convertirse en 30.
+    cfg = cfg_vacia()
+    almacen.guarda_config(cfg, {"diasSinAnotar": "0"})
+    assert cfg["config"]["diasSinAnotar"] == 0
+
+
+def test_objetivo_cero_por_ciento_se_guarda():
+    # Fijar explícitamente un objetivo del 0 % para un tipo debe conservarse.
+    cfg = cfg_vacia()
+    almacen.guarda_config(cfg, {"objetivos": {"efectivo": "0", "fondo": "100"}})
+    assert cfg["config"]["objetivos"]["efectivo"] == 0.0
+    assert cfg["config"]["objetivos"]["fondo"] == 1.0
+
+
 def test_config_asistente_oculto():
     cfg = cfg_vacia()
     almacen.guarda_config(cfg, {"asistenteOculto": True})
