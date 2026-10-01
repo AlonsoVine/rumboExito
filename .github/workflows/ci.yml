@@ -32,5 +32,16 @@ jobs:
       - name: Linter
         run: ruff check .
 
-      - name: Tests
+      - name: Tests (backend)
         run: python -m pytest -q
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Instalar dependencias de test de frontend
+        run: npm ci
+
+      - name: Tests (frontend, jsdom)
+        run: npm test

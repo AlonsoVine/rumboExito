@@ -1,0 +1,11 @@
+{
+  "name": "rumbo-tests",
+  "private": true,
+  "description": "Solo para tests de frontend (jsdom). La app no usa Node.",
+  "scripts": {
+    "test": "node --test --test-force-exit \"tests-js/**/*.test.js\""
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.0"
+  }
+}

@@ -1,0 +1,88 @@
+// Tests de frontend con jsdom: cargan graficos.js y app.js en un DOM real (el de
+// index.html) con un DATOS realista y comprueban que el panel y cada vista se
+// dibujan SIN errores. Cazan fallos de render como los de fV o `cambio`.
+"use strict";
+const test = require("node:test");
+const assert = require("node:assert");
+const fs = require("fs");
+const path = require("path");
+const { JSDOM, VirtualConsole } = require("jsdom");
+
+const RAIZ = path.join(__dirname, "..");
+const leer = p => fs.readFileSync(path.join(RAIZ, p), "utf8");
+// Quitamos los <script> propios del HTML: en el test inyectamos nosotros
+// graficos.js y app.js, y así el cargador del HTML no interfiere.
+const HTML = leer("app/web/index.html").replace(/<script[\s\S]*?<\/script>/gi, "");
+const GRAFICOS = leer("app/web/graficos.js");
+const APP = leer("app/web/app.js");
+const DATOS = fs.readFileSync(path.join(__dirname, "fixtures", "datos.json"), "utf8");
+
+function montaPanel() {
+  const errores = [];
+  const vc = new VirtualConsole();
+  vc.on("jsdomError", e => errores.push(e.detail || e));
+  const dom = new JSDOM(HTML, {
+    runScripts: "dangerously", virtualConsole: vc, pretendToBeVisual: true, url: "http://localhost/",
+  });
+  const { window } = dom;
+  window.fetch = () => Promise.resolve({ ok: false, json: () => Promise.resolve({}) });
+  window.scrollTo = () => {};
+  if (!window.matchMedia) window.matchMedia = () => ({ matches: false, addEventListener() {}, addListener() {} });
+  const inyecta = code => {
+    const s = window.document.createElement("script");
+    s.textContent = code;           // inline: se ejecuta en el contexto del window
+    window.document.body.appendChild(s);
+  };
+  inyecta(GRAFICOS);                 // define window.G
+  inyecta("window.DATOS = " + DATOS + ";");
+  inyecta(APP);                      // ejecuta el panel (registra jsdomError si peta)
+  return { window, errores };
+}
+
+test("el panel se dibuja sin errores y con cifras", () => {
+  const { window, errores } = montaPanel();
+  assert.strictEqual(errores.length, 0, "errores al cargar: " + errores.join(" | "));
+  const hero = window.document.getElementById("heroCifra").textContent.trim();
+  assert.ok(hero && hero !== "—", "el patrimonio del hero debería tener valor, es: " + hero);
+});
+
+test("cada sub-pestaña del Panel se dibuja sin errores", () => {
+  const { window, errores } = montaPanel();
+  const botones = [...window.document.querySelectorAll("#subtabs button")];
+  assert.ok(botones.length >= 6, "deberían estar las sub-pestañas del Panel");
+  for (const b of botones) {
+    b.click();
+    assert.strictEqual(errores.length, 0, `error al abrir «${b.textContent}»: ` + errores.join(" | "));
+  }
+});
+
+test("los modos de los gráficos (segmentos) no rompen", () => {
+  const { window, errores } = montaPanel();
+  // Evolución: modos del gráfico principal (incluye «Reparto %») y mes/año.
+  window.document.querySelector('#subtabs button[data-pv="evolucion"]').click();
+  for (const sel of ["#segVista", "#segPeriodo"]) {
+    for (const b of window.document.querySelectorAll(sel + " button")) b.click();
+  }
+  // Distribución: por clase/producto/entidad/tipo.
+  window.document.querySelector('#subtabs button[data-pv="distribucion"]').click();
+  for (const b of window.document.querySelectorAll("#segDist button")) b.click();
+  assert.strictEqual(errores.length, 0, "errores en segmentos: " + errores.join(" | "));
+});
+
+test("las funciones de gráfico dibujan un SVG sin lanzar", () => {
+  const { window } = montaPanel();
+  const G = window.G;
+  const div = () => { const d = window.document.createElement("div"); window.document.body.appendChild(d); return d; };
+  const fechas = ["2024-01-31", "2024-02-29", "2024-03-31"];
+  const serie = [{ nombre: "A", color: "#2a78d6", valores: [1, 2, 3] },
+                 { nombre: "B", color: "#eb6834", valores: [2, 1, 0] }];
+  let d;
+  d = div(); G.barrasApiladas(d, { categorias: fechas, series: serie, alto: 200 });
+  assert.ok(d.querySelector("svg"), "barrasApiladas debería dibujar un SVG");
+  d = div(); G.multiLinea(d, { fechas, series: serie, alto: 200 });
+  assert.ok(d.querySelector("svg"), "multiLinea debería dibujar un SVG");
+  d = div(); G.areaApilada(d, { fechas, series: serie, alto: 200 });
+  assert.ok(d.querySelector("svg"), "areaApilada debería dibujar un SVG");
+  d = div(); G.donut(d, { datos: [{ nombre: "A", valor: 3, color: "#2a78d6" }, { nombre: "B", valor: 1, color: "#eb6834" }], alto: 200 });
+  assert.ok(d.querySelector("svg"), "donut debería dibujar un SVG");
+});

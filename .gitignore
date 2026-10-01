@@ -13,3 +13,6 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
+
+# Node (solo para tests de frontend)
+node_modules/
