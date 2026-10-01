@@ -60,6 +60,17 @@ def _error_validacion(e):
     return jsonify(ok=False, errores=e.errores), 400
 
 
+@app.errorhandler(Exception)
+def _error_inesperado(e):
+    # Red de seguridad: cualquier error no previsto se registra y se devuelve como
+    # un 500 controlado, sin filtrar la traza. Los errores HTTP normales (404…) pasan.
+    from werkzeug.exceptions import HTTPException
+    if isinstance(e, HTTPException):
+        return e
+    logging.exception("Error inesperado")
+    return jsonify(ok=False, error="Ha ocurrido un error inesperado."), 500
+
+
 # Cabecera de seguridad (CSP): el navegador solo ejecuta el JS de la propia app
 # (script-src 'self', sin inline), así que un nombre con HTML inyectado no puede
 # ejecutar código aunque se colara. Se permiten los estilos inline (no ejecutan
@@ -226,7 +237,7 @@ def datos_js():
     # Vista de un mes pasado: recalcula el panel como estaba a fin de ese mes, sin
     # persistir nada ni salir a la red (usa los precios de la caché).
     hasta = request.args.get("hasta")
-    if hasta and re.fullmatch(r"\d{4}-\d{2}", hasta):
+    if hasta and re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", hasta):
         with cerrojo:
             datos = motor.construir(cartera(), carpeta(), descargar=False, hasta=hasta)
         if datos is not None:
@@ -416,23 +427,26 @@ def api_importar_previsualizar():
     origen = request.form.get("origen")
     archivos = [(f.filename, f.read()) for f in request.files.getlist("archivos") if f.filename]
     texto = (request.form.get("texto") or "").strip()
+    # Solo la lectura de la cartera necesita el cerrojo. La preparación del plan baja
+    # precios de internet (lenta): se hace FUERA del cerrojo para no congelar la app.
     with cerrojo:
         cfg = almacen.carga(os.path.join(carpeta(), "cartera.json"))
-        if origen == "myinvestor":
-            if not archivos:
-                return jsonify(ok=False, errores=["Elige los archivos CSV que has descargado de MyInvestor."]), 400
-            plan = importar.preparar_myinvestor(cfg, archivos, carpeta())
-        else:
-            if not archivos and not texto:
-                return jsonify(ok=False, errores=["Elige un archivo o pega el texto que te ha dado la IA."]), 400
-            filas, error = [], None
-            for nombre, contenido in archivos or [("pegado.csv", texto)]:
-                leidas, error = importar.leer_tabla(nombre, contenido)
-                if error:
-                    return jsonify(ok=False, errores=[f"{nombre}: {error}" if archivos else error]), 400
-                filas += leidas
-            plan = importar.preparar_tabla(cfg, filas, carpeta())
-        informe = importar.vista_previa(cfg, plan)
+    dir_datos = carpeta()
+    if origen == "myinvestor":
+        if not archivos:
+            return jsonify(ok=False, errores=["Elige los archivos CSV que has descargado de MyInvestor."]), 400
+        plan = importar.preparar_myinvestor(cfg, archivos, dir_datos)
+    else:
+        if not archivos and not texto:
+            return jsonify(ok=False, errores=["Elige un archivo o pega el texto que te ha dado la IA."]), 400
+        filas, error = [], None
+        for nombre, contenido in archivos or [("pegado.csv", texto)]:
+            leidas, error = importar.leer_tabla(nombre, contenido)
+            if error:
+                return jsonify(ok=False, errores=[f"{nombre}: {error}" if archivos else error]), 400
+            filas += leidas
+        plan = importar.preparar_tabla(cfg, filas, dir_datos)
+    informe = importar.vista_previa(cfg, plan)
     token = secrets.token_hex(8)
     PLANES.clear()   # solo una importación pendiente a la vez
     PLANES[token] = plan

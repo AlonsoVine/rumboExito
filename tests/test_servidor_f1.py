@@ -99,6 +99,10 @@ def test_datos_js_vista_mes_pasado(tmp_path, monkeypatch):
     assert r.status_code == 200
     assert '"hasta":"2024-01"' in r.get_data(as_text=True)
     assert client.get("/datos.js").status_code == 200   # vista normal (hoy)
+    # Mes inválido: no revienta (500); se ignora y sirve la vista normal.
+    ri = client.get("/datos.js?hasta=2024-13")
+    assert ri.status_code == 200
+    assert '"hasta":"2024-13"' not in ri.get_data(as_text=True)
 
 
 def test_cabecera_csp_presente_y_estricta(tmp_path, monkeypatch):
