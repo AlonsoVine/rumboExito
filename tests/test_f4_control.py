@@ -75,6 +75,38 @@ def test_vencimientos_ordenados_y_estados(tmp_path):
     assert v[1]["fecha"] == "2024-07-15" and v[1]["estado"] == "Próximo"
 
 
+def test_vencimientos_incluye_apartados_y_revision_de_deuda(tmp_path):
+    # Paridad con el Excel: los vencimientos deben recoger también la fecha
+    # prevista de los apartados y la fecha de revisión del tipo de las deudas.
+    cartera = {
+        "version": 1,
+        "config": {"diasAviso": 90},
+        "apartados": [
+            {"id": "ap", "nombre": "Boda", "titular": "Yo", "importe": 2000,
+             "finalidad": "Celebración", "fechaPrevista": "2024-08-01"},
+        ],
+        "productos": [
+            {"id": "c", "nombre": "Cuenta", "corto": "Cuenta", "tipo": "efectivo",
+             "fuente": "manual", "titular": "Yo", "slot": 1},
+            {"id": "hip", "nombre": "Hipoteca", "corto": "Hipoteca", "tipo": "deuda",
+             "fuente": "manual", "titular": "Yo", "entidad": "Banco A", "slot": 2,
+             "fechaVencimiento": "2040-01-01", "fechaRevision": "2025-01-01"},
+        ],
+        "movimientos": [],
+        "valoraciones": [
+            {"id": "v1", "producto": "c", "fecha": "2024-06-30", "valor": 5000.0},
+            {"id": "v2", "producto": "hip", "fecha": "2024-06-30", "valor": 80000.0},
+        ],
+    }
+    d = motor.construir(cartera, str(tmp_path), descargar=False)
+    porclase = {v["clase"]: v for v in d["vencimientos"]}
+    assert {"Apartado", "Revisión", "Deuda"} <= set(porclase)
+    ap = porclase["Apartado"]
+    assert ap["nombre"] == "Boda" and ap["saldo"] == 2000.0 and ap["estado"] == "Próximo"
+    rev = porclase["Revisión"]
+    assert rev["fecha"] == "2025-01-01" and rev["nombre"] == "Hipoteca"
+
+
 def test_alertas_generadas(tmp_path):
     d = motor.construir(_cartera_control(), str(tmp_path), descargar=False)
     textos = " | ".join(a["texto"] for a in d["alertas"])

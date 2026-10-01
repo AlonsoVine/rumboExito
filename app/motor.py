@@ -1444,21 +1444,35 @@ def construir(cfg, carpeta, descargar=True):
                                       "color": PALETA.get(i % 12 + 1, PALETA[1])})
 
     vencimientos = []
-    for p in productos + ser_otros + ser_pasivos:
-        fv = p.get("fechaVencimiento")
-        if not fv:
-            continue
+
+    def _venc(fecha, nombre, clase, tipo, entidad, titular, saldo):
+        if not fecha:
+            return
         try:
-            dias = (d(fv) - fecha_extracto).days
+            dias = (d(fecha) - fecha_extracto).days
         except ValueError:
-            continue
+            return
         estado = "Vencido" if dias < 0 else ("Próximo" if dias <= dias_aviso else "OK")
-        vencimientos.append({"nombre": p.get("corto") or p.get("nombre"),
-                             "clase": "Deuda" if p in ser_pasivos else "Activo",
-                             "tipo": p.get("tipo"), "entidad": p.get("entidad", ""),
-                             "titular": p.get("titular", ""), "fecha": fv,
-                             "diasRestantes": dias, "estado": estado,
-                             "saldo": round(abs(p.get("valor") or 0), 2)})
+        vencimientos.append({"nombre": nombre, "clase": clase, "tipo": tipo,
+                             "entidad": entidad or "", "titular": titular or "",
+                             "fecha": fecha, "diasRestantes": dias, "estado": estado,
+                             "saldo": round(abs(saldo or 0), 2)})
+
+    # Activos y deudas: fecha de vencimiento (depósito, fin de promoción, préstamo…).
+    for p in productos + ser_otros + ser_pasivos:
+        es_pasivo = p in ser_pasivos
+        _venc(p.get("fechaVencimiento"), p.get("corto") or p.get("nombre"),
+              "Deuda" if es_pasivo else "Activo", p.get("tipo"),
+              p.get("entidad"), p.get("titular"), p.get("valor"))
+        # Deudas: además, la fecha de revisión del tipo de interés.
+        if es_pasivo:
+            _venc(p.get("fechaRevision"), p.get("corto") or p.get("nombre"),
+                  "Revisión", "Revisión de interés", p.get("entidad"),
+                  p.get("titular"), p.get("valor"))
+    # Apartados: fecha prevista para disponer del dinero comprometido.
+    for a in apartados_cfg:
+        _venc(a.get("fechaPrevista"), a.get("nombre"), "Apartado",
+              a.get("finalidad", ""), "", a.get("titular"), a.get("importe"))
     vencimientos.sort(key=lambda x: x["fecha"])
 
     alertas = []
