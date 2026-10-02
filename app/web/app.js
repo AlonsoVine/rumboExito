@@ -24,33 +24,59 @@
   if (qs.get("tab")) recuerda.guarda("patrimonio.tab", qs.get("tab"));
   if (qs.get("tema")) recuerda.guarda("patrimonio.tema", qs.get("tema"));
 
-  // El tema (claro u oscuro) se aplica siempre, también con la cartera vacía.
-  const temaGuardado = recuerda.lee("patrimonio.tema");
-  if (temaGuardado) raiz.dataset.tema = temaGuardado;
-  const cambiaTema = () => {
-    raiz.dataset.tema = raiz.dataset.tema === "claro" ? "oscuro" : "claro";
-    recuerda.guarda("patrimonio.tema", raiz.dataset.tema);
-  };
-
-  // Texto más grande (accesibilidad): se aplica siempre, con datos o sin ellos.
-  function conectaTexto() {
-    const b = $("#btnTexto");
-    if (!b) return;
-    const aplica = g => {
-      document.body.classList.toggle("textoGrande", g);
-      b.classList.toggle("act", g);
-    };
-    aplica(recuerda.lee("patrimonio.texto") === "grande");
-    b.onclick = () => {
-      const g = !document.body.classList.contains("textoGrande");
-      aplica(g);
-      recuerda.guarda("patrimonio.texto", g ? "grande" : "normal");
-    };
+  // ---- Preferencias de pantalla (zona «Ajustes»). Se guardan en el navegador. ----
+  const pref = (k, def) => recuerda.lee("patrimonio." + k) || def;
+  const sistemaOscuro = () => { try { return matchMedia("(prefers-color-scheme: dark)").matches; } catch (e) { return true; } };
+  function aplicaPrefs() {
+    const t = pref("tema", "oscuro");
+    raiz.dataset.tema = t === "auto" ? (sistemaOscuro() ? "oscuro" : "claro") : t;
+    const tx = pref("texto", "normal");
+    document.body.classList.toggle("textoGrande", tx === "grande");
+    document.body.classList.toggle("textoMuyGrande", tx === "muyGrande");
+    document.body.classList.toggle("video", pref("video", "0") === "1");
+    document.body.classList.toggle("vistaAmplia", pref("amplia", "0") === "1");
+    window.OCULTAR_IMPORTES = pref("ocultar", "0") === "1";
   }
-  conectaTexto();
+  aplicaPrefs();
+
+  let _repinta = null;   // se asigna a pintar() cuando hay datos; refresca al cambiar un ajuste
+
+  // Construye y cablea la pestaña ⚙️ Ajustes (preferencias de pantalla).
+  function pintaAjustes() {
+    const cont = $("#ajustesCont");
+    if (!cont) return;
+    const fila = (titulo, desc, nombre, opciones) =>
+      `<div class="ajusteFila"><div class="ajusteTxt"><b>${titulo}</b><small>${esc(desc)}</small></div>
+        <div class="segm ajusteSeg" data-pref="${nombre}">${opciones.map(o =>
+          `<button data-val="${o.v}" aria-pressed="${String(o.v === pref(nombre, opciones[0].v))}">${o.t}</button>`).join("")}</div></div>`;
+    cont.innerHTML =
+      fila("Tema", "Claro, oscuro o según tu sistema.", "tema",
+           [{ v: "oscuro", t: "Oscuro" }, { v: "claro", t: "Claro" }, { v: "auto", t: "Automático" }]) +
+      fila("Tamaño del texto", "Agranda todo para leer mejor.", "texto",
+           [{ v: "normal", t: "Normal" }, { v: "grande", t: "Grande" }, { v: "muyGrande", t: "Muy grande" }]) +
+      fila("Vista amplia", "Filas y botones más grandes y espaciados, más fáciles de tocar.", "amplia",
+           [{ v: "0", t: "No" }, { v: "1", t: "Sí" }]) +
+      fila("Ocultar importes", "Muestra «•••» en vez de las cantidades, para enseñar la pantalla sin revelar tu dinero.", "ocultar",
+           [{ v: "0", t: "No" }, { v: "1", t: "Sí" }]) +
+      fila("Modo vídeo", "Cifras grandes y sin controles, para presentar o grabar.", "video",
+           [{ v: "0", t: "No" }, { v: "1", t: "Sí" }]) +
+      fila("Pantalla de inicio", "Qué se abre al abrir la app.", "inicio",
+           [{ v: "ultima", t: "La última que usaste" }, { v: "panel", t: "Siempre el Panel" }]);
+    cont.querySelectorAll(".ajusteSeg").forEach(bar => {
+      const nombre = bar.dataset.pref;
+      bar.querySelectorAll("button").forEach(b => {
+        b.onclick = () => {
+          recuerda.guarda("patrimonio." + nombre, b.dataset.val);
+          bar.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+          aplicaPrefs();
+          if (_repinta) _repinta();
+        };
+      });
+    });
+  }
 
   if (!D) {
-    $("#btnTema").onclick = cambiaTema;
+    pintaAjustes();
     // Cartera vacía: solo se enseña «Mis datos», para empezar a meter productos.
     document.body.classList.add("sinDatos");
     document.querySelectorAll("#tabs button").forEach(b =>
@@ -1484,13 +1510,16 @@
        ${D.total.diasInvertido} días invertido.<br>
        Fuentes de precios: ${fuentes.join(", ") || "ninguna"}. En «Panel → Distribución» pulsa un producto para ver su ficha.<br>
        <b>Aviso:</b> herramienta informativa. No es asesoramiento financiero ni una recomendación de compra o venta.
-       Los precios vienen de servicios públicos gratuitos y pueden tener errores o retrasos: no se garantiza su exactitud.<br>
-       <span class="creditoMod">Rumbo, de Dani Dominguez Quant · modificaciones (gestor de patrimonio de hogar) por Alonso (github.com/AlonsoVine).</span>`;
+       Los precios vienen de servicios públicos gratuitos y pueden tener errores o retrasos: no se garantiza su exactitud.`;
+    // Los créditos viven al final de «Ayuda». En la web exportada (que no incluye
+    // «Ayuda») se mantiene la atribución en el pie para no perderla al compartir.
+    if (window.ESTATICO) {
+      $("#pie").insertAdjacentHTML("beforeend",
+        `<br><span class="creditoMod">Rumbo, de Dani Dominguez Quant · fork (gestor de patrimonio de hogar) por Alonso (github.com/AlonsoVine).</span>`);
+    }
     if ($("#bannerDemo")) $("#bannerDemo").hidden = D.modo !== "demo";
     const K = window.CANAL;
     if (K) {
-      $("#pie").insertAdjacentHTML("beforeend", `<span class="creditoCanal">Herramienta gratuita hecha por
-        ${K.autor} · ¿Te resulta útil? <a href="${K.suscribir}" target="_blank" rel="noopener">Suscríbete al canal ▶</a></span>`);
       document.querySelectorAll(".autorCanal").forEach(el => { el.textContent = K.autor; });
       document.querySelectorAll(".enlaceCanal").forEach(el => { el.href = K.canal; });
       document.querySelectorAll(".enlaceSuscribir").forEach(el => { el.href = K.suscribir; });
@@ -1571,6 +1600,7 @@
       document.querySelectorAll(".pv").forEach(el => { el.hidden = el.id !== "pv-" + pv; });
       pintaPatrimonio();
     } else if (estado.tab === "datos" && window.Editor) window.Editor.mostrar();
+    else if (estado.tab === "ajustes") pintaAjustes();
   }
   function pintar() { pintaComun(); pintarTab(); }
 
@@ -1612,7 +1642,7 @@
   montaSelectorCarteras();
   $("#metaFecha").textContent = "Datos a " + G.fmtFecha(D.fechaExtracto);
 
-  $("#btnTema").onclick = () => { cambiaTema(); pintar(); };
+  _repinta = () => { try { pintar(); } catch (e) { /* al cambiar un ajuste */ } };
   if ($("#btnImprimir")) $("#btnImprimir").onclick = () => window.print();
   if ($("#btnPrecios")) $("#btnPrecios").onclick = async () => {
     const b = $("#btnPrecios");
@@ -1630,11 +1660,6 @@
     }
   };
   if (location.protocol === "file:" && $("#btnPrecios")) $("#btnPrecios").hidden = true;
-  $("#btnVideo").onclick = () => {
-    document.body.classList.toggle("video");
-    $("#btnVideo").classList.toggle("act");
-    setTimeout(pintarTab, 60);
-  };
   document.querySelectorAll("#tabs button").forEach(b => { b.onclick = () => irA(b.dataset.tab); });
   document.querySelectorAll("#subtabs button").forEach(b => { b.onclick = () => irVista(b.dataset.pv); });
   function pasoPeriodo(d) {
@@ -1666,7 +1691,10 @@
     const t = e.target;
     if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
     if (e.key === "Escape" && filtrando()) { estado.ocultos.clear(); pintaPatrimonio(); }
-    if (e.key === "v" && !e.metaKey && !e.ctrlKey) $("#btnVideo").click();
+    if (e.key === "v" && !e.metaKey && !e.ctrlKey) {
+      recuerda.guarda("patrimonio.video", document.body.classList.contains("video") ? "0" : "1");
+      aplicaPrefs(); pintaAjustes(); setTimeout(pintarTab, 60);
+    }
     if (e.key === "l" && !e.metaKey && !e.ctrlKey && estado.tab === "panel") {
       estado.ocultos = filtrando() ? new Set() : new Set(idsCorto());
       pintaPatrimonio();
@@ -1681,7 +1709,9 @@
   window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(pintarTab, 140); });
 
   const tabGuardada = recuerda.lee("patrimonio.tab");
-  estado.tab = ["panel", "datos", "ayuda"].includes(tabGuardada) ? tabGuardada : "panel";
+  estado.tab = ["panel", "datos", "ayuda", "ajustes"].includes(tabGuardada) ? tabGuardada : "panel";
+  // Preferencia «Pantalla de inicio»: siempre el Panel o la última que usaste.
+  if (pref("inicio", "ultima") === "panel") estado.tab = "panel";
   const pvGuardada = recuerda.lee("patrimonio.pv");
   if (pvGuardada && document.getElementById("pv-" + pvGuardada)) estado.pv = pvGuardada;
   document.querySelectorAll("#tabs button").forEach(b =>

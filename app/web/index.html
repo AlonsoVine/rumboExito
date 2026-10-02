@@ -111,6 +111,18 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 .selCartera:hover{border-color:var(--tinta3)}
 /* Accesibilidad: texto más grande (C4). Escala toda la interfaz. */
 body.textoGrande{zoom:1.15}
+body.textoMuyGrande{zoom:1.3}
+/* Vista amplia: filas y controles más grandes, más fáciles de ver y tocar. */
+body.vistaAmplia .btn{height:44px}
+body.vistaAmplia #tabs button{padding:14px 20px}
+body.vistaAmplia .kpi{padding:16px 18px}
+body.vistaAmplia .dt td,body.vistaAmplia .dt th{padding-top:12px;padding-bottom:12px}
+body.vistaAmplia .segm button{padding:10px 16px}
+/* Zona de Ajustes */
+.ajusteFila{display:flex;justify-content:space-between;align-items:center;gap:14px 24px;padding:16px 0;border-bottom:1px solid var(--borde);flex-wrap:wrap}
+.ajusteFila:last-child{border-bottom:0}
+.ajusteTxt b{font-size:15px}
+.ajusteTxt small{display:block;color:var(--tinta3);font-size:12.5px;margin-top:3px;max-width:52ch}
 @media(max-width:640px){
   .topFila{flex-wrap:wrap;row-gap:6px}
   .tabsPrin button{font-size:14.5px;padding:10px 13px 11px}
@@ -350,7 +362,7 @@ body.video .topFila,body.video #seccionTabla,body.video .pie,body.video #seccion
 [hidden]{display:none !important}
 .btn.prim{background:var(--s1);border-color:transparent;color:#fff;font-weight:600}
 .btn.prim:hover{filter:brightness(1.1);color:#fff;background:var(--s1)}
-body.sinDatos #tabs button:not([data-tab="datos"]):not([data-tab="ayuda"]),body.sinDatos #btnPrecios,body.sinDatos #metaFecha{display:none}
+body.sinDatos #tabs button:not([data-tab="datos"]):not([data-tab="ayuda"]):not([data-tab="ajustes"]),body.sinDatos #btnPrecios,body.sinDatos #metaFecha{display:none}
 
 /* ---- Mis datos ---- */
 .sp{flex:1}
@@ -664,9 +676,9 @@ body.video .tarjetaCanal{display:none}
 @media print{
   :root{--fondo:#fff;--sup:#fff;--tinta:#000;--tinta2:#222;--tinta3:#555;--borde:#ccc}
   body{background:#fff;color:#000;zoom:1}
-  .topFila,.tabsPrin,#subtabs,#btnPrecios,#btnTema,#btnTexto,#btnImprimir,#btnVideo,
+  .topFila,.tabsPrin,#subtabs,#btnPrecios,#btnImprimir,
   .tarjetaCanal,#bannerDemo,#bannerVersion,#filtroTitular,.aviso-legal,
-  #selFiscalCont,.mesRefCtrl,#tab-datos,#tab-ayuda{display:none !important}
+  #selFiscalCont,.mesRefCtrl,#tab-datos,#tab-ayuda,#tab-ajustes{display:none !important}
   .pv,.panel{display:block !important}
   .pv[hidden]{display:none !important}
   section,.tarjeta,.card,table{break-inside:avoid}
@@ -684,15 +696,13 @@ body.video .tarjetaCanal{display:none}
       <div class="sep"></div>
       <span class="meta" id="metaFecha"></span>
       <button class="btn" id="btnPrecios" title="Descarga los precios de hoy de cada producto">↻ Actualizar precios</button>
-      <button class="btn" id="btnTema" title="Cambiar entre claro y oscuro">◐ Tema</button>
-      <button class="btn" id="btnTexto" title="Agrandar o reducir el tamaño del texto">A+ Texto</button>
       <button class="btn" id="btnImprimir" title="Imprimir esta vista o guardarla como PDF (elige «Guardar como PDF» en el destino)">🖨 Imprimir</button>
-      <button class="btn" id="btnVideo" title="Oculta los controles y agranda las cifras">▶ Modo vídeo</button>
     </div>
     <nav class="tabs tabsPrin" id="tabs" role="tablist">
       <button data-tab="panel" role="tab" aria-selected="true">📊 Panel</button>
       <button data-tab="datos" role="tab" aria-selected="false">✏️ Mis datos</button>
       <button data-tab="ayuda" role="tab" aria-selected="false">❓ Ayuda</button>
+      <button data-tab="ajustes" role="tab" aria-selected="false">⚙️ Ajustes</button>
     </nav>
   </div>
 </div>
@@ -702,7 +712,8 @@ body.video .tarjetaCanal{display:none}
 <div class="banner" id="bannerDemo" hidden>
   <span><b>Estás viendo una cartera de ejemplo:</b> es la cartera real de <span class="autorCanal"></span>,
   que cada mes cuenta cómo evoluciona en su <a class="enlaceCanal" target="_blank" rel="noopener">canal de YouTube</a>.
-  No es una recomendación de inversión.</span>
+  No es una recomendación de inversión.
+  <small style="display:block;margin-top:6px;color:var(--tinta3)">Este ejemplo y este texto provienen de la aplicación original (Rumbo) que forké; no reflejan cómo está montada ni para qué sirve esta versión, que es un gestor de patrimonio de hogar.</small></span>
   <button class="btn prim" id="btnEmpezar">Empezar con mis datos</button>
 </div>
 <p class="aviso-legal">Herramienta informativa. No es asesoramiento financiero. No se garantiza la exactitud de los datos ni de los precios.</p>
@@ -1086,17 +1097,32 @@ body.video .tarjetaCanal{display:none}
       El cambio se ve en los gráficos del panel.</p></div></details>
 
     <details class="faq"><summary>Se me ve pequeño. ¿Puedo agrandar el texto? ¿Hay atajos de teclado?</summary><div>
-      <p>Arriba a la derecha tienes <b>«A+ Texto»</b>: agranda toda la interfaz (se recuerda la próxima vez). También está
-      <b>«◐ Tema»</b> para alternar claro/oscuro y <b>«▶ Modo vídeo»</b> para agrandar las cifras y ocultar los controles.</p>
+      <p>En la pestaña <b>«⚙️ Ajustes»</b> (arriba, a la derecha de «Ayuda») puedes cambiar el <b>tamaño del texto</b>,
+      el <b>tema</b> (claro, oscuro o automático), la <b>vista amplia</b>, <b>ocultar los importes</b> y el <b>modo vídeo</b>. Todo se recuerda para la próxima vez.</p>
       <p>Atajos de teclado (cuando no estás escribiendo en un campo):</p>
       <ul>
-        <li><b>1…6</b>: cambian de pestaña dentro del Panel (Patrimonio, Distribución, Rentabilidad, Evolución, Ingresos y gastos, Deudas y vencimientos).</li>
+        <li><b>1…7</b>: cambian de pestaña dentro del Panel (Patrimonio, Distribución, Rentabilidad, Evolución, Ingresos y gastos, Deudas y vencimientos, Informe fiscal).</li>
         <li><b>V</b>: modo vídeo. <b>L</b>: ver solo lo de largo plazo. <b>Esc</b>: quitar el filtro.</li>
       </ul></div></details>
 
-    <p class="ayudaPie" id="ayudaVersion">¿Otra duda? Mira la página del proyecto en GitHub.</p>
+    <div class="ayudaPie">
+      <p id="ayudaVersion">¿Otra duda? Mira la <a href="https://github.com/danidm98/rumbo" target="_blank" rel="noopener">página del proyecto original en GitHub</a>.</p>
+      <p>Esta versión (gestor de patrimonio de hogar) es un fork modificado: <a href="https://github.com/AlonsoVine/rumboExito" target="_blank" rel="noopener">github.com/AlonsoVine/rumboExito</a>.</p>
+      <p class="creditoMod">Rumbo, de Dani Dominguez Quant · modificaciones (gestor de patrimonio de hogar) por Alonso (github.com/AlonsoVine).</p>
+      <p class="creditoCanal">Herramienta gratuita hecha por <span class="autorCanal"></span> · ¿Te resulta útil? <a class="enlaceSuscribir" target="_blank" rel="noopener">Suscríbete al canal ▶</a></p>
+    </div>
   </section>
 </div><!-- /ayuda -->
+
+<div class="panel" id="tab-ajustes" role="tabpanel" hidden>
+  <section class="tarjeta">
+    <header>
+      <h2>Ajustes</h2>
+      <span class="subt">Cómo se ve la aplicación. Se guarda en este navegador; no afecta a tus datos.</span>
+    </header>
+    <div id="ajustesCont" class="ajustes"></div>
+  </section>
+</div>
 
   <div class="avisos" id="avisos"></div>
   <footer class="pie" id="pie"></footer>

@@ -14,6 +14,9 @@ WEB = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
 def test_pagina_se_genera():
     html = exportar.pagina(WEB, {}, ocultar=False, titulo="Mi patrimonio")
     assert "<html" in html and "window.DATOS" in html
+    # La web compartida no lleva los botones ni paneles de «Mis datos», «Ayuda» ni «Ajustes».
+    assert '<button data-tab="ajustes"' not in html and 'id="tab-ajustes"' not in html
+    assert '<button data-tab="ayuda"' not in html and 'id="tab-datos"' not in html
 
 
 def test_titulo_malicioso_se_escapa():

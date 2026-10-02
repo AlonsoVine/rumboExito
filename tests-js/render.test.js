@@ -97,6 +97,18 @@ test("la tabla de variación (ahora / 1 mes / 12 meses) se dibuja", () => {
   assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
 });
 
+test("la pestaña Ajustes muestra los controles y se aplican", () => {
+  const { window, errores } = montaPanel();
+  window.document.querySelector('#tabs button[data-tab="ajustes"]').click();
+  const cont = window.document.getElementById("ajustesCont");
+  assert.ok(cont.querySelectorAll(".ajusteSeg").length >= 5, "debería haber varios ajustes");
+  cont.querySelector('.ajusteSeg[data-pref="ocultar"] button[data-val="1"]').click();
+  assert.strictEqual(window.OCULTAR_IMPORTES, true, "ocultar importes debería activarse");
+  cont.querySelector('.ajusteSeg[data-pref="texto"] button[data-val="muyGrande"]').click();
+  assert.ok(window.document.body.classList.contains("textoMuyGrande"), "debería aplicar texto muy grande");
+  assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
+});
+
 test("el botón de imprimir existe y llama a window.print", () => {
   const { window, errores } = montaPanel();
   let llamado = 0;

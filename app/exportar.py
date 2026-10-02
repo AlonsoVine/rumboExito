@@ -91,9 +91,11 @@ def pagina(web, datos, ocultar=False, titulo="Mi patrimonio"):
     html = re.sub(r'\s*<button class="btn" id="btnPrecios".*?</button>', "", html, flags=re.S)
     html = re.sub(r'\s*<button data-tab="datos".*?</button>', "", html, flags=re.S)
     html = re.sub(r'\s*<button data-tab="ayuda".*?</button>', "", html, flags=re.S)
+    html = re.sub(r'\s*<button data-tab="ajustes".*?</button>', "", html, flags=re.S)
     html = re.sub(r'<div class="banner" id="bannerDemo".*?</div>', "", html, flags=re.S)
     html = re.sub(r'<div class="panel" id="tab-datos".*?</div></div>', "", html, flags=re.S)
     html = re.sub(r'<div class="panel" id="tab-ayuda".*?<!-- /ayuda -->', "", html, flags=re.S)
+    html = re.sub(r'<div class="panel" id="tab-ajustes".*?</section>\s*</div>', "", html, flags=re.S)
     html = re.sub(r'<div class="banner" id="bannerVersion".*?</div>', "", html, flags=re.S)
 
     previo = "window.ESTATICO = true;\n"
