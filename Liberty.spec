@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PyInstaller: empaqueta la app en un único ejecutable (Rumbo.exe).
-# Construir:  pyinstaller Rumbo.spec   (o:  python construir_exe.py)
+# PyInstaller: empaqueta la app en un único ejecutable (Liberty.exe).
+# Construir:  pyinstaller Liberty.spec
 
 a = Analysis(
     ["lanzar.py"],
@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="Rumbo",
+    name="Liberty",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

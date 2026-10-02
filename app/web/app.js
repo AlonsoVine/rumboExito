@@ -1637,7 +1637,7 @@
   }
 
   /* ---------------------------------------------- arranque */
-  document.title = "Rumbo · " + (D.titular || "Mi patrimonio");
+  document.title = "Liberty · " + (D.titular || "Mi patrimonio");
   $("#marcaTexto").textContent = D.titular || "Mi patrimonio";
   montaSelectorCarteras();
   $("#metaFecha").textContent = "Datos a " + G.fmtFecha(D.fechaExtracto);

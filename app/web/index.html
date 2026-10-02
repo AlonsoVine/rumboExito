@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rumbo</title>
+<title>Liberty</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="icono-32.png">
 <link rel="apple-touch-icon" href="icono-180.png">
@@ -646,6 +646,7 @@ body.video .tarjeta{padding:22px 24px}
 .banner a,.pie a{color:var(--s1);text-decoration:none;font-weight:600}
 .banner a:hover,.pie a:hover{text-decoration:underline}
 .creditoCanal{display:block;margin-top:6px}
+.ayudaSub{margin:18px 0 2px;font-size:14.5px;color:var(--tinta)}
 .tarjetaCanal{position:fixed;right:22px;bottom:22px;z-index:50;width:340px;max-width:calc(100vw - 32px);
   background:var(--sup);border:1px solid var(--borde);border-radius:16px;padding:16px 18px 14px;
   box-shadow:0 18px 50px rgba(0,0,0,.28);animation:subeCanal .35s ease-out}
@@ -692,7 +693,7 @@ body.video .tarjetaCanal{display:none}
 <div class="top">
   <div class="env">
     <div class="topFila">
-      <div class="marca"><img class="logoIcono" src="icono-64.png" alt="" width="24" height="24"><span class="nombreApp">Rumbo</span><span class="marcaSep"></span><span id="marcaTexto">Mi patrimonio</span><select id="selCartera" class="selCartera" aria-label="Elegir o crear cartera" hidden></select></div>
+      <div class="marca"><img class="logoIcono" src="icono-64.png" alt="" width="24" height="24"><span class="nombreApp">Liberty</span><span class="marcaSep"></span><span id="marcaTexto">Mi patrimonio</span><select id="selCartera" class="selCartera" aria-label="Elegir o crear cartera" hidden></select></div>
       <div class="sep"></div>
       <span class="meta" id="metaFecha"></span>
       <button class="btn" id="btnPrecios" title="Descarga los precios de hoy de cada producto">↻ Actualizar precios</button>
@@ -952,12 +953,59 @@ body.video .tarjetaCanal{display:none}
 
 <div class="panel" id="tab-ayuda" role="tabpanel" hidden>
   <div class="banner" id="bannerVersion" hidden><span id="bannerVersionTexto"></span></div>
-  <section class="tarjeta ayudaTarjeta ayudaVideo">
-    <div><b>¿Prefieres verlo en vídeo?</b>
-      <p>En el canal de <span class="autorCanal"></span> tienes el tutorial paso a paso: instalación, cómo meter
-      tus datos y cómo sacarle partido.</p></div>
-    <div class="botones"><a class="btn prim" id="ayudaTutorial" target="_blank" rel="noopener">▶ Ver el tutorial</a>
-      <a class="btn enlaceSuscribir" target="_blank" rel="noopener">Suscribirme</a></div>
+  <section class="tarjeta ayudaTarjeta">
+    <header><h2>De dónde viene esta aplicación</h2><span class="subt">Gracias a Dani Dominguez Quant</span></header>
+    <p>Esta herramienta nace de <b>Rumbo</b>, la aplicación que creó <span class="autorCanal"></span> para seguir una cartera
+      de inversión y que explica paso a paso en su <a class="enlaceCanal" target="_blank" rel="noopener">canal de YouTube</a>.
+      Toda la base —el motor de cálculo, los gráficos y la estructura— es suyo, y es un trabajo excelente.
+      <b>Gracias, Dani, por crearlo y compartirlo en abierto.</b></p>
+    <div class="botones" style="display:flex;gap:8px;margin-top:12px">
+      <a class="btn enlaceCanal" target="_blank" rel="noopener">▶ Ver su canal</a>
+      <a class="btn" href="https://github.com/danidm98/rumbo" target="_blank" rel="noopener">Proyecto original en GitHub</a>
+    </div>
+  </section>
+
+  <section class="tarjeta ayudaTarjeta">
+    <header><h2>Qué he añadido yo</h2><span class="subt">De gestor de inversión a gestor del patrimonio del hogar</span></header>
+    <p>Partiendo de Rumbo, <b>Alonso</b> (<a href="https://github.com/AlonsoVine/rumboExito" target="_blank" rel="noopener">github.com/AlonsoVine</a>)
+      he transformado la aplicación para gestionar <b>todo el patrimonio de un hogar</b>, no solo las inversiones. Han sido muchos
+      cambios; si vienes de la aplicación original, esto es lo que cambia:</p>
+
+    <p class="ayudaSub"><b>El patrimonio completo (no solo inversiones)</b></p>
+    <ul>
+      <li><b>Todo lo que tienes y lo que debes</b>: cuentas, efectivo, inmuebles, planes de pensiones y <b>deudas</b> (hipotecas, préstamos), con <b>patrimonio bruto y neto</b>.</li>
+      <li><b>Varios titulares</b>: a quién pertenece cada cosa (tú, común, otra persona…) y cuánto corresponde a cada uno.</li>
+      <li><b>Disponible vs. no disponible</b>, <b>apartados</b> (dinero reservado), <b>colchón</b> de liquidez y el <b>«dinero libre para invertir»</b>.</li>
+      <li><b>Ingresos y gastos</b> con categorías y <b>presupuestos</b>, y tasa de ahorro.</li>
+      <li><b>Deudas</b> con cuota, intereses estimados, ratio deuda/activos y fechas de revisión.</li>
+    </ul>
+
+    <p class="ayudaSub"><b>Análisis y control</b></p>
+    <ul>
+      <li><b>Objetivos de asignación</b> por tipo, <b>concentración</b> por tipo y entidad, y <b>alertas</b> automáticas.</li>
+      <li><b>Vencimientos</b> de depósitos, promociones, revisiones de deuda y apartados.</li>
+      <li><b>«Cómo ha cambiado»</b>: comparación con hace 1 mes y hace 12 meses.</li>
+      <li><b>Ver el panel de un mes pasado</b> (cómo estaba tu patrimonio a fin de cualquier mes).</li>
+      <li><b>Informe fiscal</b> anual para la renta (ganancias y pérdidas por FIFO y dividendos/cupones), <b>listo para imprimir</b>.</li>
+      <li><b>Multidivisa</b>, y la base que ya traía Rumbo: precios automáticos, TIR/XIRR, FIFO y comparador con índices.</li>
+    </ul>
+
+    <p class="ayudaSub"><b>Pensada para que sea fácil (también para personas mayores)</b></p>
+    <ul>
+      <li><b>Navegación sencilla de dos niveles</b> y explicaciones con iconos <b>ⓘ</b> donde hace falta.</li>
+      <li>Zona de <b>⚙️ Ajustes</b> con <b>tamaño de texto</b> (hasta muy grande), <b>tema</b> claro/oscuro/automático, <b>vista amplia</b> (controles grandes), <b>modo vídeo</b> y <b>ocultar importes</b>.</li>
+      <li><b>Imprimir o guardar en PDF</b> el panel y el informe fiscal.</li>
+      <li>Mensajes claros, estados vacíos explicados y confirmaciones.</li>
+    </ul>
+
+    <p class="ayudaSub"><b>Tus datos, tuyos</b></p>
+    <ul>
+      <li><b>Aplicación de escritorio</b>: un <b>único ejecutable</b> (<code>Liberty.exe</code>), sin instalar nada; al moverlo crea su propia carpeta de datos al lado.</li>
+      <li><b>Varias carteras</b> y <b>copias de seguridad automáticas</b> cada vez que cambias algo.</li>
+      <li><b>Importar</b> desde CSV/bróker y <b>exportar</b> el panel como página web para compartir.</li>
+      <li><b>100 % local y privado</b>, sin cuentas ni servidores; con repaso de seguridad (anti-XSS, CSP) y el chequeo de versión <b>apagado por defecto</b>.</li>
+    </ul>
+    <p style="color:var(--tinta3);font-size:13px;margin-top:6px">Y por dentro: motor de cálculo revisado, validaciones, pruebas automáticas y decisiones de diseño documentadas.</p>
   </section>
 
   <section class="tarjeta ayudaTarjeta">
@@ -1111,6 +1159,17 @@ body.video .tarjetaCanal{display:none}
       <p class="creditoMod">Rumbo, de Dani Dominguez Quant · modificaciones (gestor de patrimonio de hogar) por Alonso (github.com/AlonsoVine).</p>
       <p class="creditoCanal">Herramienta gratuita hecha por <span class="autorCanal"></span> · ¿Te resulta útil? <a class="enlaceSuscribir" target="_blank" rel="noopener">Suscríbete al canal ▶</a></p>
     </div>
+  </section>
+
+  <section class="tarjeta ayudaTarjeta">
+    <header><h2>¿Te resulta útil esta versión?</h2><span class="subt">Si te sirve el gestor de patrimonio, me encantará que me sigas</span></header>
+    <p>Si esta versión (el gestor de patrimonio del hogar) te está siendo útil, puedes ver en qué más trabajo y seguirme aquí:</p>
+    <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <a class="btn prim" href="https://alonsovine.github.io/portfolioR/" target="_blank" rel="noopener">🌐 Ver mi portfolio</a>
+      <a class="btn" href="https://www.linkedin.com/in/alonso-vi%C3%B1%C3%A9-barrancos/" target="_blank" rel="noopener">💼 Seguirme en LinkedIn</a>
+      <a class="btn" href="https://github.com/AlonsoVine" target="_blank" rel="noopener">Seguirme en GitHub</a>
+    </div>
+    <p style="color:var(--tinta3);font-size:13px;margin-top:10px">¡Gracias por usarla!</p>
   </section>
 </div><!-- /ayuda -->
 

@@ -113,7 +113,7 @@ def pagina(web, datos, ocultar=False, titulo="Mi patrimonio"):
         icono = "data:image/png;base64," + base64.b64encode(f.read()).decode()
     html = html.replace('src="icono-64.png"', f'src="{icono}"')
     html = re.sub(r'\s*<link rel="(icon|apple-touch-icon)"[^>]*>', "", html)
-    desc = "Panel de patrimonio neto e inversiones hecho con Rumbo." + (" Importes ocultos." if ocultar else "")
+    desc = "Panel de patrimonio neto e inversiones hecho con Liberty." + (" Importes ocultos." if ocultar else "")
     # Escapar antes de interpolar: «titulo» es el nombre que pone el usuario y
     # podría llevar comillas o «<» que romperían el atributo e inyectarían markup
     # en la página que se comparte.
@@ -121,7 +121,7 @@ def pagina(web, datos, ocultar=False, titulo="Mi patrimonio"):
     desc_s = _escape(desc, quote=True)
     cabeceras = ('<meta name="robots" content="noindex, nofollow">\n'
                  f'<link rel="icon" type="image/png" href="{icono}">\n'
-                 f'<meta property="og:title" content="{titulo_s} · Rumbo">\n'
+                 f'<meta property="og:title" content="{titulo_s} · Liberty">\n'
                  f'<meta property="og:description" content="{desc_s}">\n'
                  f'<meta name="description" content="{desc_s}">\n'
                  f'<!-- Exportado el {dt.datetime.now():%d/%m/%Y %H:%M} -->')
