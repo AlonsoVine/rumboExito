@@ -403,7 +403,10 @@ table.dt td.nota{max-width:220px;overflow:hidden;text-overflow:ellipsis;text-ali
 .bvAutor{margin:4px 0 0;color:var(--tinta2);font-size:14px}
 .bvAviso{background:var(--fondo);border:1px solid var(--borde);border-left:4px solid #c98500;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--tinta2)}
 .bvBotones{display:flex;justify-content:flex-end;margin-top:16px}
-.bvBotones .btn{height:44px;padding:0 24px}
+.bvBotones .btn{height:44px;padding:0 20px}
+.btn.danger{background:#c0392b;border-color:#c0392b;color:#fff}
+.btn.danger:hover:not(:disabled){background:#a93226;border-color:#a93226}
+.btn.danger:disabled{opacity:.5;cursor:not-allowed}
 .mForm{display:flex;flex-direction:column;max-height:calc(100vh - 34px)}
 .mForm > header{display:flex;align-items:center;gap:12px;padding:22px 26px 8px}
 .mForm > header h2{font-size:19px;font-weight:700;letter-spacing:-.025em;flex:1;margin:0}
@@ -1236,6 +1239,27 @@ body.video .tarjetaCanal{display:none}
       los precios. Contrasta siempre con tu banco, bróker o asesor antes de tomar decisiones.</p>
 
     <div class="bvBotones"><button class="btn prim" id="bvCerrar" autofocus>Empezar</button></div>
+  </div>
+</dialog>
+<dialog class="modal" id="dlgBorrarCartera">
+  <div class="bvCuerpo">
+    <div class="bvCabecera"><span style="font-size:38px;line-height:1">🗑️</span>
+      <div>
+        <h2 style="margin:0">Eliminar esta cartera</h2>
+        <p class="bvAutor">Vas a borrar «<b id="borrarNombre"></b>».</p>
+      </div>
+    </div>
+    <p class="bvAviso"><b>Atención: esta acción es permanente.</b> Se borrarán <b>todos los datos</b> de esta cartera
+      (productos, deudas, apartados, ingresos y gastos, saldos y movimientos). <b>No se puede deshacer</b>: la única
+      forma de recuperarlos sería a partir de una copia que hayas descargado (el <i>.json</i> de «Copias de seguridad»
+      o tus exportaciones/CSV).</p>
+    <p>Para tu tranquilidad, al confirmar <b>se descargará primero una copia (.json)</b> de esta cartera.</p>
+    <label class="interruptor" style="margin-top:4px"><input type="checkbox" id="borrarConfirmo"><span class="pista"></span>
+      <span>Entiendo que esta acción es <b>permanente</b> y no tiene vuelta atrás.</span></label>
+    <div class="bvBotones" style="gap:10px">
+      <button class="btn" id="borrarCancelar">Cancelar</button>
+      <button class="btn danger" id="borrarOk" disabled>Descargar copia y eliminar</button>
+    </div>
   </div>
 </dialog>
 <dialog class="modal" id="modal"></dialog>

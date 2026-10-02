@@ -1629,9 +1629,11 @@
     if (j.modo !== "propio" || !(j.carteras || []).length) return;   // demo: se queda el texto
     if (txt) txt.hidden = true;
     sel.hidden = false;
+    const varias = (j.carteras || []).length > 1;
     sel.innerHTML = j.carteras.map(c =>
       `<option value="${esc(c.id)}"${c.id === j.activa ? " selected" : ""}>${esc(c.nombre)}</option>`).join("")
-      + '<option value="__nueva__">＋ Nueva cartera…</option>';
+      + '<option value="__nueva__">＋ Nueva cartera…</option>'
+      + (varias ? '<option value="__borrar__">🗑 Eliminar esta cartera…</option>' : "");
     sel.onchange = async () => {
       const v = sel.value;
       const post = (url, cuerpo) => fetch(url, {
@@ -1643,6 +1645,11 @@
           if (!nombre) { sel.value = j.activa; return; }
           const r = await (await post("api/cartera/nueva", { nombre })).json();
           if (r.ok === false) { alert((r.errores || ["No se pudo crear."]).join("\n")); sel.value = j.activa; return; }
+        } else if (v === "__borrar__") {
+          sel.value = j.activa;   // la opción es una acción, no un destino
+          const act = (j.carteras.find(c => c.id === j.activa) || {}).nombre || "esta cartera";
+          confirmaBorrado(act, j.activa);
+          return;
         } else if (v !== j.activa) {
           await post("api/cartera/activar", { id: v });
         } else { return; }
@@ -1651,6 +1658,46 @@
       } catch (e) { alert("No he podido cambiar de cartera."); sel.value = j.activa; }
     };
   }
+
+  // Confirmación de borrado de la cartera activa: avisa, descarga una copia y borra.
+  function confirmaBorrado(nombre, id) {
+    const dlg = $("#dlgBorrarCartera");
+    if (!dlg) return;
+    $("#borrarNombre").textContent = nombre;
+    const cb = $("#borrarConfirmo"), ok = $("#borrarOk");
+    cb.checked = false; ok.disabled = true;
+    try { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", ""); }
+    catch (e) { try { dlg.setAttribute("open", ""); } catch (e2) { return; } }
+    const cerrar = () => { try { dlg.close(); } catch (e) { dlg.removeAttribute("open"); } };
+    $("#borrarCancelar").onclick = cerrar;
+    ok.onclick = async () => {
+      ok.disabled = true; ok.textContent = "Eliminando…";
+      try {
+        // 1) Copia de seguridad de la cartera que se va a borrar (es la activa).
+        try {
+          const r = await fetch("api/copia/descargar");
+          if (r.ok) {
+            const blob = await r.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = "copia_" + (nombre || "cartera") + ".json";
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 4000);
+          }
+        } catch (e) { /* si falla la copia, avisamos abajo igual */ }
+        // 2) Borrado.
+        const res = await (await fetch("api/cartera/borrar", {
+          method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }),
+        })).json();
+        if (res.ok === false) { alert((res.errores || ["No se pudo eliminar."]).join("\n")); cerrar(); return; }
+        recuerda.guarda("patrimonio.tab", "panel");
+        recargaHoy();
+      } catch (e) {
+        alert("No he podido eliminar la cartera."); ok.disabled = false; ok.textContent = "Descargar copia y eliminar"; cerrar();
+      }
+    };
+  }
+  { const cb = $("#borrarConfirmo"), ok = $("#borrarOk"); if (cb && ok) cb.onchange = () => { ok.disabled = !cb.checked; }; }
 
   /* ---------------------------------------------- arranque */
   document.title = "Liberty · " + (D.titular || "Mi patrimonio");

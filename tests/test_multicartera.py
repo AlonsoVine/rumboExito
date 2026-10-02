@@ -54,6 +54,11 @@ def test_activar_y_borrar(tmp_path, monkeypatch):
     assert cli.post("/api/cartera/borrar", json={"id": ids["Dos"]}).get_json()["ok"] is True
     assert {c["nombre"] for c in cli.get("/api/carteras").get_json()["carteras"]} == {"Uno"}
 
+    # No se puede borrar la única cartera que queda.
+    r = cli.post("/api/cartera/borrar", json={"id": ids["Uno"]})
+    assert r.status_code == 400 and r.get_json()["ok"] is False
+    assert {c["nombre"] for c in cli.get("/api/carteras").get_json()["carteras"]} == {"Uno"}
+
 
 def test_nueva_sin_nombre_falla(tmp_path, monkeypatch):
     servidor = _base(tmp_path, monkeypatch)

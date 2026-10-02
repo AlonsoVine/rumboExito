@@ -109,6 +109,18 @@ test("la card de bienvenida aparece la primera vez y se cierra al aceptar", () =
   assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
 });
 
+test("el borrado de cartera pide confirmación (botón bloqueado hasta marcar)", () => {
+  const { window, errores } = montaPanel();
+  const dlg = window.document.getElementById("dlgBorrarCartera");
+  const cb = window.document.getElementById("borrarConfirmo");
+  const ok = window.document.getElementById("borrarOk");
+  assert.ok(dlg && cb && ok, "debería existir el diálogo de borrado y sus controles");
+  assert.strictEqual(ok.disabled, true, "el botón de eliminar empieza bloqueado");
+  cb.checked = true; cb.dispatchEvent(new window.Event("change"));
+  assert.strictEqual(ok.disabled, false, "al marcar «entiendo», se habilita eliminar");
+  assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
+});
+
 test("la pestaña Ajustes muestra los controles y se aplican", () => {
   const { window, errores } = montaPanel();
   window.document.querySelector('#tabs button[data-tab="ajustes"]').click();
