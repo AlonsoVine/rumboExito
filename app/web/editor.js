@@ -609,7 +609,7 @@
         <span class="subt">Titulares, categorías, monedas y umbrales de aviso (como la hoja «Configuración» del Excel)</span>
         <span class="sp"></span><button class="btn prim" data-acc="editarConfig">Editar</button></header>
       <table class="leyenda">
-        ${fila("Nombre de la cartera", esc(E.cfg.titular || "Mi patrimonio"))}
+        ${fila("Nombre del patrimonio", esc(E.cfg.titular || "Mi patrimonio"))}
         ${fila("Objetivo de patrimonio", (E.cfg.objetivo && E.cfg.objetivo.activo) ? eur(E.cfg.objetivo.importe) : '<span class="subt">sin meta</span>')}
         ${fila("Titulares", tits.length ? tits.map(esc).join(", ") : '<span class="subt">ninguno</span>')}
         ${fila("Colchón deseado", eur(conf.colchon || 0))}
@@ -674,7 +674,7 @@
     const f = abreModal("Configuración", `
       ${seccion("Esta cartera")}
       <div class="rejilla">
-        ${campo("Nombre de esta cartera", '<input name="nombreCartera" maxlength="60" required>', "aparece arriba, en el selector")}
+        ${campo("Nombre de este patrimonio", '<input name="nombreCartera" maxlength="60" required>', "aparece arriba, en el selector")}
         ${campo("Objetivo de patrimonio", '<input name="objetivoImporte" inputmode="decimal" placeholder="100000">', "€, la meta de la barra del panel; vacío = sin meta")}
       </div>
       ${seccion("Colchón de seguridad")}
@@ -1212,8 +1212,15 @@
         : '<p class="subt">Todavía no hay copias: se crean solas en cuanto cambias algo.</p>'}</section>
 
       ${propio ? `<section class="tarjeta"><header><h2>Empezar de nuevo</h2>
-        <span class="subt">Vacía esta cartera o vuelve a la de ejemplo. Se guarda una copia antes, por si acaso.</span>
+        <span class="subt">Vacía este patrimonio o vuelve al de ejemplo. Se guarda una copia antes, por si acaso.</span>
         <span class="sp"></span><button class="btn" data-acc="reiniciar">Empezar de nuevo…</button></header></section>` : ""}
+
+      ${propio ? `<section class="tarjeta zonaPeligro"><header><h2>Eliminar este patrimonio</h2>
+        <span class="subt">Borra por completo el patrimonio que tienes abierto.</span></header>
+      <p class="ayuda">Se eliminarán <b>todos los datos</b> de este patrimonio y <b>no se puede deshacer</b>. Antes de borrar
+        se te descargará una copia (.json) por si acaso. Necesitas tener <b>más de un patrimonio</b> (si solo tienes este,
+        crea otro desde el selector de arriba antes de poder borrarlo).</p>
+      <button class="btn danger" data-acc="borrarPatrimonio">🗑 Eliminar este patrimonio…</button></section>` : ""}
 
       <section class="tarjeta"><header><h2>Publicar como web</h2>
         <span class="subt">Tu panel en un solo archivo, de solo lectura, para enseñarlo o subirlo a internet.</span></header>
@@ -1271,6 +1278,7 @@
   const ACC = {
     empezar,
     reiniciar,
+    borrarPatrimonio: soloPropio(() => { if (window.borrarPatrimonio) window.borrarPatrimonio(); }),
     verPanel() { recuerda.guarda("patrimonio.tab", "panel"); location.reload(); },
     nuevoProducto: soloPropio(() => formProducto(null)),
     nuevaDeuda: soloPropio(() => formProducto(null, "deuda")),

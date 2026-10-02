@@ -407,6 +407,8 @@ table.dt td.nota{max-width:220px;overflow:hidden;text-overflow:ellipsis;text-ali
 .btn.danger{background:#c0392b;border-color:#c0392b;color:#fff}
 .btn.danger:hover:not(:disabled){background:#a93226;border-color:#a93226}
 .btn.danger:disabled{opacity:.5;cursor:not-allowed}
+.zonaPeligro{border:1.5px solid #c0392b !important;box-shadow:0 0 0 3px rgba(192,57,43,.12)}
+.zonaPeligro h2{color:#c0392b}
 .mForm{display:flex;flex-direction:column;max-height:calc(100vh - 34px)}
 .mForm > header{display:flex;align-items:center;gap:12px;padding:22px 26px 8px}
 .mForm > header h2{font-size:19px;font-weight:700;letter-spacing:-.025em;flex:1;margin:0}
@@ -708,7 +710,7 @@ body.video .tarjetaCanal{display:none}
 <div class="top">
   <div class="env">
     <div class="topFila">
-      <div class="marca"><img class="logoIcono" src="icono-64.png" alt="" width="24" height="24"><span class="nombreApp">Liberty</span><span class="marcaSep"></span><span id="marcaTexto">Mi patrimonio</span><select id="selCartera" class="selCartera" aria-label="Elegir o crear cartera" hidden></select></div>
+      <div class="marca"><img class="logoIcono" src="icono-64.png" alt="" width="24" height="24"><span class="nombreApp">Liberty</span><span class="marcaSep"></span><span id="marcaTexto">Mi patrimonio</span><select id="selCartera" class="selCartera" aria-label="Elegir o crear patrimonio" hidden></select></div>
       <div class="sep"></div>
       <span class="meta" id="metaFecha"></span>
       <button class="btn" id="btnPrecios" title="Descarga los precios de hoy de cada producto">↻ Actualizar precios</button>
@@ -1024,6 +1026,17 @@ body.video .tarjetaCanal{display:none}
     <p style="color:var(--tinta3);font-size:13px;margin-top:6px">Y por dentro: motor de cálculo revisado, validaciones, pruebas automáticas y decisiones de diseño documentadas.</p>
   </section>
 
+  <section class="tarjeta ayudaTarjeta" style="border-left:4px solid var(--s1)">
+    <header><h2>¿Te resulta útil esta versión?</h2><span class="subt">Si te sirve el gestor de patrimonio, me encantará que me sigas</span></header>
+    <p>Si esta versión (el gestor de patrimonio del hogar) te está siendo útil, puedes ver en qué más trabajo y seguirme aquí:</p>
+    <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <a class="btn prim" href="https://alonsovine.github.io/portfolioR/" target="_blank" rel="noopener">🌐 Ver mi portfolio</a>
+      <a class="btn" href="https://www.linkedin.com/in/alonso-vi%C3%B1%C3%A9-barrancos/" target="_blank" rel="noopener">💼 Seguirme en LinkedIn</a>
+      <a class="btn" href="https://github.com/AlonsoVine" target="_blank" rel="noopener">Seguirme en GitHub</a>
+    </div>
+    <p style="color:var(--tinta3);font-size:13px;margin-top:10px">¡Gracias por usarla!</p>
+  </section>
+
   <section class="tarjeta ayudaTarjeta">
     <header><h2>Ayuda</h2><span class="subt">Las dudas más habituales. Pulsa una para ver la respuesta.</span></header>
 
@@ -1177,16 +1190,6 @@ body.video .tarjetaCanal{display:none}
     </div>
   </section>
 
-  <section class="tarjeta ayudaTarjeta">
-    <header><h2>¿Te resulta útil esta versión?</h2><span class="subt">Si te sirve el gestor de patrimonio, me encantará que me sigas</span></header>
-    <p>Si esta versión (el gestor de patrimonio del hogar) te está siendo útil, puedes ver en qué más trabajo y seguirme aquí:</p>
-    <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-      <a class="btn prim" href="https://alonsovine.github.io/portfolioR/" target="_blank" rel="noopener">🌐 Ver mi portfolio</a>
-      <a class="btn" href="https://www.linkedin.com/in/alonso-vi%C3%B1%C3%A9-barrancos/" target="_blank" rel="noopener">💼 Seguirme en LinkedIn</a>
-      <a class="btn" href="https://github.com/AlonsoVine" target="_blank" rel="noopener">Seguirme en GitHub</a>
-    </div>
-    <p style="color:var(--tinta3);font-size:13px;margin-top:10px">¡Gracias por usarla!</p>
-  </section>
 </div><!-- /ayuda -->
 
 <div class="panel" id="tab-ajustes" role="tabpanel" hidden>
@@ -1245,15 +1248,15 @@ body.video .tarjetaCanal{display:none}
   <div class="bvCuerpo">
     <div class="bvCabecera"><span style="font-size:38px;line-height:1">🗑️</span>
       <div>
-        <h2 style="margin:0">Eliminar esta cartera</h2>
+        <h2 style="margin:0">Eliminar este patrimonio</h2>
         <p class="bvAutor">Vas a borrar «<b id="borrarNombre"></b>».</p>
       </div>
     </div>
-    <p class="bvAviso"><b>Atención: esta acción es permanente.</b> Se borrarán <b>todos los datos</b> de esta cartera
+    <p class="bvAviso"><b>Atención: esta acción es permanente.</b> Se borrarán <b>todos los datos</b> de este patrimonio
       (productos, deudas, apartados, ingresos y gastos, saldos y movimientos). <b>No se puede deshacer</b>: la única
       forma de recuperarlos sería a partir de una copia que hayas descargado (el <i>.json</i> de «Copias de seguridad»
       o tus exportaciones/CSV).</p>
-    <p>Para tu tranquilidad, al confirmar <b>se descargará primero una copia (.json)</b> de esta cartera.</p>
+    <p>Para tu tranquilidad, al confirmar <b>se descargará primero una copia (.json)</b> de este patrimonio.</p>
     <label class="interruptor" style="margin-top:4px"><input type="checkbox" id="borrarConfirmo"><span class="pista"></span>
       <span>Entiendo que esta acción es <b>permanente</b> y no tiene vuelta atrás.</span></label>
     <div class="bvBotones" style="gap:10px">
