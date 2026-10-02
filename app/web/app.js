@@ -75,8 +75,24 @@
     });
   }
 
+  // Card de bienvenida: se muestra la primera vez (y se puede reabrir desde Ayuda).
+  function muestraBienvenida(forzar) {
+    if (window.ESTATICO) return;   // no en la web exportada que se comparte
+    const dlg = $("#bienvenida");
+    if (!dlg) return;
+    if (!forzar && recuerda.lee("patrimonio.bienvenida") === "vista") return;
+    const marca = () => recuerda.guarda("patrimonio.bienvenida", "vista");
+    try { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", ""); }
+    catch (e) { try { dlg.setAttribute("open", ""); } catch (e2) { return; } }
+    const b = $("#bvCerrar");
+    if (b) b.onclick = () => { marca(); try { dlg.close(); } catch (e) { dlg.removeAttribute("open"); } };
+    dlg.addEventListener("close", marca, { once: true });
+  }
+  { const bv = $("#btnVerBienvenida"); if (bv) bv.onclick = () => muestraBienvenida(true); }
+
   if (!D) {
     pintaAjustes();
+    muestraBienvenida(false);
     // Cartera vacía: solo se enseña «Mis datos», para empezar a meter productos.
     document.body.classList.add("sinDatos");
     document.querySelectorAll("#tabs button").forEach(b =>
@@ -1737,4 +1753,5 @@
   }
   actualizaVivo();
   setInterval(actualizaVivo, 60000);
+  muestraBienvenida(false);
 })();

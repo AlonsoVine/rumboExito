@@ -97,6 +97,18 @@ test("la tabla de variación (ahora / 1 mes / 12 meses) se dibuja", () => {
   assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
 });
 
+test("la card de bienvenida aparece la primera vez y se cierra al aceptar", () => {
+  const { window, errores } = montaPanel();
+  const dlg = window.document.getElementById("bienvenida");
+  assert.ok(dlg, "debería existir la card de bienvenida");
+  assert.ok(dlg.hasAttribute("open") || dlg.open, "debería mostrarse la primera vez");
+  window.document.getElementById("bvCerrar").click();
+  let flag = null;
+  try { flag = window.localStorage.getItem("patrimonio.bienvenida"); } catch (e) { /* jsdom */ }
+  assert.strictEqual(flag, "vista", "al aceptar debería marcarse como vista");
+  assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
+});
+
 test("la pestaña Ajustes muestra los controles y se aplican", () => {
   const { window, errores } = montaPanel();
   window.document.querySelector('#tabs button[data-tab="ajustes"]').click();

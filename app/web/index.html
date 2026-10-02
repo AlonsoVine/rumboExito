@@ -392,6 +392,18 @@ table.dt td.nota{max-width:220px;overflow:hidden;text-overflow:ellipsis;text-ali
 .modal[open]{animation:entra .18s ease-out}
 @keyframes entra{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
 .modal::backdrop{background:rgba(6,6,6,.55);backdrop-filter:blur(4px)}
+/* Card de bienvenida (primera vez) */
+.bvCuerpo{overflow-y:auto;max-height:calc(100vh - 34px);padding:26px 28px 22px;line-height:1.55}
+.bvCuerpo h2{font-size:21px}
+.bvCuerpo p{margin:10px 0}
+.bvCuerpo ul{margin:8px 0;padding-left:20px}
+.bvCuerpo li{margin:7px 0}
+.bvCabecera{display:flex;align-items:center;gap:16px;margin-bottom:6px}
+.bvIcono{border-radius:16px;flex-shrink:0}
+.bvAutor{margin:4px 0 0;color:var(--tinta2);font-size:14px}
+.bvAviso{background:var(--fondo);border:1px solid var(--borde);border-left:4px solid #c98500;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--tinta2)}
+.bvBotones{display:flex;justify-content:flex-end;margin-top:16px}
+.bvBotones .btn{height:44px;padding:0 24px}
 .mForm{display:flex;flex-direction:column;max-height:calc(100vh - 34px)}
 .mForm > header{display:flex;align-items:center;gap:12px;padding:22px 26px 8px}
 .mForm > header h2{font-size:19px;font-weight:700;letter-spacing:-.025em;flex:1;margin:0}
@@ -953,6 +965,7 @@ body.video .tarjetaCanal{display:none}
 
 <div class="panel" id="tab-ayuda" role="tabpanel" hidden>
   <div class="banner" id="bannerVersion" hidden><span id="bannerVersionTexto"></span></div>
+  <div style="margin:4px 0 2px"><button class="btn" id="btnVerBienvenida">👋 Ver la presentación de bienvenida</button></div>
   <section class="tarjeta ayudaTarjeta">
     <header><h2>De dónde viene esta aplicación</h2><span class="subt">Gracias a Dani Dominguez Quant</span></header>
     <p>Esta herramienta nace de <b>Rumbo</b>, la aplicación que creó <span class="autorCanal"></span> para seguir una cartera
@@ -1187,6 +1200,44 @@ body.video .tarjetaCanal{display:none}
   <footer class="pie" id="pie"></footer>
 </div>
 
+<dialog class="modal" id="bienvenida">
+  <div class="bvCuerpo">
+    <div class="bvCabecera">
+      <img src="icono-180.png" alt="Liberty" width="72" height="72" class="bvIcono">
+      <div>
+        <h2 style="margin:0">Te damos la bienvenida a Liberty</h2>
+        <p class="bvAutor">Un gestor del <b>patrimonio del hogar</b>, hecho por <b>Alonso Viñé</b>.</p>
+      </div>
+    </div>
+
+    <p><b>¿Para qué sirve?</b> Liberty reúne en un solo sitio <b>todo tu patrimonio</b>: lo que tienes
+      (cuentas, efectivo, inversiones, inmuebles, planes de pensiones) y lo que debes (hipotecas, préstamos),
+      de quién es cada cosa, y cómo evoluciona mes a mes. Todo se guarda <b>en tu propio ordenador</b>: sin
+      cuentas, sin registros y sin que tus datos salgan de aquí.</p>
+
+    <p><b>Las pestañas, de un vistazo:</b></p>
+    <ul>
+      <li><b>📊 Panel</b> — la foto de tu patrimonio y los análisis. Dentro tiene vistas: <i>Patrimonio,
+        Distribución, Rentabilidad, Evolución, Ingresos y gastos, Deudas y vencimientos</i> e <i>Informe fiscal</i>.
+        Arriba puedes incluso ver cómo estaba tu patrimonio <i>a fin de un mes pasado</i>.</li>
+      <li><b>✏️ Mis datos</b> — donde <b>añades y editas</b> tus activos, deudas, apartados, ingresos y gastos
+        y saldos; también la configuración, importar y las copias de seguridad.</li>
+      <li><b>❓ Ayuda</b> — dudas frecuentes y explicaciones (y aquí puedes volver a abrir esta presentación).</li>
+      <li><b>⚙️ Ajustes</b> — cómo se ve la app: <b>tamaño del texto</b>, tema claro/oscuro, <b>vista amplia</b>,
+        ocultar importes… pensado para que sea cómoda a cualquier edad.</li>
+    </ul>
+
+    <p style="color:var(--tinta2)">Consejo: empieza en <b>✏️ Mis datos</b> añadiendo tus cuentas y productos;
+      el <b>📊 Panel</b> se irá llenando solo.</p>
+
+    <p class="bvAviso"><b>Importante.</b> Esto <b>no es asesoramiento financiero ni una recomendación de
+      inversión</b>. Es una herramienta informativa que calcula con los datos que tú anotas; <b>puede contener
+      errores</b> y está <b>en revisión y mejora continua</b>. No se garantiza la exactitud de los datos ni de
+      los precios. Contrasta siempre con tu banco, bróker o asesor antes de tomar decisiones.</p>
+
+    <div class="bvBotones"><button class="btn prim" id="bvCerrar" autofocus>Empezar</button></div>
+  </div>
+</dialog>
 <dialog class="modal" id="modal"></dialog>
 
 <script src="cargador.js"></script>
