@@ -554,16 +554,21 @@ def detalle_fiscal(cfg):
                     lotes[0] = [lu - toma, lc - (lc * toma / lu if lu else 0.0), lf]
                     if lotes[0][0] <= 1e-9:
                         lotes.pop(0)
-                vendidas = u - quedan
-                cobrado = imp * vendidas / u if u else imp
+                # Para la declaración se reporta la venta COMPLETA (transmisión = importe
+                # íntegro, que ya incluye la comisión por convención de la app). Si faltan
+                # compras registradas (vendes más de lo que consta comprado), el coste de
+                # esas unidades es desconocido: la ganancia sale conservadora y se marca
+                # para que el usuario revise, en vez de anular la venta en silencio.
+                falta_coste = u > 1e-9 and quedan > 1e-6
                 fa = sorted(set(fechas_adq))
                 anios[anio]["ventas"].append({
                     "producto": nombres.get(pid, pid), "fecha": f,
-                    "unidades": round(vendidas, 6),
+                    "unidades": round(u, 6),
                     "adquisicion": round(coste, 2),
-                    "transmision": round(cobrado, 2),
-                    "ganancia": round(cobrado - coste, 2),
+                    "transmision": round(imp, 2),
+                    "ganancia": round(imp - coste, 2),
                     "fechaAdquisicion": fa[0] if len(fa) == 1 else (f"{fa[0]} … {fa[-1]}" if fa else ""),
+                    "sinCoste": falta_coste,
                 })
             elif t == "dividendo":
                 anios[anio]["rendimientos"].append({
@@ -573,8 +578,13 @@ def detalle_fiscal(cfg):
     for anio, dat in anios.items():
         ventas = sorted(dat["ventas"], key=lambda x: x["fecha"])
         rend = sorted(dat["rendimientos"], key=lambda x: x["fecha"])
+        avisos = []
+        if any(v.get("sinCoste") for v in ventas):
+            avisos.append("Hay ventas de las que falta registrar las compras: su coste de "
+                          "adquisición está incompleto y la ganancia puede salir más alta de la real. "
+                          "Añade esas compras en «Mis datos» para que cuadre.")
         out[anio] = {
-            "ventas": ventas, "rendimientos": rend,
+            "ventas": ventas, "rendimientos": rend, "avisos": avisos,
             "totales": {
                 "transmision": round(sum(v["transmision"] for v in ventas), 2),
                 "adquisicion": round(sum(v["adquisicion"] for v in ventas), 2),

@@ -52,6 +52,26 @@ def test_dividendos_son_rendimientos():
     assert len(rend) == 1 and rend[0]["importe"] == 50.0 and rend[0]["producto"] == "Fondo X"
 
 
+def test_venta_sin_compras_se_marca_y_no_se_anula():
+    # Vender sin compras registradas: no se anula en silencio; se reporta la venta
+    # completa (coste desconocido = 0, ganancia conservadora) y se marca con aviso.
+    cfg = {
+        "version": 1,
+        "productos": [{"id": "a", "nombre": "X", "corto": "X", "tipo": "accion", "fuente": "manual"}],
+        "movimientos": [
+            {"id": "v", "producto": "a", "tipo": "venta", "fecha": "2024-05-01",
+             "unidades": "10", "importe": "1200"},
+        ],
+        "valoraciones": [],
+    }
+    fisc = motor.detalle_fiscal(cfg)["2024"]
+    venta = fisc["ventas"][0]
+    assert venta["unidades"] == 10 and venta["transmision"] == 1200.0
+    assert venta["adquisicion"] == 0.0 and venta["ganancia"] == 1200.0
+    assert venta["sinCoste"] is True
+    assert fisc["avisos"]   # hay un aviso para que el usuario lo revise
+
+
 def test_perdida_se_separa_de_ganancia():
     cfg = {
         "version": 1,

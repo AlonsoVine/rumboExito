@@ -136,7 +136,7 @@
     });
     const ley = (c, t) => `<span class="leyItem"><i style="background:${G.css(c)}"></i>${t}</span>`;
     $("#compNota").innerHTML = `<span class="leyComp">${ley("--s1", "Tu cartera")}${ley("--s2", "Con el " + r.nombre)}${ley("--tinta3", "Tu dinero puesto")}</span>
-      ${r.detalle} Solo cuenta los productos con compras anotadas (no las cuentas ni lo
+      ${esc(r.detalle)} Solo cuenta los productos con compras anotadas (no las cuentas ni lo
       que valoras a mano sin movimientos), desde el ${G.fmtFecha(C.desde)}. Sin impuestos ni comisiones de compra.
       ${r.aviso ? "<br>" + r.aviso : ""}`;
   }
@@ -661,7 +661,7 @@
     const cont = $("#bannerAlertas"), al = D.alertas || [];
     cont.innerHTML = al.map(a => {
       const color = a.nivel === "info" ? "var(--tinta2)" : "var(--mal)";
-      return `<div class="avisoLinea" style="border-left:3px solid ${color}"><b>${a.n}</b> ${a.texto}</div>`;
+      return `<div class="avisoLinea" style="border-left:3px solid ${color}"><b>${a.n}</b> ${esc(a.texto)}</div>`;
     }).join("");
   }
 
@@ -940,7 +940,7 @@
     const ops = `<option value="">Hoy (último dato)</option>` +
       meses.slice().reverse().map(m => `<option value="${esc(m)}"${m === actual ? " selected" : ""}>${esc(mesBonito(m))}</option>`).join("");
     cont.innerHTML =
-      (actual ? `<span class="avisoHasta">📅 Estás viendo tu patrimonio <b>a fin de ${esc(mesBonito(actual))}</b>, no los datos de hoy.</span>` : "") +
+      (actual ? `<span class="avisoHasta">📅 Estás viendo tu patrimonio <b>a fin de ${esc(mesBonito(actual))}</b>, no los datos de hoy.${info("Las cantidades (saldos, precios) son las de aquella fecha. Algunos ajustes que no guardan histórico —colchón, apartados y los datos fijos de las deudas— se muestran con su valor actual.")}</span>` : "") +
       `<span class="mesRefCtrl"><label for="selMesRef">Ver a fecha:</label>
         <select id="selMesRef">${ops}</select>
         ${actual ? '<button class="btn" id="btnHoy">Volver a hoy</button>' : ""}</span>`;
@@ -964,12 +964,19 @@
       <select id="selAnioFisc">${anios.map(a => `<option value="${esc(a)}"${a === estado.anioFiscal ? " selected" : ""}>${esc(a)}</option>`).join("")}</select>`;
     $("#selAnioFisc").onchange = e => { estado.anioFiscal = e.target.value; pintaFiscal(); };
 
-    const dat = fisc[estado.anioFiscal], t = dat.totales;
+    const dat = fisc[estado.anioFiscal] || {}, t = dat.totales || {};
+    dat.ventas = dat.ventas || []; dat.rendimientos = dat.rendimientos || [];
     const eur = v => G.fmtEur(v);
     const signo = v => `<span style="color:${v >= 0 ? "var(--bien)" : "var(--mal)"}">${v >= 0 ? "+" : ""}${eur(v)}</span>`;
+    const unid = v => G.nfNum.format(v);
+    const fFecha = s => s ? String(s).split(" … ").map(x => G.fmtFecha(x)).join(" … ") : "—";
     const dr = ' style="text-align:right"';
     $("#fiscalTitulo").textContent = "Informe fiscal " + estado.anioFiscal;
     $("#fiscalSub").textContent = (D.titular || "Patrimonio") + " · ejercicio " + estado.anioFiscal;
+
+    const avisos = (dat.avisos || []).length
+      ? `<div class="bannerAlertas" style="margin-bottom:12px">${dat.avisos.map(a => `<div class="av"><span>⚠</span><span>${esc(a)}</span></div>`).join("")}</div>`
+      : "";
 
     const resumen = `<div class="kpis" style="margin-bottom:16px">
       <div class="kpi"><div class="e">Ganancias</div><div class="v">${eur(t.ganancias)}</div><div class="n">ventas con beneficio</div></div>
@@ -984,8 +991,9 @@
         <th>Producto</th><th>Fecha de adquisición</th><th>Fecha de venta</th><th${dr}>Unidades</th>
         <th${dr}>Valor de adquisición</th><th${dr}>Valor de transmisión</th><th${dr}>Ganancia/Pérdida</th></tr></thead>
       <tbody>${dat.ventas.map(v => `<tr>
-        <td>${esc(v.producto)}</td><td>${esc(v.fechaAdquisicion)}</td><td>${G.fmtFecha(v.fecha)}</td>
-        <td${dr}>${v.unidades}</td><td${dr}>${eur(v.adquisicion)}</td><td${dr}>${eur(v.transmision)}</td><td${dr}>${signo(v.ganancia)}</td></tr>`).join("")}</tbody>
+        <td>${esc(v.producto)}${v.sinCoste ? ' <span style="color:var(--mal)" title="Falta registrar las compras: coste incompleto">⚠</span>' : ""}</td>
+        <td>${fFecha(v.fechaAdquisicion)}</td><td>${G.fmtFecha(v.fecha)}</td>
+        <td${dr}>${unid(v.unidades)}</td><td${dr}>${eur(v.adquisicion)}</td><td${dr}>${eur(v.transmision)}</td><td${dr}>${signo(v.ganancia)}</td></tr>`).join("")}</tbody>
       <tfoot><tr><td colspan="4">Totales</td><td${dr}>${eur(t.adquisicion)}</td><td${dr}>${eur(t.transmision)}</td><td${dr}>${signo(t.gananciaNeta)}</td></tr></tfoot>
       </table></div>` : `<p class="vacio">No hay ventas en ${esc(estado.anioFiscal)}.</p>`;
 
@@ -995,7 +1003,7 @@
       <tfoot><tr><td colspan="2">Total</td><td${dr}>${eur(t.rendimientos)}</td></tr></tfoot></table></div>`
       : `<p class="vacio">No hay dividendos ni cupones en ${esc(estado.anioFiscal)}.</p>`;
 
-    cont.innerHTML = resumen + ventas + rend;
+    cont.innerHTML = avisos + resumen + ventas + rend;
   }
 
   function pintaPatrimonio() {
@@ -1218,7 +1226,7 @@
         ${hayVL ? '<div class="segm" id="segSerie"></div>' : ""}
       </header>
       ${p.papel ? `<div class="papel">${esc(p.papel)}</div>` : ""}
-      ${p.indiceDetalle ? `<p style="color:var(--tinta2);font-size:13.5px;margin:0 0 16px">${p.indiceDetalle}</p>` : ""}
+      ${p.indiceDetalle ? `<p style="color:var(--tinta2);font-size:13.5px;margin:0 0 16px">${esc(p.indiceDetalle)}</p>` : ""}
       <div class="ficha">${campos.map(c => `<div><dt>${c[0]}</dt><dd>${c[1]}</dd></div>`).join("")}</div>
       <div id="ventanas"></div>
       ${pocos ? '<p class="subt" style="margin:0 0 12px">Solo hay un valor anotado, así que aún no hay curva. Anota más en «Mis datos → Saldos y movimientos».</p>' : ""}
@@ -1324,7 +1332,7 @@
       ${e.top10 ? `<h3 style="font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--tinta3);margin:24px 0 10px">
         Las 10 mayores posiciones · ${e.top10.reduce((a, x) => a + x[1], 0).toFixed(1)} % del fondo</h3>
         <div class="tablaEnv"><table class="dt"><tbody>${e.top10.map(x =>
-          `<tr><td>${x[0]}</td><td>${x[1].toLocaleString("es-ES", { minimumFractionDigits: 2 })} %</td></tr>`).join("")}</tbody></table></div>` : ""}`;
+          `<tr><td>${esc(x[0])}</td><td>${x[1].toLocaleString("es-ES", { minimumFractionDigits: 2 })} %</td></tr>`).join("")}</tbody></table></div>` : ""}`;
     G.barrasHorizontales($("#expoPaises"), { datos: e.paises, color: color(p) });
     G.barrasHorizontales($("#expoSectores"), { datos: e.sectores, color: color(p) });
   }
@@ -1534,6 +1542,8 @@
     document.querySelectorAll("#tabs button").forEach(b =>
       b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
     document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-" + tab; });
+    // «Imprimir» solo tiene sentido en el Panel (imprime la vista activa del panel).
+    if ($("#btnImprimir")) $("#btnImprimir").hidden = tab !== "panel";
     recuerda.guarda("patrimonio.tab", tab);
     pintarTab();
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1647,7 +1657,7 @@
   $("#mesPrev").onclick = () => pasoPeriodo(-1);
   $("#mesNext").onclick = () => pasoPeriodo(1);
   ["rAnos", "rRent", "rApor"].forEach(id => $("#" + id).addEventListener("input", pintaProyeccion));
-  $("#rApor").value = Math.min(3000, Math.max(0, Math.round((D.total.ritmoMensual || 500) / 50) * 50));
+  $("#rApor").value = Math.min(3000, Math.max(0, Math.round(((D.total || {}).ritmoMensual || 500) / 50) * 50));
 
   document.addEventListener("keydown", e => {
     // Solo se ignoran los atajos mientras escribes en un campo. Si el guardia
@@ -1661,9 +1671,9 @@
       estado.ocultos = filtrando() ? new Set() : new Set(idsCorto());
       pintaPatrimonio();
     }
-    // Teclas 1-6: sub-pestañas del Panel.
-    const n = "123456".indexOf(e.key);
-    const pv = ["patrimonio", "distribucion", "rentabilidad", "evolucion", "ingresos", "deudas"][n];
+    // Teclas 1-7: sub-pestañas del Panel.
+    const n = "1234567".indexOf(e.key);
+    const pv = ["patrimonio", "distribucion", "rentabilidad", "evolucion", "ingresos", "deudas", "fiscal"][n];
     if (n >= 0 && document.getElementById("pv-" + pv)) { if (estado.tab !== "panel") irA("panel"); irVista(pv); }
   });
 
@@ -1678,6 +1688,7 @@
     b.setAttribute("aria-selected", String(b.dataset.tab === estado.tab)));
   document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-" + estado.tab; });
   document.querySelectorAll(".pv").forEach(el => { el.hidden = el.id !== "pv-" + estado.pv; });
+  if ($("#btnImprimir")) $("#btnImprimir").hidden = estado.tab !== "panel";
 
   try {
     pintar();
