@@ -392,6 +392,12 @@ table.dt td.nota{max-width:220px;overflow:hidden;text-overflow:ellipsis;text-ali
 .modal[open]{animation:entra .18s ease-out}
 @keyframes entra{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
 .modal::backdrop{background:rgba(6,6,6,.55);backdrop-filter:blur(4px)}
+/* Aviso breve (toast) */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(8px);
+  background:var(--s1);color:#fff;padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;
+  box-shadow:0 14px 40px rgba(0,0,0,.35);z-index:9999;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none}
+.toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
+@media print{.toast{display:none !important}}
 /* Card de bienvenida (primera vez) */
 .bvCuerpo{overflow-y:auto;max-height:calc(100vh - 34px);padding:26px 28px 22px;line-height:1.55}
 .bvCuerpo h2{font-size:21px}
@@ -1266,6 +1272,7 @@ body.video .tarjetaCanal{display:none}
   </div>
 </dialog>
 <dialog class="modal" id="modal"></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script src="cargador.js"></script>
 </body>

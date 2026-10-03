@@ -14,6 +14,20 @@
   const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g,
     c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+  // Aviso breve (toast) que aparece y se va solo, para confirmar acciones.
+  window.toast = (msg) => {
+    const t = document.getElementById("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.hidden = false;
+    requestAnimationFrame(() => t.classList.add("ver"));
+    clearTimeout(t._t);
+    t._t = setTimeout(() => {
+      t.classList.remove("ver");
+      setTimeout(() => { try { t.hidden = true; } catch (e) { /* noop */ } }, 260);
+    }, 2200);
+  };
+
   const recuerda = {
     lee(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     guarda(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* da igual */ } },

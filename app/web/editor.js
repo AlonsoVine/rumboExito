@@ -56,6 +56,7 @@
     COP.lista = null;   // hay una copia automática nueva
     window.EDITOR_SUCIO = true;
     avisa(j.avisos);
+    if (window.toast) window.toast("Guardado ✓");
     return j.item;
   }
   async function borra(coleccion, id) {
@@ -63,6 +64,7 @@
     E.cfg = j.cartera;
     COP.lista = null;
     window.EDITOR_SUCIO = true;
+    if (window.toast) window.toast("Borrado ✓");
   }
   function avisa(avisos) {
     const el = $("#edAvisos");
@@ -414,6 +416,7 @@
     const nuevo = !p;
     p = p || { tipo: tipoInicial || "fondo", fuente: tipoInicial === "deuda" ? "manual" : "morningstar", moneda: "EUR", largoPlazo: true, slot: siguienteColor() };
     const clases = [...new Set(E.cfg.productos.map(x => x.clase).filter(Boolean))];
+    const entidades = [...new Set(E.cfg.productos.map(x => x.entidad).filter(Boolean))].sort();
     const colores = Array.from({ length: 12 }, (_, i) =>
       `<label class="color" style="--c:var(--s${i + 1})" title="Color ${i + 1}"><input type="radio" name="slot" value="${i + 1}"><i></i></label>`).join("");
     const esDeuda = (tipoInicial === "deuda" || p.tipo === "deuda");
@@ -436,7 +439,8 @@
         ${campo("Tipo", `<select name="tipo">${opciones(E.tipos, p.tipo)}</select>`)}
         ${campo("Detalle del tipo" + info("Afina el tipo para la foto por categorías, como en el Excel: p. ej. Tipo «Cuenta / efectivo» con detalle «Cuenta remunerada» o «Depósito». Si lo dejas vacío se usa el tipo general. Para las cuentas que puedas usar ya, deja el Tipo en «Cuenta / efectivo» para que cuenten como disponible."), '<input name="tipoDetalle" placeholder="Cuenta remunerada, Depósito…">', "opcional")}
         ${campo("ISIN o ticker", '<input name="identificador">', "opcional")}
-        ${campo("Banco o bróker", '<input name="entidad">', "opcional")}
+        ${campo("Banco o bróker", `<input name="entidad" list="edEntidades">
+          <datalist id="edEntidades">${entidades.map(x => `<option value="${esc(x)}">`).join("")}</datalist>`, "opcional")}
         ${campo("Titular", `<input name="titular" list="edTitulares" placeholder="Mar, Común…">
           <datalist id="edTitulares">${(E.cfg.titulares || []).map(t => `<option value="${esc(t)}">`).join("")}</datalist>`, "de quién es")}
         ${campo("Moneda", '<input name="moneda" maxlength="3" placeholder="EUR">', "EUR por defecto")}
@@ -664,6 +668,7 @@
     COP.lista = null;
     window.EDITOR_SUCIO = true;
     avisa(j.avisos);
+    if (window.toast) window.toast("Guardado ✓");
   }
 
   function formHogar() {
