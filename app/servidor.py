@@ -17,6 +17,7 @@ import secrets
 import shutil
 import sys
 import threading
+import time
 import urllib.request
 import webbrowser
 
@@ -405,9 +406,25 @@ def api_cartera_borrar():
     if cid not in ids:
         return jsonify(ok=False, errores=["Esa cartera ya no existe."]), 400
     if len(ids) <= 1:
-        return jsonify(ok=False, errores=["No puedes borrar tu única cartera. Crea otra antes."]), 400
+        return jsonify(ok=False, errores=["No puedes borrar tu único patrimonio. Crea otro antes."]), 400
     with cerrojo:
-        shutil.rmtree(os.path.join(_carteras_dir(), cid), ignore_errors=True)
+        ruta = os.path.join(_carteras_dir(), cid)
+        # En Windows un archivo de caché puede estar en uso un instante: reintentamos.
+        borrado = False
+        for _ in range(4):
+            try:
+                shutil.rmtree(ruta)
+                borrado = True
+                break
+            except FileNotFoundError:
+                borrado = True
+                break
+            except OSError:
+                time.sleep(0.25)
+        if not borrado and os.path.exists(ruta):
+            return jsonify(ok=False, errores=[
+                "No he podido borrar todos sus archivos (alguno estaba en uso). "
+                "Cierra otras ventanas de la app e inténtalo de nuevo."]), 500
         if registro().get("activa") == cid:
             guarda_registro({"activa": sorted(ids - {cid})[0]})
         recalcula(descargar="faltan")
