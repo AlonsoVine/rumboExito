@@ -1266,6 +1266,11 @@
   /* ================================================================
      PESTAÑA 3 · FONDOS
      ================================================================ */
+  // Días desde el último precio real de un producto cotizado (0 si no aplica).
+  function precioDiasViejo(p) {
+    return p && p.navFecha ? Math.round((Date.parse(D.fechaExtracto) - Date.parse(p.navFecha)) / 864e5) : 0;
+  }
+
   function pintaFondos() {
     const lista = TODOS();
     if (!estado.fondo || !buscaProd(estado.fondo)) estado.fondo = lista[0].id;
@@ -1276,7 +1281,8 @@
       const b = document.createElement("button");
       b.style.setProperty("--c", color(x));
       b.setAttribute("aria-pressed", String(x.id === estado.fondo));
-      b.innerHTML = `<i></i>${esc(x.corto || x.nombre)}`;
+      const vj = precioDiasViejo(x);
+      b.innerHTML = `<i></i>${esc(x.corto || x.nombre)}${vj > 7 ? ` <span title="Último precio hace ${vj} días" style="color:#c98500">⚠</span>` : ""}`;
       b.onclick = () => { estado.fondo = x.id; pintaFondos(); };
       $("#selFondo").appendChild(b);
     });
@@ -1309,6 +1315,7 @@
     const hayVL = !!(p.navSerie && p.navSerie.some(v => v));
     const etqVL = p.etqPrecio || "Valor liquidativo";
     const pocos = (p.serie || []).filter(v => v != null).length < 5;
+    const diasP = precioDiasViejo(p);
 
     sec.innerHTML = `
       <header>
@@ -1318,6 +1325,7 @@
       </header>
       ${p.papel ? `<div class="papel">${esc(p.papel)}</div>` : ""}
       ${p.indiceDetalle ? `<p style="color:var(--tinta2);font-size:13.5px;margin:0 0 16px">${esc(p.indiceDetalle)}</p>` : ""}
+      ${diasP > 7 ? `<p class="avisoLinea" style="border-left-color:#c98500;margin:0 0 14px">⚠ El último precio que tengo es del <b>${G.fmtFechaCorta(p.navFecha)}</b> (hace ${diasP} días). Pulsa «↻ Actualizar precios» arriba para ponerlo al día.</p>` : ""}
       <div class="ficha">${campos.map(c => `<div><dt>${c[0]}</dt><dd>${c[1]}</dd></div>`).join("")}</div>
       <div id="ventanas"></div>
       ${pocos ? '<p class="subt" style="margin:0 0 12px">Solo hay un valor anotado, así que aún no hay curva. Anota más en «Mis datos → Saldos y movimientos».</p>' : ""}
