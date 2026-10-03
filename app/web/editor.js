@@ -1198,10 +1198,14 @@
           ${propio ? '<a class="btn prim" href="api/copia/descargar" download>Descargar copia</a>'
             : '<span class="subt">Disponible cuando empieces tu propia cartera.</span>'}</div>
         <div class="bloque"><b>Recuperar desde un archivo</b>
-          <p class="ayuda">Sube una copia que descargaste antes. Sustituye la cartera actual (que se guarda antes, por si acaso).</p>
+          <p class="ayuda">Sube una copia <code>.json</code> que descargaste antes. Puedes <b>crear un patrimonio nuevo</b> con ella
+            (así no pierdes el actual) o <b>sustituir</b> el que tienes abierto. En ambos casos, lo que haya ahora se guarda
+            antes en «Copias automáticas» (abajo), así que podrás volver atrás.</p>
           ${zona(".json", false, "Arrastra aquí tu copia")}
           <div class="imErr" id="copFallo" hidden></div>
-          <div class="imAcc"><span class="sp"></span><button class="btn prim" data-acc="subirCopia" id="copSubirBtn">Recuperar esta copia</button></div></div>
+          <div class="imAcc" style="gap:8px"><span class="sp"></span>
+            <button class="btn" data-acc="subirCopiaNuevo" id="copNuevoBtn">Crear un patrimonio nuevo</button>
+            <button class="btn prim" data-acc="subirCopiaSustituir" id="copSubirBtn">Sustituir este patrimonio</button></div></div>
       </div></section>
 
       <section class="tarjeta"><header><h2>Copias automáticas</h2>
@@ -1237,13 +1241,19 @@
       <p class="ayuda">La web lleva la fecha de hoy: cuando actualices tus datos, vuelve a descargarla y súbela otra vez.</p></section>`;
   }
 
-  async function subirCopia() {
+  async function subirCopia(destino) {
     const inp = $("#imArchivos"), fallo = $("#copFallo");
     fallo.hidden = true;
     if (!inp.files.length) { fallo.textContent = "Elige primero el archivo de la copia."; fallo.hidden = false; return; }
-    if (E.modo === "propio" && !confirm("Esto sustituye tu cartera actual por la de la copia. Tu cartera actual se guarda antes en «Copias automáticas». ¿Seguir?")) return;
     const fd = new FormData();
     fd.append("archivo", inp.files[0]);
+    if (destino === "nuevo") {
+      const nombre = (prompt("Nombre del nuevo patrimonio (déjalo vacío para usar el de la copia):") || "").trim();
+      fd.append("destino", "nuevo");
+      if (nombre) fd.append("nombre", nombre);
+    } else {
+      if (E.modo === "propio" && !confirm("Esto SUSTITUYE el patrimonio que tienes abierto por el de la copia.\n\nEl actual se guarda antes en «Copias automáticas», así que podrás volver atrás. ¿Seguir?")) return;
+    }
     const r = await fetch("api/copia/subir", { method: "POST", body: fd });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.ok) { fallo.textContent = (j.errores || ["No he podido leer la copia."]).join("\n"); fallo.hidden = false; return; }
@@ -1315,7 +1325,8 @@
     imRevisar: soloPropio(imRevisar),
     imCancelar() { IMP.informe = null; IMP.token = null; pinta(); },
     imConfirmar,
-    subirCopia,
+    subirCopiaSustituir: () => subirCopia("sustituir"),
+    subirCopiaNuevo: () => subirCopia("nuevo"),
     recuperarCopia,
     exportarWeb() { location.href = "api/exportar-web?ocultar=" + ($("#webOcultar").checked ? "1" : "0"); },
     verPanelDatos() { recuerda.guarda("patrimonio.tab", "panel"); location.reload(); },

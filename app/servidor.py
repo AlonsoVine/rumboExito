@@ -536,6 +536,19 @@ def restaura(cfg):
         recalcula(descargar="faltan")
 
 
+def crea_desde_copia(cfg, nombre):
+    """Crea un patrimonio NUEVO a partir de la copia, sin tocar el actual, y lo activa."""
+    with cerrojo:
+        asegura_multi()
+        nombre = (nombre or cfg.get("titular") or "Patrimonio restaurado").strip()[:60] or "Patrimonio restaurado"
+        cid = almacen.slug(nombre, {c["id"] for c in carteras()})
+        os.makedirs(os.path.join(_carteras_dir(), cid), exist_ok=True)
+        almacen.guarda(os.path.join(_carteras_dir(), cid, "cartera.json"), dict(cfg, titular=nombre))
+        guarda_registro({"activa": cid})
+        recalcula(descargar="faltan")
+    return cid
+
+
 @app.get("/api/copias")
 def api_copias():
     lista = []
@@ -579,7 +592,11 @@ def api_copia_subir():
         return jsonify(ok=False, errores=["Ese archivo no es una copia de seguridad de esta app."]), 400
     except almacen.ErrorValidacion as e:
         return jsonify(ok=False, errores=e.errores), 400
-    restaura(cfg)
+    # «nuevo»: crea un patrimonio aparte con la copia; por defecto, sustituye el actual.
+    if request.form.get("destino") == "nuevo":
+        crea_desde_copia(cfg, request.form.get("nombre"))
+    else:
+        restaura(cfg)
     return jsonify(ok=True)
 
 

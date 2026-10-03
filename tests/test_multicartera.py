@@ -93,3 +93,21 @@ def test_restaurar_conserva_el_nombre_de_la_cartera_destino(tmp_path, monkeypatc
     assert r.get_json()["ok"] is True
     # La cartera activa (Dos) conserva su nombre, no adopta el de la copia.
     assert servidor.cartera().get("titular") == "Dos"
+
+
+def test_subir_copia_crea_patrimonio_nuevo(tmp_path, monkeypatch):
+    import io
+    servidor = _base(tmp_path, monkeypatch)              # "Uno" (modo antiguo)
+    cli = servidor.app.test_client()
+    cli.post("/api/cartera/nueva", json={"nombre": "Dos"})   # multi: Uno, Dos
+
+    copia = {"version": 1, "titular": "Mi copia", "productos": [], "movimientos": [], "valoraciones": []}
+    contenido = io.BytesIO(json.dumps(copia).encode("utf-8"))
+    r = cli.post("/api/copia/subir",
+                 data={"archivo": (contenido, "copia.json"), "destino": "nuevo", "nombre": "Restaurado"},
+                 content_type="multipart/form-data")
+    assert r.get_json()["ok"] is True
+    carts = cli.get("/api/carteras").get_json()["carteras"]
+    # Se conservan las dos anteriores y aparece una tercera, que queda activa.
+    assert len(carts) == 3
+    assert servidor.cartera().get("titular") == "Restaurado"
