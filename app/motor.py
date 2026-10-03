@@ -1597,31 +1597,32 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
 
     alertas = []
 
-    def _al(txt, n, nivel="aviso"):
-        alertas.append({"texto": txt, "n": n, "nivel": nivel})
+    def _al(txt, n, nivel="aviso", pv=None):
+        # pv = sub-pestaña del Panel a la que lleva la alerta al pulsarla (o None).
+        alertas.append({"texto": txt, "n": n, "nivel": nivel, "pv": pv})
 
     if objetivos and abs(suma_obj - 1.0) > 1e-6:
-        _al("Los objetivos de asignación no suman 100 %.", 1)
+        _al("Los objetivos de asignación no suman 100 %.", 1, pv="distribucion")
     nct = sum(1 for a in asignacion if a["concentracion"])
     if nct:
-        _al("Tipos de activo por encima del umbral de concentración.", nct)
+        _al("Tipos de activo por encima del umbral de concentración.", nct, pv="distribucion")
     nce = sum(1 for e in concentracion_entidad if e["concentracion"])
     if nce:
-        _al("Entidades por encima del umbral de concentración.", nce)
+        _al("Entidades por encima del umbral de concentración.", nce, pv="distribucion")
     nfo = sum(1 for a in asignacion if a["estado"] in ("Sobreponderado", "Infraponderado"))
     if nfo:
-        _al("Tipos de activo fuera del objetivo (más allá de la desviación máxima).", nfo)
+        _al("Tipos de activo fuera del objetivo (más allá de la desviación máxima).", nfo, pv="distribucion")
     nven = sum(1 for v in vencimientos if v["estado"] == "Vencido")
     if nven:
-        _al("Fechas ya vencidas: revísalas y, si procede, da de baja.", nven)
+        _al("Fechas ya vencidas: revísalas y, si procede, da de baja.", nven, pv="deudas")
     nprox = sum(1 for v in vencimientos if v["estado"] == "Próximo")
     if nprox:
-        _al("Vencimientos dentro del plazo de aviso.", nprox, "info")
+        _al("Vencimientos dentro del plazo de aviso.", nprox, "info", pv="deudas")
     if dinero_libre < 0:
-        _al("Dinero libre para invertir negativo (apartados + colchón superan lo disponible).", 1)
+        _al("Dinero libre para invertir negativo (apartados + colchón superan lo disponible).", 1, pv="patrimonio")
     if monedas_faltan:
         _al("Monedas sin tipo de cambio configurado (se toman en euros): "
-            + ", ".join(sorted(monedas_faltan)) + ".", len(monedas_faltan))
+            + ", ".join(sorted(monedas_faltan)) + ".", len(monedas_faltan), pv="distribucion")
     # Recordatorio (B3): hace mucho que no anotas nada. Umbral configurable.
     _ds = (cfg.get("config") or {}).get("diasSinAnotar")
     dias_sin = int(_ds) if _ds is not None else 30   # respeta el 0 (avisar siempre)

@@ -140,6 +140,9 @@ def test_alertas_generadas(tmp_path):
     assert "concentración" in textos
     fuera = next(a for a in d["alertas"] if "fuera del objetivo" in a["texto"])
     assert fuera["n"] == 2   # fondo (sobre) + efectivo (infra)
+    # Las alertas llevan una sub-pestaña destino para poder pulsarlas.
+    assert fuera["pv"] == "distribucion"
+    assert next(a for a in d["alertas"] if "vencidas" in a["texto"])["pv"] == "deudas"
 
 
 def test_recordatorio_sin_anotar(tmp_path):

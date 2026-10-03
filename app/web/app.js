@@ -715,10 +715,18 @@
   /* Banner de alertas del cuadro de control (F4). */
   function pintaAlertas() {
     const cont = $("#bannerAlertas"), al = D.alertas || [];
-    cont.innerHTML = al.map(a => {
+    cont.innerHTML = al.map((a, i) => {
       const color = a.nivel === "info" ? "var(--tinta2)" : "var(--mal)";
-      return `<div class="avisoLinea" style="border-left:3px solid ${color}"><b>${a.n}</b> ${esc(a.texto)}</div>`;
+      const clic = a.pv && document.getElementById("pv-" + a.pv);
+      const extra = clic ? ` class="avisoClic" role="button" tabindex="0" data-pv="${esc(a.pv)}" title="Ir a la sección"` : "";
+      return `<div class="avisoLinea${clic ? " clicable" : ""}" style="border-left:3px solid ${color}"${extra}>
+        <b>${a.n}</b> ${esc(a.texto)}${clic ? ' <span class="avisoIr">Ver →</span>' : ""}</div>`;
     }).join("");
+    cont.querySelectorAll("[data-pv]").forEach(el => {
+      const ir = () => irVista(el.dataset.pv);
+      el.onclick = ir;
+      el.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); ir(); } };
+    });
   }
 
   /* Asignación por tipo frente al objetivo, con desviación, estado y concentración. */

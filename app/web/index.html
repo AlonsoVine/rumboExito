@@ -140,6 +140,10 @@ body.vistaAmplia .segm button{padding:10px 16px}
 .bannerAlertas:empty{display:none}
 .avisoLinea{background:var(--sup);border:1px solid var(--borde);border-radius:9px;padding:9px 12px;font-size:13px}
 .avisoLinea b{display:inline-block;min-width:20px;font-variant-numeric:tabular-nums}
+.avisoLinea.clicable{cursor:pointer}
+.avisoLinea.clicable:hover{border-color:var(--s1);background:var(--sup2,var(--sup))}
+.avisoIr{color:var(--s1);font-weight:600;white-space:nowrap}
+@media print{.avisoIr{display:none}}
 
 .prog{margin-top:26px;max-width:760px}
 .progBarra{height:9px;border-radius:99px;background:var(--sup2);overflow:hidden;border:1px solid var(--borde)}
