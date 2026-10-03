@@ -19,7 +19,7 @@ def _cfg():
             {"id": "m3", "producto": "f", "tipo": "venta", "fecha": "2023-03-15",
              "unidades": "15", "importe": "1800"},
             {"id": "m4", "producto": "f", "tipo": "dividendo", "fecha": "2023-05-01",
-             "importe": "50"},
+             "importe": "50", "retencion": "9.5"},
             {"id": "m5", "producto": "f", "tipo": "venta", "fecha": "2024-02-01",
              "unidades": "5", "importe": "700"},
         ],
@@ -50,6 +50,9 @@ def test_dividendos_son_rendimientos():
     fisc = motor.detalle_fiscal(_cfg())
     rend = fisc["2023"]["rendimientos"]
     assert len(rend) == 1 and rend[0]["importe"] == 50.0 and rend[0]["producto"] == "Fondo X"
+    # La retención del dividendo se recoge y se suma en los totales.
+    assert rend[0]["retencion"] == 9.5
+    assert fisc["2023"]["totales"]["retenciones"] == 9.5
 
 
 def test_venta_sin_compras_se_marca_y_no_se_anula():

@@ -881,6 +881,7 @@
         ${campo("Unidades" + info("Cuántas participaciones, acciones, títulos u onzas compraste o vendiste. En productos que se valoran a mano son opcionales."), '<input name="unidades" inputmode="decimal" placeholder="0">', "participaciones, acciones…", "siUnid")}
         ${campo("Importe total" + info("El dinero total de la operación. En una COMPRA: lo que salió de tu cuenta, con las comisiones ya incluidas. En una VENTA o un DIVIDENDO: lo que te ingresaron. No se le resta nada: pon la cifra tal cual."), '<div class="conSufijo"><input name="importe" inputmode="decimal" placeholder="0,00"><span>€</span></div>')}
         ${campo("Comisión" + info("Solo informativo: la comisión que te cobraron en esta operación, que YA va dentro del importe total. No se vuelve a restar; sirve para saber cuánto pagas en comisiones."), '<div class="conSufijo"><input name="comision" inputmode="decimal" placeholder="0,00"><span>€</span></div>', "ya incluida en el importe", "siCom")}
+        ${campo("Retención IRPF" + info("Opcional. Lo que te retuvieron de IRPF en este dividendo o cupón. Aparece en tu Informe fiscal. El «importe total» de arriba es lo que te ingresaron, ya con la retención descontada."), '<div class="conSufijo"><input name="retencion" inputmode="decimal" placeholder="0,00"><span>€</span></div>', "opcional", "siDiv")}
         ${campo("Nota", '<input name="nota" maxlength="200" placeholder="Por ejemplo: aportación mensual">', "opcional", "ancho")}
       </div>
       <div class="resumen"><span id="mAyuda"></span><b id="mPrecio"></b></div>`,
@@ -892,13 +893,14 @@
       recuerda.guarda("patrimonio.editor", "movimientos");
       return null;
     }, nuevo ? "Guardar movimiento" : "Guardar cambios");
-    rellena(f, { ...m, unidades: decimal(m.unidades || ""), importe: decimal(m.importe), comision: decimal(m.comision) });
+    rellena(f, { ...m, unidades: decimal(m.unidades || ""), importe: decimal(m.importe), comision: decimal(m.comision), retencion: decimal(m.retencion) });
     const ajusta = () => {
       const t = f.elements.tipo.value;
       const p = prod(f.elements.producto.value);
       const conUnid = t === "compra" || t === "venta";
       f.querySelector(".siUnid").hidden = !conUnid;
       f.querySelector(".siCom").hidden = !conUnid;
+      const sd = f.querySelector(".siDiv"); if (sd) sd.hidden = t !== "dividendo";
       // Con la caja de unidades oculta, la del importe ocupa su hueco sin descuadrar la rejilla.
       $("#mAyuda").textContent = AYUDA_IMPORTE[t] + (p && manual(p) && t === "compra"
         ? " Como este producto se valora a mano, las unidades son opcionales." : "");

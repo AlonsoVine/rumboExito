@@ -572,7 +572,8 @@ def detalle_fiscal(cfg):
                 })
             elif t == "dividendo":
                 anios[anio]["rendimientos"].append({
-                    "producto": nombres.get(pid, pid), "fecha": f, "importe": round(imp, 2)})
+                    "producto": nombres.get(pid, pid), "fecha": f, "importe": round(imp, 2),
+                    "retencion": round(float(m.get("retencion") or 0), 2)})
 
     out = {}
     for anio, dat in anios.items():
@@ -592,6 +593,7 @@ def detalle_fiscal(cfg):
                 "perdidas": round(sum(v["ganancia"] for v in ventas if v["ganancia"] < 0), 2),
                 "gananciaNeta": round(sum(v["ganancia"] for v in ventas), 2),
                 "rendimientos": round(sum(r["importe"] for r in rend), 2),
+                "retenciones": round(sum(r.get("retencion") or 0 for r in rend), 2),
             },
         }
     return out

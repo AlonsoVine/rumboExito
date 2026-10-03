@@ -280,6 +280,7 @@ def guarda_movimiento(cfg, datos):
     comision = numero(datos.get("comision"), "la comisión", errores, obligatorio=False, minimo=0)
     if comision and importe and comision >= importe:
         errores.append("La comisión no puede ser mayor que el importe total.")
+    retencion = numero(datos.get("retencion"), "la retención", errores, obligatorio=False, minimo=0)
     if not errores and tipo == "venta" and cotiza and unidades:
         tenias = unidades_a(cfg, p["id"], f, excluir=datos.get("id"))
         if unidades > tenias + 1e-6:
@@ -292,6 +293,8 @@ def guarda_movimiento(cfg, datos):
            "importe": round(importe, 2)}
     if comision:
         mov["comision"] = round(comision, 2)
+    if retencion and tipo == "dividendo":
+        mov["retencion"] = round(retencion, 2)
     if texto(datos.get("nota")):
         mov["nota"] = texto(datos.get("nota"))
     lista = cfg.setdefault("movimientos", [])

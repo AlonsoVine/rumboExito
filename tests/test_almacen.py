@@ -138,3 +138,16 @@ def test_carga_json_valido_ok(tmp_path):
     ruta = tmp_path / "cartera.json"
     ruta.write_text('{"version": 1, "productos": []}', encoding="utf-8")
     assert almacen.carga(str(ruta))["version"] == 1
+
+
+def test_dividendo_guarda_retencion():
+    cfg = cfg_vacia()
+    almacen.guarda_producto(cfg, {"nombre": "Acme", "tipo": "accion", "fuente": "manual"})
+    pid = cfg["productos"][0]["id"]
+    mov = almacen.guarda_movimiento(cfg, {"producto": pid, "tipo": "dividendo",
+                                          "fecha": "2024-03-01", "importe": "50", "retencion": "9,5"})
+    assert mov["retencion"] == 9.5
+    # La retención solo tiene sentido en dividendos: en una compra no se guarda.
+    mc = almacen.guarda_movimiento(cfg, {"producto": pid, "tipo": "compra", "fecha": "2024-01-01",
+                                         "importe": "100", "unidades": "1", "retencion": "5"})
+    assert "retencion" not in mc

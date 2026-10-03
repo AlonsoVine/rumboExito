@@ -1005,6 +1005,30 @@
     cont.classList.toggle("activo", !!actual);
   }
 
+  /* Descarga el informe fiscal del año como CSV (para el asesor o para guardarlo). */
+  function descargaFiscalCsv(anio) {
+    const d = (D.fiscal || {})[anio];
+    if (!d) return;
+    const n = x => (Number(x) || 0).toFixed(2).replace(".", ",");   // decimales con coma (Excel ES)
+    const q = s => { s = String(s == null ? "" : s); return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+    const t = d.totales || {};
+    const L = ["Informe fiscal " + anio + " - " + (D.titular || "Patrimonio"), "",
+      "Ganancias y perdidas patrimoniales",
+      "Producto;Fecha adquisicion;Fecha venta;Unidades;Valor adquisicion;Valor transmision;Ganancia/Perdida"];
+    (d.ventas || []).forEach(v => L.push([q(v.producto), v.fechaAdquisicion, v.fecha,
+      n(v.unidades), n(v.adquisicion), n(v.transmision), n(v.ganancia)].join(";")));
+    L.push(["Totales", "", "", "", n(t.adquisicion), n(t.transmision), n(t.gananciaNeta)].join(";"), "",
+      "Rendimientos del capital mobiliario (dividendos y cupones)", "Producto;Fecha;Importe;Retencion IRPF");
+    (d.rendimientos || []).forEach(r => L.push([q(r.producto), r.fecha, n(r.importe), n(r.retencion)].join(";")));
+    L.push(["Total", "", n(t.rendimientos), n(t.retenciones)].join(";"));
+    const blob = new Blob(["﻿" + L.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "informe_fiscal_" + anio + ".csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+
   /* Informe fiscal (IRPF): ganancias/pérdidas por FIFO y dividendos, por año. */
   function pintaFiscal() {
     const fisc = D.fiscal || {};
@@ -1017,8 +1041,10 @@
     }
     if (!estado.anioFiscal || !fisc[estado.anioFiscal]) estado.anioFiscal = anios[0];
     selC.innerHTML = `<label for="selAnioFisc" style="font-size:13px;color:var(--tinta2)">Año fiscal: </label>
-      <select id="selAnioFisc">${anios.map(a => `<option value="${esc(a)}"${a === estado.anioFiscal ? " selected" : ""}>${esc(a)}</option>`).join("")}</select>`;
+      <select id="selAnioFisc">${anios.map(a => `<option value="${esc(a)}"${a === estado.anioFiscal ? " selected" : ""}>${esc(a)}</option>`).join("")}</select>
+      <button class="btn" id="btnFiscalCsv" style="margin-left:10px">⬇ Descargar CSV</button>`;
     $("#selAnioFisc").onchange = e => { estado.anioFiscal = e.target.value; pintaFiscal(); };
+    $("#btnFiscalCsv").onclick = () => descargaFiscalCsv(estado.anioFiscal);
 
     const dat = fisc[estado.anioFiscal] || {}, t = dat.totales || {};
     dat.ventas = dat.ventas || []; dat.rendimientos = dat.rendimientos || [];
@@ -1053,10 +1079,11 @@
       <tfoot><tr><td colspan="4">Totales</td><td${dr}>${eur(t.adquisicion)}</td><td${dr}>${eur(t.transmision)}</td><td${dr}>${signo(t.gananciaNeta)}</td></tr></tfoot>
       </table></div>` : `<p class="vacio">No hay ventas en ${esc(estado.anioFiscal)}.</p>`;
 
+    const hayRet = dat.rendimientos.some(r => r.retencion) || t.retenciones;
     const rend = dat.rendimientos.length ? hTit("Rendimientos del capital mobiliario (dividendos y cupones)") +
-      `<div class="tablaEnv"><table class="dt"><thead><tr><th>Producto</th><th>Fecha</th><th${dr}>Importe</th></tr></thead>
-      <tbody>${dat.rendimientos.map(r => `<tr><td>${esc(r.producto)}</td><td>${G.fmtFecha(r.fecha)}</td><td${dr}>${eur(r.importe)}</td></tr>`).join("")}</tbody>
-      <tfoot><tr><td colspan="2">Total</td><td${dr}>${eur(t.rendimientos)}</td></tr></tfoot></table></div>`
+      `<div class="tablaEnv"><table class="dt"><thead><tr><th>Producto</th><th>Fecha</th><th${dr}>Importe</th>${hayRet ? `<th${dr}>Retención IRPF</th>` : ""}</tr></thead>
+      <tbody>${dat.rendimientos.map(r => `<tr><td>${esc(r.producto)}</td><td>${G.fmtFecha(r.fecha)}</td><td${dr}>${eur(r.importe)}</td>${hayRet ? `<td${dr}>${eur(r.retencion || 0)}</td>` : ""}</tr>`).join("")}</tbody>
+      <tfoot><tr><td colspan="2">Total</td><td${dr}>${eur(t.rendimientos)}</td>${hayRet ? `<td${dr}>${eur(t.retenciones)}</td>` : ""}</tr></tfoot></table></div>`
       : `<p class="vacio">No hay dividendos ni cupones en ${esc(estado.anioFiscal)}.</p>`;
 
     cont.innerHTML = avisos + resumen + ventas + rend;
