@@ -1191,6 +1191,10 @@
       api("GET", "api/copias").then(j => { COP.lista = j.copias; if (E.vista === "copias") pinta(); });
     }
     const propio = E.modo === "propio";
+    const ultimaCopia = recuerda.lee("patrimonio.ultimaCopia");
+    const diasCopia = ultimaCopia ? Math.floor((Date.now() - Date.parse(ultimaCopia)) / 864e5) : null;
+    const tieneDatos = (E.cfg.productos || []).length || (E.cfg.movimientos || []).length;
+    const avisoCopia = propio && tieneDatos && (diasCopia === null || diasCopia >= 30);
     const filas = (COP.lista || []).map(c => `<tr><td>${fecha(c.fecha.slice(0, 10))} <small>${c.fecha.slice(11, 16)}</small></td>
       <td style="text-align:left">${esc(c.motivo)}</td><td>${c.productos}</td><td>${c.movimientos}</td>
       <td class="acc"><button data-acc="recuperarCopia" data-id="${esc(c.archivo)}">Recuperar</button></td></tr>`).join("");
@@ -1200,8 +1204,10 @@
         <div class="bloque"><b>Guardar una copia</b>
           <p class="ayuda">Descarga un archivo <code>.json</code> con todos tus productos, movimientos y saldos.
             Guárdalo en tu nube o en un USB de vez en cuando.</p>
-          ${propio ? '<a class="btn prim" href="api/copia/descargar" download>Descargar copia</a>'
-            : '<span class="subt">Disponible cuando empieces tu propia cartera.</span>'}</div>
+          ${propio ? `<a class="btn prim" href="api/copia/descargar" download data-acc="marcaCopia">Descargar copia</a>
+            <p class="ayuda" style="margin-top:8px">${ultimaCopia ? `Última copia descargada: hace ${diasCopia} día${diasCopia === 1 ? "" : "s"}.` : "Todavía no has descargado ninguna copia."}</p>
+            ${avisoCopia ? `<div class="av" style="margin-top:8px"><span>💾</span><span>${ultimaCopia ? "Hace tiempo que no guardas una copia de seguridad." : "Guarda una copia para no perder tus datos si le pasa algo al ordenador."} Pulsa «Descargar copia».</span></div>` : ""}`
+            : '<span class="subt">Disponible cuando empieces tu propio patrimonio.</span>'}</div>
         <div class="bloque"><b>Recuperar desde un archivo</b>
           <p class="ayuda">Sube una copia <code>.json</code> que descargaste antes. Puedes <b>crear un patrimonio nuevo</b> con ella
             (así no pierdes el actual) o <b>sustituir</b> el que tienes abierto. En ambos casos, lo que haya ahora se guarda
@@ -1214,7 +1220,8 @@
       </div></section>
 
       <section class="tarjeta"><header><h2>Copias automáticas</h2>
-        <span class="subt">Antes de cada cambio se guarda una copia (las últimas 20). Si te equivocas, vuelve a una anterior.</span></header>
+        <span class="subt">Antes de cada cambio se guarda una copia (las últimas 20). Si te equivocas, vuelve a una anterior.</span>
+        ${propio && filas ? '<span class="sp"></span><button class="btn" data-acc="deshacer">↩ Deshacer el último cambio</button>' : ""}</header>
       ${COP.lista === null ? '<p class="cargando">Cargando…</p>' : filas
         ? `<div class="tablaEnv alto"><table class="dt"><thead><tr><th>Fecha</th><th style="text-align:left">Motivo</th>
           <th>Productos</th><th>Movimientos</th><th></th></tr></thead><tbody>${filas}</tbody></table></div>`
@@ -1333,6 +1340,12 @@
     subirCopiaSustituir: () => subirCopia("sustituir"),
     subirCopiaNuevo: () => subirCopia("nuevo"),
     recuperarCopia,
+    marcaCopia() { try { recuerda.guarda("patrimonio.ultimaCopia", new Date().toISOString()); } catch (e) { /* noop */ } },
+    deshacer: soloPropio(() => {
+      const lista = (COP.lista || []).slice().sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
+      if (!lista.length) { alert("Todavía no hay ningún cambio que deshacer."); return; }
+      recuperarCopia(lista[0].archivo);
+    }),
     exportarWeb() { location.href = "api/exportar-web?ocultar=" + ($("#webOcultar").checked ? "1" : "0"); },
     verPanelDatos() { recuerda.guarda("patrimonio.tab", "panel"); location.reload(); },
     async imCopiar() {
