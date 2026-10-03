@@ -363,6 +363,7 @@
       <td>${esc(E.fuentes[p.fuente] || "")}${p.codigo ? ` <small>${esc(p.codigo)}</small>` : ""}</td>
       <td>${n}</td>
       <td class="acc"><button data-acc="editarProducto" data-id="${esc(p.id)}">Editar</button>
+        <button data-acc="duplicarProducto" data-id="${esc(p.id)}">Duplicar</button>
         <button data-acc="borrarProducto" data-id="${esc(p.id)}">Borrar</button></td></tr>`;
   }
 
@@ -413,7 +414,7 @@
   const decimal = v => v == null || v === "" ? "" : String(v).replace(".", ",");
 
   function formProducto(p, tipoInicial) {
-    const nuevo = !p;
+    const nuevo = !p || !p.id;   // sin id = producto nuevo (p. ej. al duplicar)
     p = p || { tipo: tipoInicial || "fondo", fuente: tipoInicial === "deuda" ? "manual" : "morningstar", moneda: "EUR", largoPlazo: true, slot: siguienteColor() };
     const clases = [...new Set(E.cfg.productos.map(x => x.clase).filter(Boolean))];
     const entidades = [...new Set(E.cfg.productos.map(x => x.entidad).filter(Boolean))].sort();
@@ -844,6 +845,7 @@
         <td>${precio ? num(precio) + " €" : "—"}</td>
         <td class="nota" title="${esc(m.nota)}">${esc(m.nota || "")}</td>
         <td class="acc"><button data-acc="editarMov" data-id="${esc(m.id)}">Editar</button>
+          <button data-acc="duplicarMov" data-id="${esc(m.id)}">Duplicar</button>
           <button data-acc="borrarMov" data-id="${esc(m.id)}">Borrar</button></td></tr>`;
     }).join("");
     return `<section class="tarjeta"><header><h2>Movimientos</h2>
@@ -868,7 +870,7 @@
   function formMovimiento(m, productoId) {
     const cotizables = E.cfg.productos.filter(p => !soloSaldo(p));
     if (!cotizables.length) { alert("Primero añade un activo en «Activos»."); return; }
-    const nuevo = !m;
+    const nuevo = !m || !m.id;   // clon sin id = movimiento nuevo (al duplicar)
     m = m || { fecha: hoy(), tipo: "compra", producto: productoId || (E.filtro !== "todos" ? E.filtro : cotizables[0].id) };
     const pildoras = Object.entries(E.tiposMov).map(([k, v]) =>
       `<label><input type="radio" name="tipo" value="${esc(k)}"><span>${esc(k === "dividendo" ? "Dividendo" : v)}</span></label>`).join("");
@@ -1311,9 +1313,11 @@
       try { await guardaConfig({ asistenteOculto: true }); pinta(); } catch (x) { alert(x.message); }
     }),
     editarProducto: soloPropio(id => formProducto(prod(id))),
+    duplicarProducto: soloPropio(id => { const p = prod(id); if (p) formProducto({ ...p, id: undefined, nombre: (p.nombre || "") + " (copia)" }); }),
     borrarProducto: soloPropio(borrarProducto),
     nuevoMov: soloPropio(() => formMovimiento(null)),
     editarMov: soloPropio(id => formMovimiento(E.cfg.movimientos.find(m => m.id === id))),
+    duplicarMov: soloPropio(id => { const m = E.cfg.movimientos.find(x => x.id === id); if (m) formMovimiento({ ...m, id: undefined }); }),
     borrarMov: soloPropio(borrarMov),
     nuevoValor: soloPropio(id => formValor(null, id)),
     editarValor: soloPropio(id => formValor(E.cfg.valoraciones.find(v => v.id === id))),
