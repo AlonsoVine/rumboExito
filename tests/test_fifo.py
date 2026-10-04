@@ -48,6 +48,18 @@ def test_compra_marca_flujo_negativo():
     assert r["eventos"] == [("2020-01-01", 5, 500)]
 
 
+def test_comision_de_venta_cuenta_en_comisiones_no_en_realizado():
+    # La comisión de venta ya va descontada del importe (no se resta otra vez),
+    # pero sí suma al total de comisiones pagadas.
+    p = {"id": "x", "corto": "X"}
+    movs = [mov("2020-01-01", "compra", 10, 1000),
+            mov("2021-01-01", "venta", 10, 1500, comision=50)]
+    r = aplicar_movimientos(p, movs)
+    assert r["realizado"] == 500.0        # 1500 - 1000 (el importe ya es neto)
+    assert r["comisiones"] == 50.0        # la comisión de venta cuenta aquí
+    assert ("2021-01-01", 1500) in r["flujos"]
+
+
 def test_fifo_sobreventa_prorratea_el_cobro():
     # Vender más unidades de las que hay: el cobro se prorratea a lo realmente
     # vendido; usar el importe completo inflaría realizado y la TIR.

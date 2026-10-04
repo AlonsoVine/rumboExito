@@ -1326,7 +1326,7 @@
       ${p.papel ? `<div class="papel">${esc(p.papel)}</div>` : ""}
       ${p.indiceDetalle ? `<p style="color:var(--tinta2);font-size:13.5px;margin:0 0 16px">${esc(p.indiceDetalle)}</p>` : ""}
       ${diasP > 7 ? `<p class="avisoLinea" style="border-left-color:#c98500;margin:0 0 14px">⚠ El último precio que tengo es del <b>${G.fmtFechaCorta(p.navFecha)}</b> (hace ${diasP} días). Pulsa «↻ Actualizar precios» arriba para ponerlo al día.</p>` : ""}
-      <div class="ficha">${campos.map(c => `<div><dt>${c[0]}</dt><dd>${c[1]}</dd></div>`).join("")}</div>
+      <div class="ficha">${campos.map(c => `<div><dt>${c[0]}</dt><dd>${esc(c[1])}</dd></div>`).join("")}</div>
       <div id="ventanas"></div>
       ${pocos ? '<p class="subt" style="margin:0 0 12px">Solo hay un valor anotado, así que aún no hay curva. Anota más en «Mis datos → Saldos y movimientos».</p>' : ""}
       <div class="envGraf" id="grafFondo"></div>

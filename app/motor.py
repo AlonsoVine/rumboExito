@@ -510,6 +510,9 @@ def aplicar_movimientos(p, movs):
             realizado += cobrado - coste
             eventos.append((f, -vendidas_u, -coste))
             flujos.append((f, cobrado))
+            # El importe de venta ya viene neto de comisión (convención de la app): no
+            # se resta del cobro, pero sí cuenta para «cuánto pagas en comisiones».
+            comisiones += float(m.get("comision") or 0)
         elif t == "dividendo":
             realizado += imp
             flujos.append((f, imp))

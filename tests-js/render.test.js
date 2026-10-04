@@ -72,6 +72,7 @@ test("un nombre con HTML malicioso se escapa y no se ejecuta (XSS)", () => {
   const payload = '<img src=x onerror="window.__xss=1">';
   if (d.productos && d.productos[0]) {
     d.productos[0].nombre = payload; d.productos[0].corto = payload; d.productos[0].papel = payload;
+    d.productos[0].entidad = payload; d.productos[0].gestora = payload;   // campos de la ficha
   }
   if (d.total) d.total.titular = payload;
   d.titular = payload;
@@ -79,6 +80,9 @@ test("un nombre con HTML malicioso se escapa y no se ejecuta (XSS)", () => {
   const { window, errores } = montaPanel(JSON.stringify(d));
   // Pasa por las vistas que pintan nombre de producto (rentabilidad) y la ficha.
   window.document.querySelector('#subtabs button[data-pv="rentabilidad"]').click();
+  // Abre la ficha de un producto (entidad/gestora van en ella).
+  const chip = window.document.querySelector("#chips button");
+  if (chip) chip.click();
   assert.strictEqual(window.__xss, undefined, "el onerror NO debería ejecutarse");
   // No debe existir una imagen real inyectada desde ningún nombre/campo.
   const imgs = [...window.document.querySelectorAll("img")].filter(i => i.getAttribute("src") === "x");
