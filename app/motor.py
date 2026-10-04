@@ -597,6 +597,7 @@ def detalle_fiscal(cfg):
                 "gananciaNeta": round(sum(v["ganancia"] for v in ventas), 2),
                 "rendimientos": round(sum(r["importe"] for r in rend), 2),
                 "retenciones": round(sum(r.get("retencion") or 0 for r in rend), 2),
+                "rendimientoIntegro": round(sum((r["importe"] + (r.get("retencion") or 0)) for r in rend), 2),
             },
         }
     return out
@@ -687,7 +688,11 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
         cfg = dict(cfg,
                    movimientos=[m for m in cfg.get("movimientos", []) if str(m.get("fecha", "")) <= lim],
                    valoraciones=[v for v in cfg.get("valoraciones", []) if str(v.get("fecha", "")) <= lim],
-                   flujos=[f for f in (cfg.get("flujos") or []) if str(f.get("fecha", "")) <= lim])
+                   flujos=[f for f in (cfg.get("flujos") or []) if str(f.get("fecha", "")) <= lim],
+                   # Los apartados con fecha prevista posterior son compromisos que en
+                   # aquel mes aún no existían: fuera de la foto pasada.
+                   apartados=[a for a in (cfg.get("apartados") or [])
+                              if not (a.get("fechaPrevista") and str(a.get("fechaPrevista")) > lim)])
 
     productos_cfg = [dict(p) for p in cfg.get("productos", [])]
     for p in productos_cfg:
@@ -770,6 +775,17 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
             primera = d(snaps[0][0]) if primera is None else min(primera, d(snaps[0][0]))
             continue
 
+        # En productos «a mano» en otra divisa, los importes de los movimientos van en
+        # esa divisa: se convierten a euros con el mismo factor que los saldos (fac=1
+        # para cotizados y para euros, así que esto no afecta al caso normal).
+        if fac != 1:
+            def _eur(m, fac=fac):
+                o = dict(m)
+                for c in ("importe", "comision", "retencion"):
+                    if m.get(c) is not None:
+                        o[c] = float(m[c]) * fac
+                return o
+            movs = [_eur(m) for m in movs]
         mv = aplicar_movimientos(p, movs)
         p["realizado"] = round(mv["realizado"], 2)
         p["_mv"] = mv
@@ -1627,13 +1643,14 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
         _al("Monedas sin tipo de cambio configurado (se toman en euros): "
             + ", ".join(sorted(monedas_faltan)) + ".", len(monedas_faltan), pv="distribucion")
     # Recordatorio (B3): hace mucho que no anotas nada. Umbral configurable.
+    # No tiene sentido en la vista «a fin de un mes pasado» (daría cifras absurdas).
     _ds = (cfg.get("config") or {}).get("diasSinAnotar")
     dias_sin = int(_ds) if _ds is not None else 30   # respeta el 0 (avisar siempre)
     fechas_datos = ([m.get("fecha") for m in cfg.get("movimientos", [])]
                     + [v.get("fecha") for v in cfg.get("valoraciones", [])]
                     + [f.get("fecha") for f in (cfg.get("flujos") or [])])
     fechas_datos = [f for f in fechas_datos if f]
-    if fechas_datos:
+    if fechas_datos and not hasta:
         try:
             dias = (hoy() - d(max(fechas_datos))).days
         except ValueError:

@@ -52,7 +52,10 @@ def test_dividendos_son_rendimientos():
     assert len(rend) == 1 and rend[0]["importe"] == 50.0 and rend[0]["producto"] == "Fondo X"
     # La retención del dividendo se recoge y se suma en los totales.
     assert rend[0]["retencion"] == 9.5
-    assert fisc["2023"]["totales"]["retenciones"] == 9.5
+    tot = fisc["2023"]["totales"]
+    assert tot["retenciones"] == 9.5
+    assert tot["rendimientos"] == 50.0           # neto recibido
+    assert tot["rendimientoIntegro"] == 59.5     # íntegro = neto + retención
 
 
 def test_venta_sin_compras_se_marca_y_no_se_anula():

@@ -53,6 +53,23 @@ def test_conversion_con_tipo_manual(tmp_path):
     assert all("Monedas sin tipo" not in a["texto"] for a in d["alertas"])
 
 
+def test_conversion_movimientos_productos_a_mano(tmp_path):
+    # En productos «a mano» en divisa, los importes de los movimientos también se
+    # convierten a euros (antes solo se convertían los saldos → aportado erróneo).
+    cfg = {
+        "version": 1, "config": {"monedas": [{"codigo": "USD", "tipo": 0.5}]},
+        "productos": [{"id": "f", "nombre": "Fondo USA", "corto": "Fondo", "tipo": "fondo",
+                       "fuente": "manual", "moneda": "USD", "slot": 1}],
+        "movimientos": [{"id": "m1", "producto": "f", "tipo": "compra", "fecha": "2024-01-10",
+                         "unidades": "10", "importe": "1000"}],
+        "valoraciones": [{"id": "v1", "producto": "f", "fecha": "2024-06-30", "valor": "2000"}],
+    }
+    d = motor.construir(cfg, str(tmp_path), descargar=False)
+    f = next(p for p in d["productos"] if p["id"] == "f")
+    assert f["valor"] == 1000.0       # 2000 USD * 0,5
+    assert f["aportado"] == 500.0     # compra 1000 USD * 0,5 (antes 1000, sin convertir)
+
+
 def test_sin_tipo_se_toma_en_euros_y_avisa(tmp_path):
     d = motor.construir(_cartera_usd(con_tipo=False), str(tmp_path), descargar=False)
     # Sin tipo, el piso se toma en euros (factor 1): bruto 101000.
