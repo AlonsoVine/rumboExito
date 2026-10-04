@@ -1,1495 +1,1344 @@
 {
  "version": 1,
  "titular": "Patrimonio de ejemplo",
+ "titulares": [
+  "Yo",
+  "Pareja",
+  "Común"
+ ],
  "productos": [
   {
    "id": "world",
-   "nombre": "Fidelity MSCI World Index Fund P-Acc-EUR",
-   "corto": "MSCI World",
-   "clase": "Renta variable global",
-   "entidad": "MyInvestor",
-   "gestora": "Fidelity (FIL Investments International)",
-   "indice": "MSCI World",
-   "indiceDetalle": "Unas 1.480 empresas grandes y medianas de 23 países desarrollados. Estados Unidos pesa alrededor del 70%.",
-   "ter": 0.0012,
-   "riesgo": 6,
-   "politica": "Acumulación: reinvierte los dividendos, no tributas hasta vender",
-   "papel": "El núcleo de la cartera: renta variable global a coste mínimo.",
-   "exposicion": {
-    "actualizado": "2026-08-31",
-    "fuente": "Ficha oficial del índice MSCI World (USD)",
-    "constituyentes": 1280,
-    "paises": [
-     [
-      "Estados Unidos",
-      72.14
-     ],
-     [
-      "Japón",
-      5.78
-     ],
-     [
-      "Reino Unido",
-      3.53
-     ],
-     [
-      "Canadá",
-      3.46
-     ],
-     [
-      "Francia",
-      2.36
-     ],
-     [
-      "Resto",
-      12.74
-     ]
-    ],
-    "sectores": [
-     [
-      "Tecnología",
-      29.81
-     ],
-     [
-      "Financiero",
-      16.58
-     ],
-     [
-      "Industrial",
-      11.13
-     ],
-     [
-      "Salud",
-      9.27
-     ],
-     [
-      "Consumo discrecional",
-      8.82
-     ],
-     [
-      "Comunicaciones",
-      7.9
-     ],
-     [
-      "Consumo básico",
-      4.91
-     ],
-     [
-      "Energía",
-      4.09
-     ],
-     [
-      "Materiales",
-      3.47
-     ],
-     [
-      "Utilities",
-      2.39
-     ],
-     [
-      "Inmobiliario",
-      1.64
-     ]
-    ],
-    "top10": [
-     [
-      "NVIDIA",
-      5.56
-     ],
-     [
-      "Apple",
-      5.07
-     ],
-     [
-      "Microsoft",
-      3.9
-     ],
-     [
-      "Amazon",
-      2.74
-     ],
-     [
-      "Alphabet A",
-      2.15
-     ],
-     [
-      "Broadcom",
-      1.82
-     ],
-     [
-      "Alphabet C",
-      1.69
-     ],
-     [
-      "Meta Platforms",
-      1.37
-     ],
-     [
-      "Micron Technology",
-      1.18
-     ],
-     [
-      "Tesla",
-      1.13
-     ]
-    ]
-   },
-   "slot": 1,
-   "largoPlazo": true,
-   "tipoDetalle": "Fondo indexado",
-   "identificador": "IE00BYX5NX33",
    "tipo": "fondo",
    "fuente": "morningstar",
    "codigo": "0P0001CLDK",
+   "identificador": "IE00BYX5NX33",
    "moneda": "EUR",
-   "titular": "Yo"
+   "titular": "Yo",
+   "slot": 1,
+   "nombre": "Fondo indexado MSCI World",
+   "corto": "MSCI World",
+   "clase": "Renta variable global",
+   "entidad": "Bróker online",
+   "gestora": "Gestora de ejemplo",
+   "indice": "MSCI World",
+   "tipoDetalle": "Fondo indexado",
+   "ter": 0.0012,
+   "riesgo": 6,
+   "largoPlazo": true,
+   "politica": "Acumulación",
+   "papel": "Núcleo de la cartera: renta variable global diversificada a bajo coste."
+  },
+  {
+   "id": "etfworld",
+   "tipo": "etf",
+   "fuente": "yahoo",
+   "codigo": "IWDA.AS",
+   "identificador": "IE00B4L5Y983",
+   "moneda": "EUR",
+   "titular": "Yo",
+   "slot": 2,
+   "nombre": "ETF MSCI World (acumulación)",
+   "corto": "ETF World",
+   "clase": "Renta variable global",
+   "entidad": "Bróker online",
+   "gestora": "Gestora de ejemplo",
+   "mercado": "Ámsterdam",
+   "indice": "MSCI World",
+   "tipoDetalle": "ETF indexado",
+   "ter": 0.002,
+   "riesgo": 6,
+   "largoPlazo": true,
+   "politica": "Acumulación",
+   "papel": "Misma exposición global que el fondo, en formato ETF cotizado."
   },
   {
    "id": "emergentes",
-   "nombre": "Fidelity MSCI Emerging Markets Index Fund P-Acc-EUR",
-   "corto": "MSCI Emergentes",
-   "clase": "Renta variable emergente",
-   "entidad": "MyInvestor",
-   "gestora": "Fidelity (FIL Investments International)",
-   "indice": "MSCI Emerging Markets",
-   "indiceDetalle": "Grandes y medianas empresas de países emergentes. Mayor peso: Taiwán, Corea del Sur, China e India.",
-   "ter": 0.002,
-   "riesgo": 6,
-   "politica": "Acumulación",
-   "papel": "Complemento al World, que apenas tiene emergentes. Diversifica fuera de EEUU.",
-   "exposicion": {
-    "actualizado": "2026-08-31",
-    "fuente": "Ficha oficial del índice MSCI Emerging Markets (USD)",
-    "constituyentes": 1178,
-    "paises": [
-     [
-      "Taiwán",
-      27.44
-     ],
-     [
-      "Corea del Sur",
-      20.84
-     ],
-     [
-      "China",
-      20.62
-     ],
-     [
-      "India",
-      11.25
-     ],
-     [
-      "Brasil",
-      3.94
-     ],
-     [
-      "Resto",
-      15.9
-     ]
-    ],
-    "sectores": [
-     [
-      "Tecnología",
-      41.56
-     ],
-     [
-      "Financiero",
-      19.71
-     ],
-     [
-      "Consumo discrecional",
-      8.02
-     ],
-     [
-      "Industrial",
-      6.54
-     ],
-     [
-      "Materiales",
-      6.3
-     ],
-     [
-      "Comunicaciones",
-      6.13
-     ],
-     [
-      "Energía",
-      3.44
-     ],
-     [
-      "Consumo básico",
-      2.73
-     ],
-     [
-      "Salud",
-      2.72
-     ],
-     [
-      "Utilities",
-      1.86
-     ],
-     [
-      "Inmobiliario",
-      0.99
-     ]
-    ],
-    "top10": [
-     [
-      "TSMC",
-      15.14
-     ],
-     [
-      "Samsung Electronics",
-      7.2
-     ],
-     [
-      "SK Hynix",
-      5.48
-     ],
-     [
-      "Tencent",
-      2.88
-     ],
-     [
-      "Alibaba",
-      1.98
-     ],
-     [
-      "MediaTek",
-      1.45
-     ],
-     [
-      "Delta Electronics",
-      0.92
-     ],
-     [
-      "Samsung Elec. pref.",
-      0.89
-     ],
-     [
-      "China Construction Bank",
-      0.83
-     ],
-     [
-      "Hon Hai Precision",
-      0.78
-     ]
-    ]
-   },
-   "slot": 2,
-   "largoPlazo": true,
-   "tipoDetalle": "Fondo indexado",
-   "identificador": "IE00BYX5M476",
    "tipo": "fondo",
    "fuente": "morningstar",
    "codigo": "0P0001CJGK",
+   "identificador": "IE00BYX5M476",
    "moneda": "EUR",
-   "titular": "Pareja"
-  },
-  {
-   "id": "monetario",
-   "nombre": "AXA Trésor Court Terme C",
-   "corto": "Monetario",
-   "clase": "Liquidez remunerada",
-   "entidad": "MyInvestor",
-   "gestora": "BNP Paribas Asset Management Europe",
-   "indice": "€STR capitalizado",
-   "indiceDetalle": "Monetario en euros a corto plazo, riesgo 1 sobre 7. Hace de cuenta corriente remunerada, con liquidez en 24-48 h.",
-   "ter": 0.002,
-   "riesgo": 1,
-   "politica": "Acumulación",
-   "papel": "Colchón de seguridad y pólvora seca para aprovechar caídas.",
+   "titular": "Pareja",
    "slot": 3,
-   "largoPlazo": false,
-   "tipoDetalle": "Fondo monetario",
-   "identificador": "FR0000447823",
-   "tipo": "fondo",
-   "fuente": "morningstar",
-   "codigo": "0P00000F24",
-   "moneda": "EUR",
-   "titular": "Común",
-   "disponible": true
+   "nombre": "Fondo indexado Mercados Emergentes",
+   "corto": "Emergentes",
+   "clase": "Renta variable emergente",
+   "entidad": "Bróker online",
+   "gestora": "Gestora de ejemplo",
+   "indice": "MSCI Emerging Markets",
+   "tipoDetalle": "Fondo indexado",
+   "ter": 0.002,
+   "riesgo": 6,
+   "largoPlazo": true,
+   "politica": "Acumulación",
+   "papel": "Complemento al World para diversificar fuera de los países desarrollados."
   },
   {
    "id": "bitcoin",
-   "nombre": "WisdomTree Bitcoin",
-   "corto": "Bitcoin ETP",
-   "clase": "Criptoactivos",
-   "entidad": "MyInvestor",
-   "gestora": "WisdomTree",
-   "indice": "Precio spot de bitcoin",
-   "indiceDetalle": "ETP respaldado 1 a 1 con bitcoin en custodia fría. No es un derivado: hay bitcoin real detrás de cada título.",
-   "ter": 0.0015,
-   "riesgo": 7,
-   "politica": "Sin distribución",
-   "papel": "Apuesta asimétrica, de tamaño pequeño y controlado.",
-   "slot": 4,
-   "largoPlazo": true,
-   "mercado": "XETRA",
-   "tipoDetalle": "ETP con respaldo físico",
-   "identificador": "GB00BJYDH287",
-   "tipo": "etf",
-   "fuente": "yahoo",
-   "codigo": "WBTC.PA",
+   "tipo": "cripto",
+   "fuente": "coingecko",
+   "codigo": "bitcoin",
    "moneda": "EUR",
-   "respaldo": "BTCW.SW",
-   "respaldoMoneda": "CHF",
-   "vivo": "bitcoin",
-   "titular": "Yo"
+   "titular": "Yo",
+   "slot": 4,
+   "nombre": "Bitcoin",
+   "corto": "Bitcoin",
+   "clase": "Criptoactivos",
+   "entidad": "Exchange de ejemplo",
+   "tipoDetalle": "Criptomoneda",
+   "riesgo": 7,
+   "largoPlazo": true,
+   "papel": "Posición pequeña y controlada, de alto riesgo."
   },
   {
-   "id": "pension_jubilacion",
-   "nombre": "Planes para la jubilación (Mutuactivos)",
-   "corto": "Planes de pensiones",
-   "clase": "Jubilación",
-   "entidad": "Mutuactivos",
-   "gestora": "Mutuactivos, Grupo Mutua Madrileña",
-   "papel": "Ahorro finalista para la jubilación, con desgravación fiscal en el IRPF.",
+   "id": "monetario",
+   "tipo": "fondo",
+   "fuente": "morningstar",
+   "codigo": "0P00000F24",
+   "identificador": "FR0000447823",
+   "moneda": "EUR",
+   "titular": "Común",
    "slot": 5,
+   "nombre": "Fondo monetario euro",
+   "corto": "Monetario",
+   "clase": "Liquidez remunerada",
+   "entidad": "Bróker online",
+   "gestora": "Gestora de ejemplo",
+   "indice": "€STR",
+   "tipoDetalle": "Fondo monetario",
+   "ter": 0.002,
+   "riesgo": 1,
+   "largoPlazo": false,
+   "politica": "Acumulación",
+   "disponible": true,
+   "papel": "Colchón remunerado y liquidez para aprovechar caídas."
+  },
+  {
+   "id": "acciones",
+   "tipo": "accion",
+   "fuente": "manual",
+   "moneda": "EUR",
+   "titular": "Pareja",
+   "slot": 6,
+   "nombre": "Acciones cotizadas",
+   "corto": "Acciones",
+   "clase": "Renta variable",
+   "entidad": "Bróker online",
+   "tipoDetalle": "Acciones",
+   "riesgo": 6,
    "largoPlazo": true,
-   "tipoDetalle": "Plan de pensiones",
+   "papel": "Pequeña cartera de acciones individuales."
+  },
+  {
+   "id": "oro",
+   "tipo": "commodity",
+   "fuente": "manual",
+   "moneda": "EUR",
+   "titular": "Común",
+   "slot": 7,
+   "nombre": "Oro físico",
+   "corto": "Oro",
+   "clase": "Materias primas",
+   "entidad": "Caja de seguridad",
+   "tipoDetalle": "Metal precioso",
+   "largoPlazo": true,
+   "papel": "Reserva de valor como cobertura."
+  },
+  {
+   "id": "bono",
+   "tipo": "bono",
+   "fuente": "manual",
+   "moneda": "EUR",
+   "titular": "Pareja",
+   "slot": 8,
+   "nombre": "Bono del Estado",
+   "corto": "Bono",
+   "clase": "Renta fija",
+   "entidad": "Bróker online",
+   "tipoDetalle": "Renta fija",
+   "riesgo": 2,
+   "largoPlazo": false,
+   "fechaVencimiento": "2028-04-30",
+   "papel": "Renta fija a vencimiento para dar estabilidad."
+  },
+  {
+   "id": "pension",
    "tipo": "pension",
    "fuente": "manual",
-   "titular": "Yo"
+   "moneda": "EUR",
+   "titular": "Yo",
+   "slot": 9,
+   "nombre": "Plan de pensiones",
+   "corto": "Pensiones",
+   "clase": "Jubilación",
+   "entidad": "Entidad de ejemplo",
+   "tipoDetalle": "Plan de pensiones",
+   "largoPlazo": true,
+   "papel": "Ahorro finalista para la jubilación, con ventaja fiscal."
   },
   {
-   "id": "seguro_ahorro",
-   "nombre": "Seguro de ahorro (Mutuactivos)",
-   "corto": "Seguro de ahorro",
-   "clase": "Jubilación",
-   "entidad": "Mutuactivos",
-   "gestora": "Mutuactivos, Grupo Mutua Madrileña",
-   "papel": "Provisión del seguro de ahorro. Rentabilidad baja pero garantizada.",
-   "slot": 6,
-   "largoPlazo": true,
-   "tipoDetalle": "Seguro de ahorro",
+   "id": "seguro",
    "tipo": "otro",
    "fuente": "manual",
-   "titular": "Pareja"
+   "moneda": "EUR",
+   "titular": "Pareja",
+   "slot": 10,
+   "nombre": "Seguro de ahorro",
+   "corto": "Seguro ahorro",
+   "clase": "Jubilación",
+   "entidad": "Entidad de ejemplo",
+   "tipoDetalle": "Seguro de ahorro",
+   "largoPlazo": true,
+   "papel": "Provisión garantizada de rentabilidad baja."
   },
   {
-   "id": "efectivo_myinvestor",
+   "id": "cuenta",
    "tipo": "efectivo",
    "fuente": "manual",
-   "tipoDetalle": "Cuenta corriente",
-   "nombre": "Cuenta MyInvestor",
-   "corto": "Efectivo MyInvestor",
-   "clase": "Efectivo",
-   "entidad": "MyInvestor",
-   "papel": "Munición lista para aportar. Es el dinero que va camino de los fondos.",
-   "slot": 7,
-   "largoPlazo": false,
+   "moneda": "EUR",
    "titular": "Común",
-   "fechaVencimiento": "2026-11-15"
+   "slot": 11,
+   "nombre": "Cuenta corriente",
+   "corto": "Cuenta corriente",
+   "clase": "Efectivo",
+   "entidad": "Banco principal",
+   "tipoDetalle": "Cuenta corriente",
+   "largoPlazo": false,
+   "papel": "Cuenta del día a día: nómina, recibos y gasto corriente."
   },
   {
-   "id": "efectivo_bbva",
+   "id": "ahorro",
    "tipo": "efectivo",
    "fuente": "manual",
-   "tipoDetalle": "Cuenta corriente",
-   "nombre": "Cuenta BBVA",
-   "corto": "Efectivo BBVA",
-   "clase": "Efectivo",
-   "entidad": "BBVA",
-   "papel": "Cuenta del día a día: nómina, recibos y gasto corriente.",
-   "slot": 8,
-   "largoPlazo": false,
-   "titular": "Común"
-  },
-  {
-   "id": "prestamo_coche",
-   "nombre": "Préstamo coche",
-   "corto": "Préstamo coche",
-   "tipo": "deuda",
-   "fuente": "manual",
-   "entidad": "Caixabank",
+   "moneda": "EUR",
    "titular": "Común",
-   "capitalInicial": 18000,
-   "tae": 0.065,
-   "cuota": 320,
-   "fechaInicio": "2023-04-15",
-   "fechaVencimiento": "2029-04-15",
-   "slot": 8
+   "slot": 12,
+   "nombre": "Cuenta de ahorro",
+   "corto": "Ahorro",
+   "clase": "Efectivo",
+   "entidad": "Banco online",
+   "tipoDetalle": "Cuenta remunerada",
+   "largoPlazo": false,
+   "disponible": true,
+   "fechaVencimiento": "2026-12-31",
+   "papel": "Ahorro remunerado disponible a corto plazo."
   },
   {
    "id": "ahorro_usd",
-   "nombre": "Ahorro en dólares",
-   "corto": "Ahorro USD",
    "tipo": "efectivo",
    "fuente": "manual",
-   "entidad": "Wise",
-   "titular": "Yo",
    "moneda": "USD",
+   "titular": "Yo",
+   "slot": 13,
+   "nombre": "Ahorro en dólares",
+   "corto": "Ahorro USD",
+   "clase": "Efectivo",
+   "entidad": "Neobanco",
+   "tipoDetalle": "Cuenta en divisa",
+   "largoPlazo": false,
    "disponible": true,
-   "slot": 9
+   "papel": "Pequeño ahorro en dólares (multidivisa)."
+  },
+  {
+   "id": "vivienda",
+   "tipo": "inmueble",
+   "fuente": "manual",
+   "moneda": "EUR",
+   "titular": "Común",
+   "slot": 14,
+   "nombre": "Vivienda habitual",
+   "corto": "Vivienda",
+   "clase": "Inmuebles",
+   "entidad": "—",
+   "tipoDetalle": "Vivienda",
+   "largoPlazo": true,
+   "papel": "Vivienda habitual de la familia."
+  },
+  {
+   "id": "hipoteca",
+   "tipo": "deuda",
+   "fuente": "manual",
+   "moneda": "EUR",
+   "titular": "Común",
+   "slot": 15,
+   "nombre": "Hipoteca de la vivienda",
+   "corto": "Hipoteca",
+   "entidad": "Banco principal",
+   "capitalInicial": 150000,
+   "tae": 0.028,
+   "cuota": 650,
+   "fechaInicio": "2019-06-01",
+   "fechaVencimiento": "2049-06-01",
+   "papel": "Préstamo hipotecario de la vivienda habitual."
+  },
+  {
+   "id": "prestamo_coche",
+   "tipo": "deuda",
+   "fuente": "manual",
+   "moneda": "EUR",
+   "titular": "Común",
+   "slot": 16,
+   "nombre": "Préstamo del coche",
+   "corto": "Préstamo coche",
+   "entidad": "Banco online",
+   "capitalInicial": 15000,
+   "tae": 0.06,
+   "cuota": 280,
+   "fechaInicio": "2024-01-15",
+   "fechaVencimiento": "2029-01-15",
+   "papel": "Financiación del coche familiar."
   }
  ],
  "movimientos": [
   {
-   "fecha": "2024-08-28",
-   "producto": "monetario",
-   "tipo": "compra",
-   "unidades": 1.315266,
-   "importe": 3352.6,
-   "nota": "MyInvestor",
    "id": "m1",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-08-28",
-   "producto": "monetario",
-   "tipo": "venta",
-   "unidades": 0,
-   "importe": 11.26,
-   "nota": "Plusvalía de un reembolso (MyInvestor no da la fecha de venta)",
-   "id": "m2",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-08-28",
-   "producto": "monetario",
-   "tipo": "venta",
-   "unidades": 0,
-   "importe": 110.65,
-   "nota": "Plusvalía de un reembolso (MyInvestor no da la fecha de venta)",
-   "id": "m3",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-08-29",
-   "producto": "monetario",
+   "producto": "world",
    "tipo": "compra",
-   "unidades": 0.470643,
-   "importe": 1199.8,
-   "nota": "MyInvestor",
-   "id": "m4",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-09-06",
-   "producto": "monetario",
-   "tipo": "compra",
-   "unidades": 0.012794,
-   "importe": 32.65,
-   "nota": "MyInvestor",
-   "id": "m5",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-09-11",
-   "producto": "monetario",
-   "tipo": "compra",
-   "unidades": 0.007897,
-   "importe": 20.16,
-   "nota": "MyInvestor",
-   "id": "m6",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-09-16",
-   "producto": "monetario",
-   "tipo": "compra",
-   "unidades": 0.006296,
-   "importe": 16.08,
-   "nota": "MyInvestor",
-   "id": "m7",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-09-30",
-   "producto": "monetario",
-   "tipo": "compra",
-   "unidades": 0.183481,
-   "importe": 469.26,
-   "nota": "MyInvestor",
-   "id": "m8",
-   "origen": "myinvestor"
-  },
-  {
    "fecha": "2024-10-01",
+   "unidades": 37.040467,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m2",
    "producto": "world",
    "tipo": "compra",
-   "unidades": 67.691125,
-   "importe": 731.01,
-   "nota": "MyInvestor",
+   "fecha": "2024-11-01",
+   "unidades": 36.596523,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m3",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2024-12-01",
+   "unidades": 34.190956,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m4",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-01-01",
+   "unidades": 34.423408,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m5",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-02-01",
+   "unidades": 33.383408,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m6",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-03-01",
+   "unidades": 33.641716,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m7",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-04-01",
+   "unidades": 36.396724,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m8",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-05-01",
+   "unidades": 37.771483,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
    "id": "m9",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-10-09",
    "producto": "world",
    "tipo": "compra",
-   "unidades": 1.454469,
-   "importe": 15.99,
-   "nota": "MyInvestor",
+   "fecha": "2025-06-01",
+   "unidades": 35.964755,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
    "id": "m10",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-10-21",
    "producto": "world",
    "tipo": "compra",
-   "unidades": 1.429951,
-   "importe": 15.99,
-   "nota": "MyInvestor",
+   "fecha": "2025-07-01",
+   "unidades": 35.813412,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
    "id": "m11",
-   "origen": "myinvestor"
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-08-01",
+   "unidades": 35.109278,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
   },
   {
-   "fecha": "2024-11-08",
-   "producto": "monetario",
-   "tipo": "compra",
-   "unidades": 0.213546,
-   "importe": 548.3,
-   "nota": "MyInvestor",
    "id": "m12",
-   "origen": "myinvestor"
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-09-01",
+   "unidades": 34.234851,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
   },
   {
-   "fecha": "2024-11-29",
+   "id": "m13",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-10-01",
+   "unidades": 33.137271,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m14",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-11-01",
+   "unidades": 32.051282,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m15",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2025-12-01",
+   "unidades": 32.35199,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m16",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2026-01-01",
+   "unidades": 32.265871,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m17",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2026-02-01",
+   "unidades": 31.971865,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m18",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2026-03-01",
+   "unidades": 31.501024,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m19",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2026-04-01",
+   "unidades": 32.629089,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m20",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2026-05-01",
+   "unidades": 30.501754,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m21",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2026-06-01",
+   "unidades": 28.901734,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m22",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2026-07-01",
+   "unidades": 28.606165,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m23",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2026-08-01",
+   "unidades": 28.673835,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m24",
+   "producto": "world",
+   "tipo": "compra",
+   "fecha": "2026-09-01",
+   "unidades": 28.374832,
+   "importe": 400.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m25",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2024-10-01",
+   "unidades": 2.562788,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m26",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2024-11-01",
+   "unidades": 2.384813,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m27",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2024-12-01",
+   "unidades": 2.400154,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m28",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-01-01",
+   "unidades": 2.310963,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m29",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-02-01",
+   "unidades": 2.370904,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m30",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-03-01",
+   "unidades": 2.574003,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m31",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-04-01",
+   "unidades": 2.678667,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m32",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-05-01",
+   "unidades": 2.518257,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m33",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-06-01",
+   "unidades": 2.49638,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m34",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-07-01",
+   "unidades": 2.382427,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m35",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-08-01",
+   "unidades": 2.390286,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m36",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-09-01",
+   "unidades": 2.331655,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m37",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-10-01",
+   "unidades": 2.236436,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m38",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-11-01",
+   "unidades": 2.244165,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m39",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2025-12-01",
+   "unidades": 2.241549,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m40",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2026-01-01",
+   "unidades": 2.228363,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m41",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2026-02-01",
+   "unidades": 2.201189,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m42",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2026-03-01",
+   "unidades": 2.313637,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m43",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2026-04-01",
+   "unidades": 2.135748,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m44",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2026-05-01",
+   "unidades": 2.02626,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m45",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2026-06-01",
+   "unidades": 1.997922,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m46",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2026-07-01",
+   "unidades": 2.012396,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m47",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2026-08-01",
+   "unidades": 1.97192,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m48",
+   "producto": "etfworld",
+   "tipo": "compra",
+   "fecha": "2026-09-01",
+   "unidades": 1.935734,
+   "importe": 250.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m49",
    "producto": "emergentes",
    "tipo": "compra",
-   "unidades": 18.095445,
-   "importe": 107.99,
-   "nota": "MyInvestor",
-   "id": "m13",
-   "origen": "myinvestor"
+   "fecha": "2024-10-01",
+   "unidades": 24.346697,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
   },
   {
-   "fecha": "2024-11-29",
+   "id": "m50",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2024-11-01",
+   "unidades": 24.846778,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m51",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2024-12-01",
+   "unidades": 25.134048,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m52",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-01-01",
+   "unidades": 24.687294,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m53",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-02-01",
+   "unidades": 24.32301,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m54",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-03-01",
+   "unidades": 24.193548,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m55",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-04-01",
+   "unidades": 24.772915,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m56",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-05-01",
+   "unidades": 25.808672,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m57",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-06-01",
+   "unidades": 24.904533,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m58",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-07-01",
+   "unidades": 24.240465,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m59",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-08-01",
+   "unidades": 23.771791,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m60",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-09-01",
+   "unidades": 23.277467,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m61",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-10-01",
+   "unidades": 21.821356,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m62",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-11-01",
+   "unidades": 20.718232,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m63",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2025-12-01",
+   "unidades": 21.370566,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m64",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2026-01-01",
+   "unidades": 20.981956,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m65",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2026-02-01",
+   "unidades": 19.518543,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m66",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2026-03-01",
+   "unidades": 18.40265,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m67",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2026-04-01",
+   "unidades": 19.917674,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m68",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2026-05-01",
+   "unidades": 18.344136,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m69",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2026-06-01",
+   "unidades": 16.320313,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m70",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2026-07-01",
+   "unidades": 16.438356,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m71",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2026-08-01",
+   "unidades": 17.135024,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m72",
+   "producto": "emergentes",
+   "tipo": "compra",
+   "fecha": "2026-09-01",
+   "unidades": 16.6334,
+   "importe": 150.0,
+   "nota": "Aportación mensual"
+  },
+  {
+   "id": "m73",
    "producto": "monetario",
    "tipo": "compra",
-   "unidades": 0.544159,
-   "importe": 1399.89,
-   "nota": "MyInvestor",
-   "id": "m14",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-11-29",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 84.61887,
-   "importe": 989.99,
-   "nota": "MyInvestor",
-   "id": "m15",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2024-12-26",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 84.903209,
-   "importe": 999.99,
-   "nota": "MyInvestor",
-   "id": "m16",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-01-09",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 3.296286,
-   "importe": 19.99,
-   "nota": "MyInvestor",
-   "id": "m17",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-01-31",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 75.114971,
-   "importe": 899.99,
-   "nota": "MyInvestor",
-   "id": "m18",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-02-03",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.615951,
-   "importe": 15.99,
-   "nota": "MyInvestor",
-   "id": "m19",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-02-03",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 16.358282,
-   "importe": 99.99,
-   "nota": "MyInvestor",
-   "id": "m20",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-02-20",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.518971,
-   "importe": 16.0,
-   "nota": "MyInvestor",
-   "id": "m21",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-02-28",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 75.693858,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m22",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-03-03",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 16.240621,
-   "importe": 100.0,
-   "nota": "MyInvestor",
-   "id": "m23",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-03-20",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.74823,
-   "importe": 17.0,
-   "nota": "MyInvestor",
-   "id": "m24",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-03-26",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.592815,
-   "importe": 16.0,
-   "nota": "MyInvestor",
-   "id": "m25",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-03-31",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 365.77115,
-   "importe": 4000.0,
-   "nota": "MyInvestor",
-   "id": "m26",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-04-08",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 102.933606,
-   "importe": 1000.0,
-   "nota": "MyInvestor",
-   "id": "m27",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-04-30",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 17.325018,
-   "importe": 100.0,
-   "nota": "MyInvestor",
-   "id": "m28",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-04-30",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 85.836093,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m29",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-06-04",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 16.485328,
-   "importe": 100.0,
-   "nota": "MyInvestor",
-   "id": "m30",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-06-04",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 80.645886,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m31",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-06-25",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 16.09917,
-   "importe": 100.0,
-   "nota": "MyInvestor",
-   "id": "m32",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-06-25",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 80.963645,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m33",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-08-05",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 15.583363,
-   "importe": 100.0,
-   "nota": "MyInvestor",
-   "id": "m34",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-08-05",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 78.280611,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m35",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-08-11",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 3.102603,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m36",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-08-11",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 3.102603,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m37",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-08-12",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 3.114295,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m38",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-08-13",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 3.236446,
-   "importe": 21.0,
-   "nota": "MyInvestor",
-   "id": "m39",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-08-18",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 6.308178,
-   "importe": 41.0,
-   "nota": "MyInvestor",
-   "id": "m40",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-08-28",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 3.106941,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m41",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-08-29",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 3.122268,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m42",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-09-01",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 6.207228,
-   "importe": 40.0,
-   "nota": "MyInvestor",
-   "id": "m43",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-09-02",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 77.332878,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m44",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-09-17",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 9.144813,
-   "importe": 62.0,
-   "nota": "MyInvestor",
-   "id": "m45",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-09-24",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.915197,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m46",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-09-29",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.934918,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m47",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-10-01",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 74.561334,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m48",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-10-22",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.962963,
-   "importe": 21.0,
-   "nota": "MyInvestor",
-   "id": "m49",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-10-28",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 5.715481,
-   "importe": 41.0,
-   "nota": "MyInvestor",
-   "id": "m50",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-10-29",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 72.318784,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m51",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-11-10",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.764225,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m52",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-11-13",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.769776,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m53",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-11-21",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.890842,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m54",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-11-28",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.846448,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m55",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-12-01",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 72.790801,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m56",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-12-09",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.824699,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m57",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-12-23",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 14.204343,
-   "importe": 100.0,
-   "nota": "MyInvestor",
-   "id": "m58",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2025-12-23",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 72.255495,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m59",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-01-19",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.619755,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m60",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-01-22",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 5.241708,
-   "importe": 40.0,
-   "nota": "MyInvestor",
-   "id": "m61",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-02-02",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 13.199404,
-   "importe": 100.0,
-   "nota": "MyInvestor",
-   "id": "m62",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-02-02",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 71.124879,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m63",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-02-03",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.698466,
-   "importe": 21.0,
-   "nota": "MyInvestor",
-   "id": "m64",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-02-05",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.618864,
-   "importe": 20.0,
-   "nota": "MyInvestor",
-   "id": "m65",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-02-06",
-   "producto": "bitcoin",
-   "tipo": "compra",
-   "unidades": 35,
-   "importe": 488.59,
-   "comision": 1,
-   "nota": "Mejor de mercado",
-   "id": "m66"
-  },
-  {
-   "fecha": "2026-02-06",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 2.751789,
-   "importe": 21.0,
-   "nota": "MyInvestor",
-   "id": "m67",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-02-23",
-   "producto": "bitcoin",
-   "tipo": "compra",
-   "unidades": 10,
-   "importe": 134.0,
-   "comision": 1,
-   "nota": "Limitada",
-   "id": "m68"
-  },
-  {
-   "fecha": "2026-02-24",
-   "producto": "bitcoin",
-   "tipo": "compra",
-   "unidades": 30,
-   "importe": 385.45,
-   "comision": 1,
-   "nota": "Limitada",
-   "id": "m69"
-  },
-  {
-   "fecha": "2026-03-09",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 39.937167,
+   "fecha": "2024-10-01",
+   "unidades": 0.117289,
    "importe": 300.0,
-   "nota": "MyInvestor",
-   "id": "m70",
-   "origen": "myinvestor"
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-03-09",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 71.750309,
-   "importe": 900.0,
-   "nota": "MyInvestor",
-   "id": "m71",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-03-31",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 41.178247,
-   "importe": 300.0,
-   "nota": "MyInvestor",
-   "id": "m72",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-03-31",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 82.066771,
-   "importe": 1000.0,
-   "nota": "MyInvestor",
-   "id": "m73",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-04-17",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 36.964477,
-   "importe": 300.0,
-   "nota": "MyInvestor",
    "id": "m74",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2024-11-01",
+   "unidades": 0.116954,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-04-17",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 23.101802,
-   "importe": 300.0,
-   "nota": "MyInvestor",
    "id": "m75",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2024-12-01",
+   "unidades": 0.116615,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-05-01",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 61.003508,
-   "importe": 800.0,
-   "nota": "MyInvestor",
    "id": "m76",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2025-01-01",
+   "unidades": 0.116304,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-05-04",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 23.607734,
-   "importe": 200.0,
-   "nota": "MyInvestor",
    "id": "m77",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2025-02-01",
+   "unidades": 0.116014,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-05-15",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 34.724636,
-   "importe": 300.0,
-   "nota": "MyInvestor",
    "id": "m78",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2025-03-01",
+   "unidades": 0.115746,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-05-15",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 22.266094,
-   "importe": 300.0,
-   "nota": "MyInvestor",
    "id": "m79",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-05-26",
-   "producto": "bitcoin",
+   "producto": "monetario",
    "tipo": "compra",
-   "unidades": 7,
-   "importe": 111.3,
-   "comision": 1,
-   "nota": "Mejor de mercado",
-   "id": "m80"
-  },
-  {
-   "fecha": "2026-05-27",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 33.282671,
+   "fecha": "2025-04-01",
+   "unidades": 0.115462,
    "importe": 300.0,
-   "nota": "MyInvestor",
+   "nota": "Traspaso a liquidez"
+  },
+  {
+   "id": "m80",
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2025-05-01",
+   "unidades": 0.115224,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
+  },
+  {
    "id": "m81",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2025-06-01",
+   "unidades": 0.114991,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-05-27",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 72.824195,
-   "importe": 1000.0,
-   "nota": "MyInvestor",
    "id": "m82",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2025-07-01",
+   "unidades": 0.114785,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-06-04",
-   "producto": "bitcoin",
+   "id": "m83",
+   "producto": "monetario",
    "tipo": "compra",
-   "unidades": 15,
-   "importe": 198.13,
-   "comision": 1,
-   "nota": "Limitada",
-   "id": "m83"
+   "fecha": "2025-08-01",
+   "unidades": 0.114587,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-06-12",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 55.892777,
-   "importe": 500.0,
-   "nota": "MyInvestor",
    "id": "m84",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2025-09-01",
+   "unidades": 0.114378,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-06-12",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 36.533684,
-   "importe": 500.0,
-   "nota": "MyInvestor",
    "id": "m85",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2025-10-01",
+   "unidades": 0.114185,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-06-25",
-   "producto": "bitcoin",
+   "id": "m86",
+   "producto": "monetario",
    "tipo": "compra",
-   "unidades": 40,
-   "importe": 501.0,
-   "comision": 1,
-   "nota": "Limitada",
-   "id": "m86"
+   "fecha": "2025-11-01",
+   "unidades": 0.113996,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-06-25",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 53.68724,
-   "importe": 500.0,
-   "nota": "MyInvestor",
    "id": "m87",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2025-12-01",
+   "unidades": 0.113793,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-06-29",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 55.436672,
-   "importe": 500.0,
-   "nota": "MyInvestor",
    "id": "m88",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2026-01-01",
+   "unidades": 0.113593,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-06-29",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 72.051302,
-   "importe": 1000.0,
-   "nota": "MyInvestor",
    "id": "m89",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2026-02-01",
+   "unidades": 0.113391,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-07-10",
-   "producto": "bitcoin",
+   "id": "m90",
+   "producto": "monetario",
    "tipo": "compra",
-   "unidades": 20,
-   "importe": 267.66,
-   "comision": 1,
-   "nota": "Mejor de mercado",
-   "id": "m90"
+   "fecha": "2026-03-01",
+   "unidades": 0.113209,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-07-15",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 56.038108,
-   "importe": 500.0,
-   "nota": "MyInvestor",
    "id": "m91",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2026-04-01",
+   "unidades": 0.113019,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-07-15",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 35.422053,
-   "importe": 500.0,
-   "nota": "MyInvestor",
    "id": "m92",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2026-05-01",
+   "unidades": 0.11283,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-07-27",
-   "producto": "bitcoin",
+   "id": "m93",
+   "producto": "monetario",
    "tipo": "compra",
-   "unidades": 19,
-   "importe": 260.84,
-   "comision": 1,
-   "nota": "Mejor de mercado",
-   "id": "m93"
+   "fecha": "2026-06-01",
+   "unidades": 0.112611,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-07-28",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 29.739247,
-   "importe": 250.0,
-   "nota": "MyInvestor",
    "id": "m94",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2026-07-01",
+   "unidades": 0.112409,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-07-28",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 71.654281,
-   "importe": 1000.0,
-   "nota": "MyInvestor",
    "id": "m95",
-   "origen": "myinvestor"
+   "producto": "monetario",
+   "tipo": "compra",
+   "fecha": "2026-08-01",
+   "unidades": 0.112195,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-08-18",
-   "producto": "bitcoin",
+   "id": "m96",
+   "producto": "monetario",
    "tipo": "compra",
-   "unidades": 19,
-   "importe": 252.81,
-   "comision": 1,
-   "nota": "Mejor de mercado",
-   "id": "m96"
+   "fecha": "2026-09-01",
+   "unidades": 0.111952,
+   "importe": 300.0,
+   "nota": "Traspaso a liquidez"
   },
   {
-   "fecha": "2026-08-19",
-   "producto": "emergentes",
-   "tipo": "compra",
-   "unidades": 57.702071,
-   "importe": 500.0,
-   "nota": "MyInvestor",
    "id": "m97",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-08-19",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 35.377944,
-   "importe": 500.0,
-   "nota": "MyInvestor",
-   "id": "m98",
-   "origen": "myinvestor"
-  },
-  {
-   "fecha": "2026-08-26",
    "producto": "bitcoin",
    "tipo": "compra",
-   "unidades": 16,
-   "importe": 258.1,
-   "comision": 1,
-   "nota": "Mejor de mercado",
-   "id": "m99"
+   "fecha": "2025-10-01",
+   "unidades": 0.001029,
+   "importe": 100.0,
+   "nota": "Compra periódica"
   },
   {
-   "fecha": "2026-08-27",
-   "producto": "emergentes",
+   "id": "m98",
+   "producto": "bitcoin",
    "tipo": "compra",
-   "unidades": 55.805568,
-   "importe": 499.99,
-   "nota": "MyInvestor",
+   "fecha": "2025-11-01",
+   "unidades": 0.001058,
+   "importe": 100.0,
+   "nota": "Compra periódica"
+  },
+  {
+   "id": "m99",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2025-12-01",
+   "unidades": 0.001285,
+   "importe": 100.0,
+   "nota": "Compra periódica"
+  },
+  {
    "id": "m100",
-   "origen": "myinvestor"
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2026-01-01",
+   "unidades": 0.001342,
+   "importe": 100.0,
+   "nota": "Compra periódica"
   },
   {
-   "fecha": "2026-08-27",
-   "producto": "world",
-   "tipo": "compra",
-   "unidades": 70.38763,
-   "importe": 999.99,
-   "nota": "MyInvestor",
    "id": "m101",
-   "origen": "myinvestor"
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2026-02-01",
+   "unidades": 0.001507,
+   "importe": 100.0,
+   "nota": "Compra periódica"
+  },
+  {
+   "id": "m102",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2026-03-01",
+   "unidades": 0.001755,
+   "importe": 100.0,
+   "nota": "Compra periódica"
+  },
+  {
+   "id": "m103",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2026-04-01",
+   "unidades": 0.001702,
+   "importe": 100.0,
+   "nota": "Compra periódica"
+  },
+  {
+   "id": "m104",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2026-05-01",
+   "unidades": 0.001537,
+   "importe": 100.0,
+   "nota": "Compra periódica"
+  },
+  {
+   "id": "m105",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2026-06-01",
+   "unidades": 0.001581,
+   "importe": 100.0,
+   "nota": "Compra periódica"
+  },
+  {
+   "id": "m106",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2026-07-01",
+   "unidades": 0.001943,
+   "importe": 100.0,
+   "nota": "Compra periódica"
+  },
+  {
+   "id": "m107",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2026-08-01",
+   "unidades": 0.001836,
+   "importe": 100.0,
+   "nota": "Compra periódica"
+  },
+  {
+   "id": "m108",
+   "producto": "bitcoin",
+   "tipo": "compra",
+   "fecha": "2026-09-01",
+   "unidades": 0.001479,
+   "importe": 100.0,
+   "nota": "Compra periódica"
   }
  ],
  "valoraciones": [
   {
-   "fecha": "2026-09-02",
-   "producto": "pension_jubilacion",
-   "valor": 3131.02,
-   "aportado": null,
-   "id": "v1"
+   "id": "v1",
+   "producto": "acciones",
+   "fecha": "2026-09-30",
+   "valor": 2500,
+   "aportado": null
   },
   {
-   "fecha": "2026-09-02",
-   "producto": "seguro_ahorro",
-   "valor": 558.65,
-   "aportado": null,
-   "id": "v2"
+   "id": "v2",
+   "producto": "oro",
+   "fecha": "2026-09-30",
+   "valor": 2100,
+   "aportado": null
   },
   {
-   "fecha": "2026-09-02",
-   "producto": "efectivo_myinvestor",
-   "valor": 2913,
-   "aportado": null,
-   "id": "v3"
+   "id": "v3",
+   "producto": "bono",
+   "fecha": "2026-09-30",
+   "valor": 5000,
+   "aportado": null
   },
   {
-   "fecha": "2026-09-13",
-   "producto": "efectivo_myinvestor",
-   "valor": 2612,
-   "aportado": null,
-   "id": "v4"
+   "id": "v4",
+   "producto": "pension",
+   "fecha": "2026-09-30",
+   "valor": 12000,
+   "aportado": null
   },
   {
-   "fecha": "2026-09-02",
-   "producto": "efectivo_bbva",
-   "valor": 682,
-   "aportado": null,
-   "id": "v5"
+   "id": "v5",
+   "producto": "seguro",
+   "fecha": "2026-09-30",
+   "valor": 4000,
+   "aportado": null
   },
   {
-   "fecha": "2026-09-13",
-   "producto": "efectivo_bbva",
-   "valor": 549.4,
-   "aportado": null,
-   "id": "v6"
+   "id": "v6",
+   "producto": "cuenta",
+   "fecha": "2026-09-30",
+   "valor": 4500,
+   "aportado": null
   },
   {
-   "id": "vdeuda1",
-   "producto": "prestamo_coche",
-   "fecha": "2026-09-13",
-   "valor": 8260.35
+   "id": "v7",
+   "producto": "ahorro",
+   "fecha": "2026-09-30",
+   "valor": 7000,
+   "aportado": null
   },
   {
-   "id": "vusd",
+   "id": "v8",
    "producto": "ahorro_usd",
-   "fecha": "2026-09-13",
-   "valor": 2000.0
+   "fecha": "2026-09-30",
+   "valor": 3000,
+   "aportado": null
+  },
+  {
+   "id": "v9",
+   "producto": "vivienda",
+   "fecha": "2026-09-30",
+   "valor": 185000,
+   "aportado": null
+  },
+  {
+   "id": "v10",
+   "producto": "hipoteca",
+   "fecha": "2026-09-30",
+   "valor": 121500
+  },
+  {
+   "id": "v11",
+   "producto": "prestamo_coche",
+   "fecha": "2026-09-30",
+   "valor": 7800
   }
  ],
  "comparador": [
@@ -1506,25 +1355,7 @@
    }
   },
   {
-   "id": "sinBitcoin",
-   "nombre": "Sin bitcoin",
-   "pesos": {
-    "world": 64,
-    "emergentes": 15,
-    "monetario": 21
-   }
-  },
-  {
-   "id": "sinMonetario",
-   "nombre": "Sin monetario",
-   "pesos": {
-    "world": 75,
-    "emergentes": 17,
-    "bitcoin": 8
-   }
-  },
-  {
-   "id": "rv8020",
+   "id": "mix8020",
    "nombre": "80/20 World-Emergentes",
    "pesos": {
     "world": 80,
@@ -1532,7 +1363,7 @@
    }
   },
   {
-   "id": "agresiva",
+   "id": "conbtc",
    "nombre": "70/20/10 con bitcoin",
    "pesos": {
     "world": 70,
@@ -1552,22 +1383,237 @@
  ],
  "objetivo": {
   "activo": true,
-  "importe": 100000,
-  "etiqueta": "Proximo objetivo"
+  "importe": 200000,
+  "etiqueta": "Próximo objetivo"
  },
- "titulares": [
-  "Yo",
-  "Pareja",
-  "Común"
+ "apartados": [
+  {
+   "id": "a1",
+   "nombre": "Reserva impuestos",
+   "finalidad": "Pago de IRPF",
+   "titular": "Común",
+   "importe": 2500,
+   "fechaPrevista": "2027-06-30"
+  },
+  {
+   "id": "a2",
+   "nombre": "Vacaciones",
+   "finalidad": "Viaje de verano",
+   "titular": "Yo",
+   "importe": 1200,
+   "fechaPrevista": "2027-07-15"
+  },
+  {
+   "id": "a3",
+   "nombre": "Fondo de emergencia",
+   "finalidad": "Imprevistos",
+   "titular": "Común",
+   "importe": 6000
+  }
+ ],
+ "flujos": [
+  {
+   "id": "fl1",
+   "tipo": "ingreso",
+   "fecha": "2026-07-31",
+   "importe": 1800,
+   "categoria": "Nómina",
+   "titular": "Yo"
+  },
+  {
+   "id": "fl2",
+   "tipo": "ingreso",
+   "fecha": "2026-07-31",
+   "importe": 1600,
+   "categoria": "Nómina",
+   "titular": "Pareja"
+  },
+  {
+   "id": "fl3",
+   "tipo": "ingreso",
+   "fecha": "2026-07-31",
+   "importe": 120,
+   "categoria": "Intereses y dividendos",
+   "titular": "Común"
+  },
+  {
+   "id": "fl4",
+   "tipo": "gasto",
+   "fecha": "2026-07-31",
+   "importe": 800,
+   "categoria": "Vivienda",
+   "titular": "Común"
+  },
+  {
+   "id": "fl5",
+   "tipo": "gasto",
+   "fecha": "2026-07-31",
+   "importe": 500,
+   "categoria": "Alimentación",
+   "titular": "Común"
+  },
+  {
+   "id": "fl6",
+   "tipo": "gasto",
+   "fecha": "2026-07-31",
+   "importe": 160,
+   "categoria": "Transporte",
+   "titular": "Común"
+  },
+  {
+   "id": "fl7",
+   "tipo": "gasto",
+   "fecha": "2026-07-31",
+   "importe": 140,
+   "categoria": "Suministros",
+   "titular": "Común"
+  },
+  {
+   "id": "fl8",
+   "tipo": "gasto",
+   "fecha": "2026-07-31",
+   "importe": 220,
+   "categoria": "Ocio y restaurantes",
+   "titular": "Común"
+  },
+  {
+   "id": "fl9",
+   "tipo": "ingreso",
+   "fecha": "2026-08-31",
+   "importe": 1800,
+   "categoria": "Nómina",
+   "titular": "Yo"
+  },
+  {
+   "id": "fl10",
+   "tipo": "ingreso",
+   "fecha": "2026-08-31",
+   "importe": 1600,
+   "categoria": "Nómina",
+   "titular": "Pareja"
+  },
+  {
+   "id": "fl11",
+   "tipo": "ingreso",
+   "fecha": "2026-08-31",
+   "importe": 120,
+   "categoria": "Intereses y dividendos",
+   "titular": "Común"
+  },
+  {
+   "id": "fl12",
+   "tipo": "gasto",
+   "fecha": "2026-08-31",
+   "importe": 800,
+   "categoria": "Vivienda",
+   "titular": "Común"
+  },
+  {
+   "id": "fl13",
+   "tipo": "gasto",
+   "fecha": "2026-08-31",
+   "importe": 500,
+   "categoria": "Alimentación",
+   "titular": "Común"
+  },
+  {
+   "id": "fl14",
+   "tipo": "gasto",
+   "fecha": "2026-08-31",
+   "importe": 160,
+   "categoria": "Transporte",
+   "titular": "Común"
+  },
+  {
+   "id": "fl15",
+   "tipo": "gasto",
+   "fecha": "2026-08-31",
+   "importe": 140,
+   "categoria": "Suministros",
+   "titular": "Común"
+  },
+  {
+   "id": "fl16",
+   "tipo": "gasto",
+   "fecha": "2026-08-31",
+   "importe": 220,
+   "categoria": "Ocio y restaurantes",
+   "titular": "Común"
+  },
+  {
+   "id": "fl17",
+   "tipo": "ingreso",
+   "fecha": "2026-09-30",
+   "importe": 1800,
+   "categoria": "Nómina",
+   "titular": "Yo"
+  },
+  {
+   "id": "fl18",
+   "tipo": "ingreso",
+   "fecha": "2026-09-30",
+   "importe": 1600,
+   "categoria": "Nómina",
+   "titular": "Pareja"
+  },
+  {
+   "id": "fl19",
+   "tipo": "ingreso",
+   "fecha": "2026-09-30",
+   "importe": 120,
+   "categoria": "Intereses y dividendos",
+   "titular": "Común"
+  },
+  {
+   "id": "fl20",
+   "tipo": "gasto",
+   "fecha": "2026-09-30",
+   "importe": 800,
+   "categoria": "Vivienda",
+   "titular": "Común"
+  },
+  {
+   "id": "fl21",
+   "tipo": "gasto",
+   "fecha": "2026-09-30",
+   "importe": 500,
+   "categoria": "Alimentación",
+   "titular": "Común"
+  },
+  {
+   "id": "fl22",
+   "tipo": "gasto",
+   "fecha": "2026-09-30",
+   "importe": 160,
+   "categoria": "Transporte",
+   "titular": "Común"
+  },
+  {
+   "id": "fl23",
+   "tipo": "gasto",
+   "fecha": "2026-09-30",
+   "importe": 140,
+   "categoria": "Suministros",
+   "titular": "Común"
+  },
+  {
+   "id": "fl24",
+   "tipo": "gasto",
+   "fecha": "2026-09-30",
+   "importe": 220,
+   "categoria": "Ocio y restaurantes",
+   "titular": "Común"
+  }
  ],
  "config": {
-  "colchon": 3000,
+  "colchon": 6000,
   "objetivos": {
-   "fondo": 0.55,
-   "efectivo": 0.2,
-   "etf": 0.1,
-   "pension": 0.1,
-   "otro": 0.05
+   "fondo": 0.4,
+   "etf": 0.15,
+   "cripto": 0.05,
+   "bono": 0.1,
+   "pension": 0.15,
+   "efectivo": 0.15
   },
   "umbralConcentracion": 0.4,
   "desviacionMax": 0.05,
@@ -1594,17 +1640,17 @@
    {
     "nombre": "Vivienda",
     "tipo": "gasto",
-    "presupuesto": 750
+    "presupuesto": 850
    },
    {
     "nombre": "Alimentación",
     "tipo": "gasto",
-    "presupuesto": 600
+    "presupuesto": 550
    },
    {
     "nombre": "Suministros",
     "tipo": "gasto",
-    "presupuesto": 130
+    "presupuesto": 160
    },
    {
     "nombre": "Transporte",
@@ -1622,168 +1668,5 @@
     "presupuesto": 150
    }
   ]
- },
- "apartados": [
-  {
-   "id": "a1",
-   "nombre": "Reserva impuestos",
-   "finalidad": "Pago de impuestos",
-   "titular": "Común",
-   "importe": 1500,
-   "fechaPrevista": "2027-06-30"
-  },
-  {
-   "id": "a2",
-   "nombre": "Viaje",
-   "finalidad": "Vacaciones",
-   "titular": "Yo",
-   "importe": 800
-  }
- ],
- "flujos": [
-  {
-   "id": "fl1",
-   "tipo": "ingreso",
-   "fecha": "2026-07-31",
-   "importe": 1650,
-   "categoria": "Nómina",
-   "titular": "Yo"
-  },
-  {
-   "id": "fl2",
-   "tipo": "ingreso",
-   "fecha": "2026-07-31",
-   "importe": 1720,
-   "categoria": "Nómina",
-   "titular": "Pareja"
-  },
-  {
-   "id": "fl3",
-   "tipo": "gasto",
-   "fecha": "2026-07-31",
-   "importe": 750,
-   "categoria": "Vivienda",
-   "titular": "Común"
-  },
-  {
-   "id": "fl4",
-   "tipo": "gasto",
-   "fecha": "2026-07-31",
-   "importe": 600,
-   "categoria": "Alimentación",
-   "titular": "Común"
-  },
-  {
-   "id": "fl5",
-   "tipo": "gasto",
-   "fecha": "2026-07-31",
-   "importe": 250,
-   "categoria": "Ocio y restaurantes",
-   "titular": "Común"
-  },
-  {
-   "id": "fl6",
-   "tipo": "gasto",
-   "fecha": "2026-07-31",
-   "importe": 120,
-   "categoria": "Suministros",
-   "titular": "Común"
-  },
-  {
-   "id": "fl7",
-   "tipo": "ingreso",
-   "fecha": "2026-08-31",
-   "importe": 1650,
-   "categoria": "Nómina",
-   "titular": "Yo"
-  },
-  {
-   "id": "fl8",
-   "tipo": "ingreso",
-   "fecha": "2026-08-31",
-   "importe": 1720,
-   "categoria": "Nómina",
-   "titular": "Pareja"
-  },
-  {
-   "id": "fl9",
-   "tipo": "gasto",
-   "fecha": "2026-08-31",
-   "importe": 750,
-   "categoria": "Vivienda",
-   "titular": "Común"
-  },
-  {
-   "id": "fl10",
-   "tipo": "gasto",
-   "fecha": "2026-08-31",
-   "importe": 600,
-   "categoria": "Alimentación",
-   "titular": "Común"
-  },
-  {
-   "id": "fl11",
-   "tipo": "gasto",
-   "fecha": "2026-08-31",
-   "importe": 250,
-   "categoria": "Ocio y restaurantes",
-   "titular": "Común"
-  },
-  {
-   "id": "fl12",
-   "tipo": "gasto",
-   "fecha": "2026-08-31",
-   "importe": 120,
-   "categoria": "Suministros",
-   "titular": "Común"
-  },
-  {
-   "id": "fl13",
-   "tipo": "ingreso",
-   "fecha": "2026-09-30",
-   "importe": 1650,
-   "categoria": "Nómina",
-   "titular": "Yo"
-  },
-  {
-   "id": "fl14",
-   "tipo": "ingreso",
-   "fecha": "2026-09-30",
-   "importe": 1720,
-   "categoria": "Nómina",
-   "titular": "Pareja"
-  },
-  {
-   "id": "fl15",
-   "tipo": "gasto",
-   "fecha": "2026-09-30",
-   "importe": 750,
-   "categoria": "Vivienda",
-   "titular": "Común"
-  },
-  {
-   "id": "fl16",
-   "tipo": "gasto",
-   "fecha": "2026-09-30",
-   "importe": 600,
-   "categoria": "Alimentación",
-   "titular": "Común"
-  },
-  {
-   "id": "fl17",
-   "tipo": "gasto",
-   "fecha": "2026-09-30",
-   "importe": 250,
-   "categoria": "Ocio y restaurantes",
-   "titular": "Común"
-  },
-  {
-   "id": "fl18",
-   "tipo": "gasto",
-   "fecha": "2026-09-30",
-   "importe": 120,
-   "categoria": "Suministros",
-   "titular": "Común"
-  }
- ]
+ }
 }
