@@ -1051,9 +1051,11 @@
     if (!estado.anioFiscal || !fisc[estado.anioFiscal]) estado.anioFiscal = anios[0];
     selC.innerHTML = `<label for="selAnioFisc" style="font-size:13px;color:var(--tinta2)">Año fiscal: </label>
       <select id="selAnioFisc">${anios.map(a => `<option value="${esc(a)}"${a === estado.anioFiscal ? " selected" : ""}>${esc(a)}</option>`).join("")}</select>
-      <button class="btn" id="btnFiscalCsv" style="margin-left:10px">⬇ Descargar CSV</button>`;
+      <button class="btn prim" id="btnFiscalPdf" style="margin-left:10px">🖨 Imprimir / Guardar PDF</button>
+      <button class="btn" id="btnFiscalCsv">⬇ Descargar CSV</button>`;
     $("#selAnioFisc").onchange = e => { estado.anioFiscal = e.target.value; pintaFiscal(); };
     $("#btnFiscalCsv").onclick = () => descargaFiscalCsv(estado.anioFiscal);
+    $("#btnFiscalPdf").onclick = () => window.print();
 
     const dat = fisc[estado.anioFiscal] || {}, t = dat.totales || {};
     dat.ventas = dat.ventas || []; dat.rendimientos = dat.rendimientos || [];
@@ -1063,7 +1065,8 @@
     const fFecha = s => s ? String(s).split(" … ").map(x => G.fmtFecha(x)).join(" … ") : "—";
     const dr = ' style="text-align:right"';
     $("#fiscalTitulo").textContent = "Informe fiscal " + estado.anioFiscal;
-    $("#fiscalSub").textContent = (D.titular || "Patrimonio") + " · ejercicio " + estado.anioFiscal;
+    const hoyTxt = new Date().toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
+    $("#fiscalSub").textContent = (D.titular || "Patrimonio") + " · ejercicio " + estado.anioFiscal + " · generado el " + hoyTxt;
 
     const avisos = (dat.avisos || []).length
       ? `<div class="bannerAlertas" style="margin-bottom:12px">${dat.avisos.map(a => `<div class="av"><span>⚠</span><span>${esc(a)}</span></div>`).join("")}</div>`
@@ -1074,6 +1077,16 @@
       <div class="kpi"><div class="e">Pérdidas</div><div class="v">${eur(t.perdidas)}</div><div class="n">ventas con pérdida</div></div>
       <div class="kpi"><div class="e">Resultado neto</div><div class="v ${t.gananciaNeta >= 0 ? "pos" : "neg"}">${eur(t.gananciaNeta)}</div><div class="n">ganancia o pérdida patrimonial</div></div>
       <div class="kpi"><div class="e">Dividendos y cupones</div><div class="v">${eur(t.rendimientos)}</div><div class="n">rendimiento del capital</div></div>
+    </div>
+    <div class="fiscalCasillas">
+      <h3>Para tu declaración de la renta (IRPF)</h3>
+      <p>Estos son los importes que normalmente llevan a la <b>base del ahorro</b> (tú o tu asesor los pasáis a las casillas correspondientes):</p>
+      <ul>
+        <li><b>Ganancias y pérdidas patrimoniales</b> (ventas de fondos, acciones, ETF, cripto…): resultado neto del año
+          <b>${eur(t.gananciaNeta)}</b> (ganancias ${eur(t.ganancias)}, pérdidas ${eur(t.perdidas)}).</li>
+        <li><b>Rendimientos del capital mobiliario</b> (dividendos y cupones): íntegro <b>${eur(t.rendimientoIntegro)}</b>,
+          retención ${eur(t.retenciones)}, neto recibido ${eur(t.rendimientos)}.</li>
+      </ul>
     </div>`;
 
     const hTit = txt => `<h3 style="font-size:14px;margin:18px 0 8px">${txt}</h3>`;
