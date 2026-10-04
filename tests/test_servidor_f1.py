@@ -22,12 +22,12 @@ def test_api_config_guarda_colchon_y_titulares(tmp_path, monkeypatch):
     servidor = _prepara(tmp_path, monkeypatch)
     client = servidor.app.test_client()
 
-    r = client.post("/api/config", json={"colchon": "3.000", "titulares": ["Mar", "Común", "Mar"]})
+    r = client.post("/api/config", json={"colchon": "3.000", "titulares": ["Yo", "Común", "Yo"]})
     assert r.get_json()["ok"] is True
 
     cartera = client.get("/api/cartera").get_json()["cartera"]
     assert cartera["config"]["colchon"] == 3000.0
-    assert cartera["titulares"] == ["Mar", "Común"]
+    assert cartera["titulares"] == ["Yo", "Común"]
 
 
 def test_api_apartados_crea_y_borra(tmp_path, monkeypatch):

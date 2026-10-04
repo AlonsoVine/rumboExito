@@ -3,7 +3,7 @@
  "titular": "Patrimonio de ejemplo",
  "titulares": [
   "Yo",
-  "Pareja",
+  "Novia",
   "Común"
  ],
  "productos": [
@@ -59,7 +59,7 @@
    "codigo": "0P0001CJGK",
    "identificador": "IE00BYX5M476",
    "moneda": "EUR",
-   "titular": "Pareja",
+   "titular": "Novia",
    "slot": 3,
    "nombre": "Fondo indexado Mercados Emergentes",
    "corto": "Emergentes",
@@ -119,7 +119,7 @@
    "tipo": "accion",
    "fuente": "manual",
    "moneda": "EUR",
-   "titular": "Pareja",
+   "titular": "Novia",
    "slot": 6,
    "nombre": "Acciones cotizadas",
    "corto": "Acciones",
@@ -150,7 +150,7 @@
    "tipo": "bono",
    "fuente": "manual",
    "moneda": "EUR",
-   "titular": "Pareja",
+   "titular": "Novia",
    "slot": 8,
    "nombre": "Bono del Estado",
    "corto": "Bono",
@@ -182,7 +182,7 @@
    "tipo": "otro",
    "fuente": "manual",
    "moneda": "EUR",
-   "titular": "Pareja",
+   "titular": "Novia",
    "slot": 10,
    "nombre": "Seguro de ahorro",
    "corto": "Seguro ahorro",
@@ -1426,7 +1426,7 @@
    "fecha": "2026-07-31",
    "importe": 1600,
    "categoria": "Nómina",
-   "titular": "Pareja"
+   "titular": "Novia"
   },
   {
    "id": "fl3",
@@ -1490,7 +1490,7 @@
    "fecha": "2026-08-31",
    "importe": 1600,
    "categoria": "Nómina",
-   "titular": "Pareja"
+   "titular": "Novia"
   },
   {
    "id": "fl11",
@@ -1554,7 +1554,7 @@
    "fecha": "2026-09-30",
    "importe": 1600,
    "categoria": "Nómina",
-   "titular": "Pareja"
+   "titular": "Novia"
   },
   {
    "id": "fl19",

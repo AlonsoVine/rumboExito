@@ -8,15 +8,15 @@
 ## Contexto
 
 El Excel es un gestor de patrimonio de **hogar**: distingue a quién corresponde cada cosa
-(en el ejemplo real, `Mar`, `Antonio` y `Común`). El propietario quiere poder declarar
+(en el ejemplo real, `Yo`, `Novia` y `Común`). El propietario quiere poder declarar
 **tantos titulares como quiera** y mantener **un patrimonio único en conjunto**, pero
 sabiendo **dónde está** el dinero y **a quién corresponde** (por ejemplo, la cuenta de ING
-de Mar frente a la de Antonio en el mismo banco).
+de Yo frente a la de Novia en el mismo banco).
 
 Al concretar el modelo surgen dos lecturas posibles:
 
 - **Opción A — Titular por activo.** Cada activo (o deuda, o apartado, o flujo) tiene **un**
-  titular. La cuenta de ING de Mar y la de Antonio son **dos activos** distintos, cada uno
+  titular. La cuenta de ING de Yo y la de Novia son **dos activos** distintos, cada uno
   con su titular. `Común` es simplemente un titular más.
 - **Opción B — Reparto fraccionado.** Un mismo activo puede repartirse entre varios
   titulares por importe o porcentaje (p. ej. una cuenta común 50/50).

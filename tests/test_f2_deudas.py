@@ -38,7 +38,7 @@ def _cartera_con_deuda():
         "version": 1, "titular": "Hogar",
         "productos": [
             {"id": "cuenta", "nombre": "Cuenta", "corto": "Cuenta", "tipo": "efectivo",
-             "fuente": "manual", "titular": "Mar", "slot": 1},
+             "fuente": "manual", "titular": "Yo", "slot": 1},
             {"id": "hipoteca", "nombre": "Hipoteca", "corto": "Hipoteca", "tipo": "deuda",
              "fuente": "manual", "entidad": "Caixabank", "titular": "Común",
              "tae": 0.03, "cuota": 500.0, "capitalInicial": 100000.0,

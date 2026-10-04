@@ -72,11 +72,11 @@ def test_copia_conserva_colecciones_nuevas(tmp_path, monkeypatch):
     from app import servidor
     monkeypatch.setattr(servidor, "DATOS", str(tmp_path))
     cfg = {"version": 1, "titular": "X", "productos": [], "movimientos": [], "valoraciones": [],
-           "titulares": ["Mar"], "apartados": [{"id": "a1", "nombre": "Impuestos", "importe": 100}],
+           "titulares": ["Yo"], "apartados": [{"id": "a1", "nombre": "Impuestos", "importe": 100}],
            "flujos": [{"id": "f1", "tipo": "gasto", "fecha": "2024-06-30", "importe": 10}],
            "config": {"colchon": 3000, "categorias": [{"nombre": "Vivienda", "tipo": "gasto"}]}}
     out = servidor.valida_copia(cfg)
-    assert out["apartados"] and out["flujos"] and out["titulares"] == ["Mar"]
+    assert out["apartados"] and out["flujos"] and out["titulares"] == ["Yo"]
     assert out["config"]["colchon"] == 3000 and out["config"]["categorias"]
 
 

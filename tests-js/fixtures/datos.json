@@ -2,7 +2,7 @@
  "generado": "2026-10-01T14:23:06",
  "titular": "Hogar de prueba",
  "titulares": [
-  "Mar",
+  "Yo",
   "Común"
  ],
  "apartados": [
@@ -402,7 +402,7 @@
    "corto": "Cuenta",
    "tipo": "Cuenta / efectivo",
    "fuente": "manual",
-   "titular": "Mar",
+   "titular": "Yo",
    "slot": 1,
    "tipoClave": "efectivo",
    "clase": "Efectivo",
@@ -637,7 +637,7 @@
     ]
    },
    {
-    "nombre": "Mar",
+    "nombre": "Yo",
     "valor": 5000.0,
     "peso": 0.1923,
     "color": [

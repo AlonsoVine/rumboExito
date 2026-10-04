@@ -442,7 +442,7 @@
         ${campo("ISIN o ticker", '<input name="identificador">', "opcional")}
         ${campo("Banco o bróker", `<input name="entidad" list="edEntidades">
           <datalist id="edEntidades">${entidades.map(x => `<option value="${esc(x)}">`).join("")}</datalist>`, "opcional")}
-        ${campo("Titular", `<input name="titular" list="edTitulares" placeholder="Mar, Común…">
+        ${campo("Titular", `<input name="titular" list="edTitulares" placeholder="Yo, Común…">
           <datalist id="edTitulares">${(E.cfg.titulares || []).map(t => `<option value="${esc(t)}">`).join("")}</datalist>`, "de quién es")}
         ${campo("Moneda", '<input name="moneda" maxlength="3" placeholder="EUR">', "EUR por defecto")}
       </div>
@@ -689,7 +689,7 @@
       </div>
       ${seccion("Titulares")}
       <div class="rejilla">
-        ${campo("Un titular por línea", '<textarea name="titulares" rows="4" placeholder="Mar\nAntonio\nComún"></textarea>', "personas del hogar", "ancho")}
+        ${campo("Un titular por línea", '<textarea name="titulares" rows="4" placeholder="Yo\nNovia\nComún"></textarea>', "personas del hogar", "ancho")}
       </div>
       ${seccion("Control de asignación")}
       <div class="rejilla tres">

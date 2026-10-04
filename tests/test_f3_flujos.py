@@ -20,7 +20,7 @@ def cfg_vacia():
 def test_flujo_ingreso_se_guarda():
     cfg = cfg_vacia()
     fl = almacen.guarda_flujo(cfg, {"tipo": "ingreso", "fecha": "2024-06-30",
-                                    "importe": "2.000", "categoria": "Nómina", "titular": "Mar"})
+                                    "importe": "2.000", "categoria": "Nómina", "titular": "Yo"})
     assert fl["tipo"] == "ingreso" and fl["importe"] == 2000.0
     assert cfg["flujos"][0]["id"] == fl["id"]
 
