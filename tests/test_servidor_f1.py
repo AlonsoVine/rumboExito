@@ -105,6 +105,15 @@ def test_datos_js_vista_mes_pasado(tmp_path, monkeypatch):
     assert '"hasta":"2024-13"' not in ri.get_data(as_text=True)
 
 
+def test_solo_responde_en_local(tmp_path, monkeypatch):
+    servidor = _prepara(tmp_path, monkeypatch)
+    client = servidor.app.test_client()
+    assert client.get("/", headers={"Host": "localhost"}).status_code == 200
+    assert client.get("/", headers={"Host": "127.0.0.1:8765"}).status_code == 200
+    # Una web externa (otro Host) no puede provocar efectos contra 127.0.0.1.
+    assert client.get("/", headers={"Host": "evil.example.com"}).status_code == 403
+
+
 def test_cabecera_csp_presente_y_estricta(tmp_path, monkeypatch):
     servidor = _prepara(tmp_path, monkeypatch)
     client = servidor.app.test_client()

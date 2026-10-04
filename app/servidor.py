@@ -85,6 +85,17 @@ CSP = ("default-src 'self'; "
        "base-uri 'self'; object-src 'none'; frame-ancestors 'none'")
 
 
+@app.before_request
+def _solo_local():
+    # 100% local: solo atendemos peticiones de este ordenador. Así una web externa
+    # abierta en el navegador no puede provocar efectos (borrar, reiniciar…) contra
+    # 127.0.0.1, ni valdría un ataque de DNS-rebinding (no se valida solo por IP).
+    host = (request.host or "").rsplit(":", 1)[0].strip("[]").lower()
+    if host and host not in ("127.0.0.1", "localhost", "::1"):
+        return jsonify(ok=False, error="Esta aplicación solo responde en tu propio ordenador."), 403
+    return None
+
+
 @app.after_request
 def _cabeceras_seguridad(resp):
     resp.headers.setdefault("Content-Security-Policy", CSP)
@@ -224,7 +235,10 @@ def precios_viejos():
     ultima = estado().get("preciosActualizados")
     if not ultima or not os.path.exists(ruta_calculado()):
         return True
-    return dt.datetime.now() - dt.datetime.fromisoformat(ultima) > dt.timedelta(hours=HORAS_PRECIOS)
+    try:
+        return dt.datetime.now() - dt.datetime.fromisoformat(ultima) > dt.timedelta(hours=HORAS_PRECIOS)
+    except (ValueError, TypeError):
+        return True   # estado.json con fecha corrupta: tratamos como "hay que actualizar"
 
 
 # ---------------------------------------------------------------- rutas
