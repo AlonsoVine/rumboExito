@@ -1,5 +1,10 @@
 # Tus datos: nunca se suben
 mis_datos/
+# Resumen de cálculo que puede quedar suelto en la raíz al ejecutar/probar
+/historico.json
+/calculado_*.json
+/estado.json
+/cache/
 
 # Entornos de Python que crean los lanzadores
 .venv/
