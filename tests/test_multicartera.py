@@ -95,6 +95,18 @@ def test_restaurar_conserva_el_nombre_de_la_cartera_destino(tmp_path, monkeypatc
     assert servidor.cartera().get("titular") == "Dos"
 
 
+def test_copia_basura_no_sustituye_ni_revienta(tmp_path, monkeypatch):
+    import io
+    servidor = _base(tmp_path, monkeypatch)   # cartera "Uno"
+    cli = servidor.app.test_client()
+    mala = {"version": 1, "productos": ["x"], "movimientos": [], "valoraciones": []}
+    contenido = io.BytesIO(json.dumps(mala).encode("utf-8"))
+    r = cli.post("/api/copia/subir", data={"archivo": (contenido, "mala.json")},
+                 content_type="multipart/form-data")
+    assert r.status_code == 400                       # error claro, no un 500
+    assert servidor.cartera().get("titular") == "Uno"  # la activa NO se ha tocado
+
+
 def test_subir_copia_crea_patrimonio_nuevo(tmp_path, monkeypatch):
     import io
     servidor = _base(tmp_path, monkeypatch)              # "Uno" (modo antiguo)

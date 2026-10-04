@@ -16,6 +16,7 @@ import re
 import secrets
 import shutil
 import sys
+import tempfile
 import threading
 import time
 import urllib.request
@@ -513,10 +514,27 @@ def ruta_copias():
 
 
 def valida_copia(cfg):
-    """Comprueba que un JSON tiene pinta de cartera de esta app."""
-    if not isinstance(cfg, dict) or not all(isinstance(cfg.get(k), list)
-                                            for k in ("productos", "movimientos", "valoraciones")):
+    """Comprueba que un JSON es una copia válida de esta app, SIN persistir nada.
+    Además de la forma, verifica que el motor puede calcularla (en un directorio
+    temporal), para no sustituir la cartera activa por datos que luego revienten."""
+    if not isinstance(cfg, dict):
         raise almacen.ErrorValidacion(["Ese archivo no es una copia de seguridad de esta app."])
+    for k in ("productos", "movimientos", "valoraciones"):
+        if not isinstance(cfg.get(k), list) or any(not isinstance(x, dict) for x in cfg[k]):
+            raise almacen.ErrorValidacion(["Ese archivo no es una copia de seguridad de esta app."])
+    for k in ("flujos", "apartados", "titulares", "monedas"):
+        if k in cfg and not isinstance(cfg.get(k), list):
+            raise almacen.ErrorValidacion([f"La copia está dañada (campo «{k}» con formato incorrecto)."])
+    if "config" in cfg and not isinstance(cfg.get("config"), dict):
+        raise almacen.ErrorValidacion(["La copia está dañada (la configuración tiene un formato incorrecto)."])
+    # Prueba de fuego: que el motor la calcule en un directorio desechable.
+    try:
+        with tempfile.TemporaryDirectory(prefix="liberty_chk_") as tmp:
+            motor.construir(cfg, tmp, descargar=False)
+    except almacen.ErrorValidacion:
+        raise
+    except Exception as e:
+        raise almacen.ErrorValidacion([f"La copia está dañada o no es compatible con esta app ({e})."]) from e
     return cfg
 
 
