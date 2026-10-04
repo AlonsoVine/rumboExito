@@ -114,9 +114,9 @@
   /* ---------------------------------------------- empezar con mis datos */
   function empezar() {
     const f = abreModal("Empezar con mis datos", `
-      <p>Ahora estás viendo una cartera de ejemplo. ¿Cómo quieres empezar la tuya?</p>
+      <p>Ahora estás viendo un patrimonio de ejemplo. ¿Cómo quieres empezar el tuyo?</p>
       <label class="opcion"><input type="radio" name="desde" value="vacia" checked>
-        <span><b>Empezar de cero</b><br>Una cartera vacía para meter lo tuyo.</span></label>
+        <span><b>Empezar de cero</b><br>Un patrimonio vacío para meter lo tuyo.</span></label>
       <label class="opcion"><input type="radio" name="desde" value="ejemplo">
         <span><b>Copiar el ejemplo para practicar</b><br>Puedes tocar, añadir y borrar sin miedo.
         Cuando quieras empezar de verdad, borra sus productos.</span></label>
@@ -130,12 +130,12 @@
   }
   function reiniciar() {
     abreModal("Empezar de nuevo", `
-      <p>¿Qué quieres hacer con la cartera que tienes ahora?</p>
+      <p>¿Qué quieres hacer con el patrimonio que tienes ahora?</p>
       <label class="opcion"><input type="radio" name="a" value="vacia" checked>
-        <span><b>Empezar de cero</b><br>Una cartera vacía para meter lo tuyo.</span></label>
+        <span><b>Empezar de cero</b><br>Un patrimonio vacío para meter lo tuyo.</span></label>
       <label class="opcion"><input type="radio" name="a" value="demo">
-        <span><b>Volver a ver la cartera de ejemplo</b><br>Luego podrás empezar otra vez con «Empezar con mis datos».</span></label>
-      <p class="ayuda">No se pierde nada: tu cartera actual se guarda en <code>mis_datos/copias</code> por si quieres recuperarla.</p>`,
+        <span><b>Volver a ver el patrimonio de ejemplo</b><br>Luego podrás empezar otra vez con «Empezar con mis datos».</span></label>
+      <p class="ayuda">No se pierde nada: tu patrimonio actual se guarda en <code>mis_datos/copias</code> por si quieres recuperarla.</p>`,
     async f => {
       await api("POST", "api/reiniciar", { a: campos(f).a });
       recuerda.guarda("patrimonio.tab", "datos");
@@ -295,7 +295,7 @@
     // En la demo ya se ve arriba el aviso con el botón «Empezar con mis datos».
     if (E.modo !== "demo" && !E.cfg.productos.length && !(E.cfg.config || {}).asistenteOculto) {
       html += `<section class="tarjeta asistente"><header><h2>Empecemos paso a paso</h2>
-          <span class="subt">Tu cartera está vacía. Haz esto una vez; luego es un ratito al mes.</span></header>
+          <span class="subt">Tu patrimonio está vacío. Haz esto una vez; luego es un ratito al mes.</span></header>
         <ol class="pasosAsist">
           <li><b>1 · Añade lo que tienes.</b> Cuentas del banco, fondos, acciones, cripto, un plan de pensiones, un piso…
             <div class="botones"><button class="btn prim" data-acc="nuevoProducto">+ Añadir un activo</button></div></li>
@@ -678,7 +678,7 @@
     const objInputs = Object.entries(E.tipos).map(([clave, label]) =>
       `<label class="campo"><span class="et">${esc(label)} <em>%</em></span><input name="obj_${clave}" inputmode="decimal" placeholder="0"></label>`).join("");
     const f = abreModal("Configuración", `
-      ${seccion("Esta cartera")}
+      ${seccion("Este patrimonio")}
       <div class="rejilla">
         ${campo("Nombre de este patrimonio", '<input name="nombreCartera" maxlength="60" required>', "aparece arriba, en el selector")}
         ${campo("Objetivo de patrimonio", '<input name="objetivoImporte" inputmode="decimal" placeholder="100000">', "€, la meta de la barra del panel; vacío = sin meta")}
@@ -1203,7 +1203,7 @@
       <td style="text-align:left">${esc(c.motivo)}</td><td>${c.productos}</td><td>${c.movimientos}</td>
       <td class="acc"><button data-acc="recuperarCopia" data-id="${esc(c.archivo)}">Recuperar</button></td></tr>`).join("");
     return `<section class="tarjeta"><header><h2>Copia de seguridad</h2>
-        <span class="subt">Un archivo con toda tu cartera, para guardarlo donde quieras o pasarlo a otro ordenador.</span></header>
+        <span class="subt">Un archivo con todo tu patrimonio, para guardarlo donde quieras o pasarlo a otro ordenador.</span></header>
       <div class="dosCol">
         <div class="bloque"><b>Guardar una copia</b>
           <p class="ayuda">Descarga un archivo <code>.json</code> con todos tus productos, movimientos y saldos.
@@ -1280,7 +1280,7 @@
 
   async function recuperarCopia(archivo) {
     const c = COP.lista.find(x => x.archivo === archivo);
-    if (!confirm(`¿Volver a la copia del ${fecha(c.fecha.slice(0, 10))} a las ${c.fecha.slice(11, 16)} (${c.productos} productos, ${c.movimientos} movimientos)?\n\nTu cartera actual se guarda antes, así que puedes deshacerlo.`)) return;
+    if (!confirm(`¿Volver a la copia del ${fecha(c.fecha.slice(0, 10))} a las ${c.fecha.slice(11, 16)} (${c.productos} productos, ${c.movimientos} movimientos)?\n\nTu patrimonio actual se guarda antes, así que puedes deshacerlo.`)) return;
     try {
       await api("POST", "api/copia/recuperar", { archivo });
       recuerda.guarda("patrimonio.tab", "datos");
@@ -1313,7 +1313,7 @@
       try { await guardaConfig({ asistenteOculto: true }); pinta(); } catch (x) { alert(x.message); }
     }),
     editarProducto: soloPropio(id => formProducto(prod(id))),
-    duplicarProducto: soloPropio(id => { const p = prod(id); if (p) formProducto({ ...p, id: undefined, nombre: (p.nombre || "") + " (copia)" }); }),
+    duplicarProducto: soloPropio(id => { const p = prod(id); if (p) formProducto({ ...p, id: undefined, slot: siguienteColor(), nombre: (p.nombre || "") + " (copia)" }); }),
     borrarProducto: soloPropio(borrarProducto),
     nuevoMov: soloPropio(() => formMovimiento(null)),
     editarMov: soloPropio(id => formMovimiento(E.cfg.movimientos.find(m => m.id === id))),

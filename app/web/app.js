@@ -1004,7 +1004,7 @@
     const ops = `<option value="">Hoy (último dato)</option>` +
       meses.slice().reverse().map(m => `<option value="${esc(m)}"${m === actual ? " selected" : ""}>${esc(mesBonito(m))}</option>`).join("");
     cont.innerHTML =
-      (actual ? `<span class="avisoHasta">📅 Estás viendo tu patrimonio <b>a fin de ${esc(mesBonito(actual))}</b>, no los datos de hoy.${info("Las cantidades (saldos, precios) son las de aquella fecha. Algunos ajustes que no guardan histórico —colchón, apartados y los datos fijos de las deudas— se muestran con su valor actual.")}</span>` : "") +
+      (actual ? `<span class="avisoHasta">📅 Estás viendo tu patrimonio <b>a fin de ${esc(mesBonito(actual))}</b>, no los datos de hoy.${info("Las cantidades (saldos, precios) son las de aquella fecha. Algunos ajustes que no guardan histórico —el colchón y los datos fijos de las deudas— se muestran con su valor actual.")}</span>` : "") +
       `<span class="mesRefCtrl"><label for="selMesRef">Ver a fecha:</label>
         <select id="selMesRef">${ops}</select>
         ${actual ? '<button class="btn" id="btnHoy">Volver a hoy</button>' : ""}</span>`;
@@ -1028,7 +1028,8 @@
     L.push(["Totales", "", "", "", n(t.adquisicion), n(t.transmision), n(t.gananciaNeta)].join(";"), "",
       "Rendimientos del capital mobiliario (dividendos y cupones)", "Producto;Fecha;Importe;Retencion IRPF");
     (d.rendimientos || []).forEach(r => L.push([q(r.producto), r.fecha, n(r.importe), n(r.retencion)].join(";")));
-    L.push(["Total", "", n(t.rendimientos), n(t.retenciones)].join(";"));
+    L.push(["Total (neto)", "", n(t.rendimientos), n(t.retenciones)].join(";"));
+    L.push(["Rendimiento integro (neto + retencion)", "", n(t.rendimientoIntegro), ""].join(";"));
     const blob = new Blob(["﻿" + L.join("\r\n")], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -1092,6 +1093,7 @@
       `<div class="tablaEnv"><table class="dt"><thead><tr><th>Producto</th><th>Fecha</th><th${dr}>Importe</th>${hayRet ? `<th${dr}>Retención IRPF</th>` : ""}</tr></thead>
       <tbody>${dat.rendimientos.map(r => `<tr><td>${esc(r.producto)}</td><td>${G.fmtFecha(r.fecha)}</td><td${dr}>${eur(r.importe)}</td>${hayRet ? `<td${dr}>${eur(r.retencion || 0)}</td>` : ""}</tr>`).join("")}</tbody>
       <tfoot><tr><td colspan="2">Total</td><td${dr}>${eur(t.rendimientos)}</td>${hayRet ? `<td${dr}>${eur(t.retenciones)}</td>` : ""}</tr></tfoot></table></div>`
+      + (hayRet ? `<p class="subt" style="margin-top:8px">Para la declaración, el <b>rendimiento íntegro</b> (lo recibido + la retención) es <b>${eur(t.rendimientoIntegro)}</b>, con una retención de ${eur(t.retenciones)}. La columna «Importe» es lo que te ingresaron (neto).</p>` : "")
       : `<p class="vacio">No hay dividendos ni cupones en ${esc(estado.anioFiscal)}.</p>`;
 
     cont.innerHTML = avisos + resumen + ventas + rend;
@@ -1273,6 +1275,7 @@
 
   function pintaFondos() {
     const lista = TODOS();
+    if (!lista.length) { $("#fondoFicha").innerHTML = '<p class="vacio">Aún no hay componentes que mostrar.</p>'; return; }
     if (!estado.fondo || !buscaProd(estado.fondo)) estado.fondo = lista[0].id;
     const p = buscaProd(estado.fondo);
 
