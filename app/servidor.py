@@ -138,7 +138,10 @@ def registro():
 
 
 def guarda_registro(reg):
-    escribe_json(os.path.join(DATOS, "registro.json"), reg)
+    # Fusiona sobre lo que haya (no reemplaza), para no perder otras claves futuras.
+    base = registro()
+    base.update(reg)
+    escribe_json(os.path.join(DATOS, "registro.json"), base)
 
 
 def asegura_multi():
@@ -406,9 +409,9 @@ def api_cartera_nueva():
 @app.post("/api/cartera/activar")
 def api_cartera_activar():
     cid = (request.get_json(silent=True) or {}).get("id")
-    if cid not in {c["id"] for c in carteras()}:
-        return jsonify(ok=False, errores=["Esa cartera ya no existe."]), 400
     with cerrojo:
+        if cid not in {c["id"] for c in carteras()}:
+            return jsonify(ok=False, errores=["Ese patrimonio ya no existe."]), 400
         guarda_registro({"activa": cid})
         recalcula(descargar="faltan")
     return jsonify(ok=True)
@@ -417,12 +420,12 @@ def api_cartera_activar():
 @app.post("/api/cartera/borrar")
 def api_cartera_borrar():
     cid = (request.get_json(silent=True) or {}).get("id")
-    ids = {c["id"] for c in carteras()}
-    if cid not in ids:
-        return jsonify(ok=False, errores=["Esa cartera ya no existe."]), 400
-    if len(ids) <= 1:
-        return jsonify(ok=False, errores=["No puedes borrar tu único patrimonio. Crea otro antes."]), 400
     with cerrojo:
+        ids = {c["id"] for c in carteras()}
+        if cid not in ids:
+            return jsonify(ok=False, errores=["Ese patrimonio ya no existe."]), 400
+        if len(ids) <= 1:
+            return jsonify(ok=False, errores=["No puedes borrar tu único patrimonio. Crea otro antes."]), 400
         ruta = os.path.join(_carteras_dir(), cid)
         # En Windows un archivo de caché puede estar en uso un instante: reintentamos.
         borrado = False
@@ -499,7 +502,7 @@ def api_importar_confirmar():
     if isinstance(respuesta, tuple):
         return respuesta
     datos = respuesta.get_json()
-    datos["informe"] = {k: informe[k] for k in ("añadidos", "repetidos", "saldos", "sustituidos")}
+    datos["informe"] = {k: informe.get(k, 0) for k in ("añadidos", "repetidos", "saldos", "sustituidos")}
     return jsonify(datos)
 
 
