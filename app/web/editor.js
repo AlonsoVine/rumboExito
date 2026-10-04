@@ -1398,10 +1398,11 @@
       t.setAttribute("role", "dialog");
       t.innerHTML = `<button class="x" aria-label="Cerrar">×</button>
         <b>¿Te está siendo útil?</b>
-        <p>Esta herramienta es gratis. La hago para mi canal de YouTube, donde cuento cómo invierto:
-          suscribirte es la mejor forma de apoyarla. — ${esc(K.autor)}</p>
-        <div class="botones"><a class="btn prim" href="${esc(K.suscribir)}" target="_blank" rel="noopener">▶ Suscribirme</a>
-          <button class="ahoraNo">Ahora no</button></div>`;
+        <p>Liberty es gratuita. Si te sirve, puedes ver en qué más trabajo y seguirme. — ${esc(K.autorApp)}</p>
+        <div class="botones"><a class="btn prim" href="${esc(K.portfolio)}" target="_blank" rel="noopener">🌐 Mi portfolio</a>
+          <a class="btn" href="${esc(K.linkedin)}" target="_blank" rel="noopener">💼 LinkedIn</a>
+          <button class="ahoraNo">Ahora no</button></div>
+        <p class="canalNota">Liberty es un fork de <a href="${esc(K.rumbo)}" target="_blank" rel="noopener">Rumbo</a>, de ${esc(K.autor)} — si te interesan las inversiones, también puedes <a href="${esc(K.canal)}" target="_blank" rel="noopener">seguir su canal</a>.</p>`;
       const cierra = () => { t.remove(); guarda({ veces: (est.veces || 0) + 1, ultima: Date.now() }); };
       t.querySelector(".x").onclick = cierra;
       t.querySelector(".ahoraNo").onclick = cierra;

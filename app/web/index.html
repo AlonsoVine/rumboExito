@@ -391,7 +391,7 @@ table.dt td.nota{max-width:220px;overflow:hidden;text-overflow:ellipsis;text-ali
 /* ---- Ventana modal ---- */
 :root{--flecha:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23898781' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 .modal{border:0;border-radius:18px;background:var(--sup);color:var(--tinta);padding:0;text-align:left;
-  width:min(640px,calc(100vw - 24px));max-height:calc(100vh - 32px);
+  width:min(640px,calc(100vw - 24px));max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);
   box-shadow:0 30px 90px rgba(0,0,0,.45),0 0 0 1px var(--borde)}
 .modal[open]{animation:entra .18s ease-out}
 @keyframes entra{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
@@ -402,8 +402,9 @@ table.dt td.nota{max-width:220px;overflow:hidden;text-overflow:ellipsis;text-ali
   box-shadow:0 14px 40px rgba(0,0,0,.35);z-index:9999;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none}
 .toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
 @media print{.toast{display:none !important}}
-/* Card de bienvenida (primera vez) */
-.bvCuerpo{overflow-y:auto;max-height:calc(100vh - 34px);padding:26px 28px 22px;line-height:1.55}
+/* Card de bienvenida (primera vez) y diálogos de aviso */
+.bvCuerpo{display:flex;flex-direction:column;max-height:calc(100vh - 34px);max-height:calc(100dvh - 34px);line-height:1.55}
+.bvScroll{overflow-y:auto;flex:1 1 auto;min-height:0;padding:26px 28px 10px}
 .bvCuerpo h2{font-size:21px}
 .bvCuerpo p{margin:10px 0}
 .bvCuerpo ul{margin:8px 0;padding-left:20px}
@@ -412,14 +413,15 @@ table.dt td.nota{max-width:220px;overflow:hidden;text-overflow:ellipsis;text-ali
 .bvIcono{border-radius:16px;flex-shrink:0}
 .bvAutor{margin:4px 0 0;color:var(--tinta2);font-size:14px}
 .bvAviso{background:var(--fondo);border:1px solid var(--borde);border-left:4px solid #c98500;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--tinta2)}
-.bvBotones{display:flex;justify-content:flex-end;margin-top:16px}
+.bvBotones{display:flex;justify-content:flex-end;gap:10px;flex:0 0 auto;
+  padding:14px 28px 20px;border-top:1px solid var(--borde);background:var(--sup);box-shadow:0 -6px 16px -8px rgba(0,0,0,.35)}
 .bvBotones .btn{height:44px;padding:0 20px}
 .btn.danger{background:#c0392b;border-color:#c0392b;color:#fff}
 .btn.danger:hover:not(:disabled){background:#a93226;border-color:#a93226}
 .btn.danger:disabled{opacity:.5;cursor:not-allowed}
 .zonaPeligro{border:1.5px solid #c0392b !important;box-shadow:0 0 0 3px rgba(192,57,43,.12)}
 .zonaPeligro h2{color:#c0392b}
-.mForm{display:flex;flex-direction:column;max-height:calc(100vh - 34px)}
+.mForm{display:flex;flex-direction:column;max-height:calc(100vh - 34px);max-height:calc(100dvh - 34px)}
 .mForm > header{display:flex;align-items:center;gap:12px;padding:22px 26px 8px;flex:0 0 auto}
 .mForm > header h2{font-size:19px;font-weight:700;letter-spacing:-.025em;flex:1;margin:0}
 .mForm .x{width:32px;height:32px;border-radius:50%;border:0;background:var(--sup2);color:var(--tinta2);
@@ -427,9 +429,9 @@ table.dt td.nota{max-width:220px;overflow:hidden;text-overflow:ellipsis;text-ali
 .mForm .x:hover{background:var(--sup3);color:var(--tinta)}
 .mCuerpo{padding:12px 26px 22px;overflow-y:auto;font-size:14px;line-height:1.5;flex:1 1 auto;min-height:0}
 .mCuerpo > p{margin:0 0 6px}
-.mForm > footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 26px 18px;border-top:1px solid var(--borde);flex:0 0 auto;background:var(--sup)}
+.mForm > footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 26px 18px;border-top:1px solid var(--borde);flex:0 0 auto;background:var(--sup);box-shadow:0 -6px 16px -8px rgba(0,0,0,.35)}
 .mForm > footer .btn{height:40px;padding:0 18px;font-size:14px;border-radius:11px}
-.mErr{margin:0 26px 10px;padding:11px 14px;border-radius:11px;white-space:pre-line;font-size:13.5px;
+.mErr{flex:0 0 auto;margin:0 26px 10px;padding:11px 14px;border-radius:11px;white-space:pre-line;font-size:13.5px;
   background:color-mix(in srgb,var(--mal) 13%,transparent);border:1px solid color-mix(in srgb,var(--mal) 40%,transparent)}
 
 .secc{display:flex;align-items:center;gap:12px;margin:26px 0 12px;font-size:11px;font-weight:700;
@@ -686,8 +688,11 @@ body.video .tarjeta{padding:22px 24px}
 .tarjetaCanal b{display:block;font-size:14.5px;padding-right:18px}
 .tarjetaCanal p{margin:6px 0 12px;font-size:13px;line-height:1.5;color:var(--tinta2)}
 .tarjetaCanal .botones{display:flex;gap:8px;align-items:center}
-.tarjetaCanal .btn.prim{background:#e0322b;text-decoration:none}
+.tarjetaCanal .btn.prim{background:var(--s1);text-decoration:none}
+.tarjetaCanal .btn{text-decoration:none}
 .tarjetaCanal .ahoraNo{border:0;background:none;color:var(--tinta3);font:inherit;font-size:13px;cursor:pointer}
+.tarjetaCanal .canalNota{margin:10px 0 0;font-size:11.5px;line-height:1.45;color:var(--tinta3)}
+.tarjetaCanal .botones{flex-wrap:wrap}
 body.video .tarjetaCanal{display:none}
 @media(max-width:640px){.tarjetaCanal{right:16px;left:16px;bottom:16px;width:auto}}
 /* ---- Marca ---- */
@@ -742,10 +747,8 @@ body.video .tarjetaCanal{display:none}
 <div class="env">
 
 <div class="banner" id="bannerDemo" hidden>
-  <span><b>Estás viendo una cartera de ejemplo:</b> es la cartera real de <span class="autorCanal"></span>,
-  que cada mes cuenta cómo evoluciona en su <a class="enlaceCanal" target="_blank" rel="noopener">canal de YouTube</a>.
-  No es una recomendación de inversión.
-  <small style="display:block;margin-top:6px;color:var(--tinta3)">Este ejemplo y este texto provienen de la aplicación original (Rumbo) que forké; no reflejan cómo está montada ni para qué sirve esta versión, que es un gestor de patrimonio de hogar.</small></span>
+  <span><b>Estás viendo un patrimonio de ejemplo:</b> son datos genéricos de muestra (no reales) para que veas cómo funciona la app.
+  No es una recomendación de inversión. Cuando quieras, empieza con los tuyos.</span>
   <button class="btn prim" id="btnEmpezar">Empezar con mis datos</button>
 </div>
 <p class="aviso-legal">Herramienta informativa. No es asesoramiento financiero. No se garantiza la exactitud de los datos ni de los precios.</p>
@@ -1200,7 +1203,7 @@ body.video .tarjetaCanal{display:none}
       <p id="ayudaVersion">¿Otra duda? Mira la <a href="https://github.com/danidm98/rumbo" target="_blank" rel="noopener">página del proyecto original en GitHub</a>.</p>
       <p>Esta versión (gestor de patrimonio de hogar) es un fork modificado: <a href="https://github.com/AlonsoVine/rumboExito" target="_blank" rel="noopener">github.com/AlonsoVine/rumboExito</a>.</p>
       <p class="creditoMod">Rumbo, de Dani Dominguez Quant · modificaciones (gestor de patrimonio de hogar) por Alonso (github.com/AlonsoVine).</p>
-      <p class="creditoCanal">Herramienta gratuita hecha por <span class="autorCanal"></span> · ¿Te resulta útil? <a class="enlaceSuscribir" target="_blank" rel="noopener">Suscríbete al canal ▶</a></p>
+      <p class="creditoCanal">Liberty, hecha por <b>Alonso Viñé</b> · <a href="https://alonsovine.github.io/portfolioR/" target="_blank" rel="noopener">portfolio</a> · <a href="https://github.com/AlonsoVine" target="_blank" rel="noopener">GitHub</a></p>
     </div>
   </section>
 
@@ -1222,6 +1225,7 @@ body.video .tarjetaCanal{display:none}
 
 <dialog class="modal" id="bienvenida">
   <div class="bvCuerpo">
+    <div class="bvScroll">
     <div class="bvCabecera">
       <img src="icono-180.png" alt="Liberty" width="72" height="72" class="bvIcono">
       <div>
@@ -1258,12 +1262,13 @@ body.video .tarjetaCanal{display:none}
       inversión</b>. Es una herramienta informativa que calcula con los datos que tú anotas; <b>puede contener
       errores</b> y está <b>en revisión y mejora continua</b>. No se garantiza la exactitud de los datos ni de
       los precios. Contrasta siempre con tu banco, bróker o asesor antes de tomar decisiones.</p>
-
+    </div>
     <div class="bvBotones"><button class="btn prim" id="bvCerrar" autofocus>Empezar</button></div>
   </div>
 </dialog>
 <dialog class="modal" id="dlgBorrarCartera">
   <div class="bvCuerpo">
+    <div class="bvScroll">
     <div class="bvCabecera"><span style="font-size:38px;line-height:1">🗑️</span>
       <div>
         <h2 style="margin:0">Eliminar este patrimonio</h2>
@@ -1277,6 +1282,7 @@ body.video .tarjetaCanal{display:none}
     <p>Para tu tranquilidad, al confirmar <b>se descargará primero una copia (.json)</b> de este patrimonio.</p>
     <label class="interruptor" style="margin-top:4px"><input type="checkbox" id="borrarConfirmo"><span class="pista"></span>
       <span>Entiendo que esta acción es <b>permanente</b> y no tiene vuelta atrás.</span></label>
+    </div>
     <div class="bvBotones" style="gap:10px">
       <button class="btn" id="borrarCancelar">Cancelar</button>
       <button class="btn danger" id="borrarOk" disabled>Descargar copia y eliminar</button>

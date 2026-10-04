@@ -1603,6 +1603,54 @@
    "importe": 220,
    "categoria": "Ocio y restaurantes",
    "titular": "Común"
+  },
+  {
+   "id": "fl25",
+   "tipo": "ingreso",
+   "fecha": "2026-10-01",
+   "importe": 1800,
+   "categoria": "Nómina",
+   "titular": "Yo"
+  },
+  {
+   "id": "fl26",
+   "tipo": "ingreso",
+   "fecha": "2026-10-01",
+   "importe": 1600,
+   "categoria": "Nómina",
+   "titular": "Novia"
+  },
+  {
+   "id": "fl27",
+   "tipo": "gasto",
+   "fecha": "2026-10-01",
+   "importe": 800,
+   "categoria": "Vivienda",
+   "titular": "Común"
+  },
+  {
+   "id": "fl28",
+   "tipo": "gasto",
+   "fecha": "2026-10-01",
+   "importe": 185,
+   "categoria": "Alimentación",
+   "titular": "Común"
+  },
+  {
+   "id": "fl29",
+   "tipo": "gasto",
+   "fecha": "2026-10-01",
+   "importe": 60,
+   "categoria": "Transporte",
+   "titular": "Común"
+  },
+  {
+   "id": "fl30",
+   "tipo": "gasto",
+   "fecha": "2026-10-01",
+   "importe": 95,
+   "categoria": "Ocio y restaurantes",
+   "titular": "Común"
   }
  ],
  "config": {
