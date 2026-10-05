@@ -293,42 +293,6 @@
    }
   },
   {
-   "id": "vivienda",
-   "tipo": "inmueble",
-   "fuente": "manual",
-   "moneda": "EUR",
-   "titular": "Común",
-   "slot": 14,
-   "nombre": "Vivienda habitual",
-   "corto": "Vivienda",
-   "clase": "Inmuebles",
-   "entidad": "—",
-   "tipoDetalle": "Vivienda",
-   "largoPlazo": true,
-   "papel": "Vivienda habitual de la familia.",
-   "categorias": {
-    "clase-de-activo": "Inmuebles",
-    "geografia": "España"
-   }
-  },
-  {
-   "id": "hipoteca",
-   "tipo": "deuda",
-   "fuente": "manual",
-   "moneda": "EUR",
-   "titular": "Común",
-   "slot": 15,
-   "nombre": "Hipoteca de la vivienda",
-   "corto": "Hipoteca",
-   "entidad": "Banco principal",
-   "capitalInicial": 150000,
-   "tae": 0.028,
-   "cuota": 650,
-   "fechaInicio": "2019-06-01",
-   "fechaVencimiento": "2049-06-01",
-   "papel": "Préstamo hipotecario de la vivienda habitual."
-  },
-  {
    "id": "prestamo_coche",
    "tipo": "deuda",
    "fuente": "manual",
@@ -344,6 +308,61 @@
    "fechaInicio": "2024-01-15",
    "fechaVencimiento": "2029-01-15",
    "papel": "Financiación del coche familiar."
+  },
+  {
+   "id": "trastero",
+   "tipo": "inmueble",
+   "fuente": "manual",
+   "moneda": "EUR",
+   "titular": "Común",
+   "slot": 14,
+   "nombre": "Alquiler de trastero",
+   "corto": "Trastero",
+   "clase": "Inmuebles",
+   "entidad": "—",
+   "tipoDetalle": "Local",
+   "largoPlazo": true,
+   "papel": "Trastero en propiedad que se alquila.",
+   "categorias": {
+    "clase-de-activo": "Inmuebles",
+    "geografia": "España"
+   }
+  },
+  {
+   "id": "garaje",
+   "tipo": "inmueble",
+   "fuente": "manual",
+   "moneda": "EUR",
+   "titular": "Común",
+   "slot": 15,
+   "nombre": "Alquiler de garaje",
+   "corto": "Garaje",
+   "clase": "Inmuebles",
+   "entidad": "—",
+   "tipoDetalle": "Local",
+   "largoPlazo": true,
+   "papel": "Plaza de garaje en propiedad que se alquila.",
+   "categorias": {
+    "clase-de-activo": "Inmuebles",
+    "geografia": "España"
+   }
+  },
+  {
+   "id": "prestamo_reforma",
+   "tipo": "deuda",
+   "fuente": "manual",
+   "moneda": "EUR",
+   "titular": "Común",
+   "slot": 17,
+   "nombre": "Préstamo reforma",
+   "corto": "Préstamo reforma",
+   "entidad": "Banco online",
+   "capitalInicial": 8000,
+   "tae": 0.05,
+   "cuota": 150,
+   "fechaInicio": "2024-02-01",
+   "fechaVencimiento": "2029-02-01",
+   "papel": "Financiación de la reforma del hogar."
   }
  ],
  "movimientos": [
@@ -1382,18 +1401,6 @@
    "valor": 2500
   },
   {
-   "id": "v22",
-   "producto": "vivienda",
-   "fecha": "2024-10-01",
-   "valor": 178000
-  },
-  {
-   "id": "v23",
-   "producto": "vivienda",
-   "fecha": "2025-10-01",
-   "valor": 181000
-  },
-  {
    "id": "v24",
    "producto": "acciones",
    "fecha": "2024-10-01",
@@ -1428,18 +1435,6 @@
    "producto": "bono",
    "fecha": "2025-10-01",
    "valor": 5000
-  },
-  {
-   "id": "v30",
-   "producto": "hipoteca",
-   "fecha": "2024-10-01",
-   "valor": 130000
-  },
-  {
-   "id": "v31",
-   "producto": "hipoteca",
-   "fecha": "2025-10-01",
-   "valor": 125500
   },
   {
    "id": "v32",
@@ -1510,23 +1505,64 @@
    "aportado": null
   },
   {
-   "id": "v9",
-   "producto": "vivienda",
-   "fecha": "2026-09-30",
-   "valor": 185000,
-   "aportado": null
-  },
-  {
-   "id": "v10",
-   "producto": "hipoteca",
-   "fecha": "2026-09-30",
-   "valor": 121500
-  },
-  {
    "id": "v11",
    "producto": "prestamo_coche",
    "fecha": "2026-09-30",
    "valor": 7800
+  },
+  {
+   "id": "v101",
+   "producto": "trastero",
+   "fecha": "2024-10-01",
+   "valor": 17000
+  },
+  {
+   "id": "v102",
+   "producto": "trastero",
+   "fecha": "2025-10-01",
+   "valor": 17600
+  },
+  {
+   "id": "v103",
+   "producto": "trastero",
+   "fecha": "2026-09-30",
+   "valor": 18200
+  },
+  {
+   "id": "v104",
+   "producto": "garaje",
+   "fecha": "2024-10-01",
+   "valor": 15000
+  },
+  {
+   "id": "v105",
+   "producto": "garaje",
+   "fecha": "2025-10-01",
+   "valor": 15500
+  },
+  {
+   "id": "v106",
+   "producto": "garaje",
+   "fecha": "2026-09-30",
+   "valor": 16000
+  },
+  {
+   "id": "v107",
+   "producto": "prestamo_reforma",
+   "fecha": "2024-10-01",
+   "valor": 7000
+  },
+  {
+   "id": "v108",
+   "producto": "prestamo_reforma",
+   "fecha": "2025-10-01",
+   "valor": 6000
+  },
+  {
+   "id": "v109",
+   "producto": "prestamo_reforma",
+   "fecha": "2026-09-30",
+   "valor": 5200
   }
  ],
  "comparador": [

@@ -46,6 +46,10 @@ PALETA = {
     10: ("#9a6a3a", "#c08a55"),  # marrón
     11: ("#5d6b8a", "#93a1c2"),  # gris azulado
     12: ("#7c9a00", "#9cc21a"),  # oliva
+    13: ("#0d9488", "#14b8a6"),  # verde azulado (teal)
+    14: ("#a21caf", "#c026d3"),  # fucsia
+    15: ("#d97706", "#f59e0b"),  # ámbar
+    16: ("#4f46e5", "#6366f1"),  # índigo
 }
 
 AVISOS = []

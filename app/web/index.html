@@ -18,6 +18,7 @@
   --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
   --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
   --s9:#2bb0d1; --s10:#c08a55; --s11:#93a1c2; --s12:#9cc21a;
+  --s13:#14b8a6; --s14:#c026d3; --s15:#f59e0b; --s16:#6366f1;
   --radio:14px;
 }
 :root[data-tema="claro"]{
@@ -29,6 +30,7 @@
   --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
   --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
   --s9:#0e8fb0; --s10:#9a6a3a; --s11:#5d6b8a; --s12:#7c9a00;
+  --s13:#0d9488; --s14:#a21caf; --s15:#d97706; --s16:#4f46e5;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -157,9 +159,16 @@ body.vistaAmplia .segm button{padding:10px 16px}
 .tarjeta > header h2{font-size:15px;font-weight:650}
 .subt{color:var(--tinta3);font-size:12.5px;font-weight:400}
 .vacioGraf{display:flex;align-items:center;justify-content:center;min-height:330px;padding:20px;text-align:center;color:var(--tinta3);font-size:13.5px}
-#filtroTitular{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
-#filtroTitular .filtroCampo{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--tinta2)}
+#filtroTitular{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+#filtroTitular:empty{display:none}
+#filtroTitular .filtroTitulo{font-size:13px;font-weight:600;color:var(--tinta2)}
+#filtroTitular .filtroCampo{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--tinta3);border:1px solid var(--borde);border-radius:9px;padding:3px 6px 3px 10px;background:var(--sup)}
 #filtroTitular .filtroCampo label{white-space:nowrap}
+#filtroTitular .filtroCampo select{border:0;background:transparent;color:var(--tinta);font:inherit;font-size:13px;cursor:pointer;padding:2px 2px}
+#filtroTitular .filtroCampo.activo{border-color:var(--s1);box-shadow:0 0 0 2px color-mix(in srgb,var(--s1) 18%,transparent)}
+#filtroTitular .filtroCampo.activo label{color:var(--s1);font-weight:600}
+#filtroTitular .filtroQuitar{color:var(--mal);border-color:transparent}
+#filtroTitular .filtroQuitar:hover{background:color-mix(in srgb,var(--mal) 12%,transparent)}
 /* Treemap (Estructura) */
 .treemap .tmGrupo{fill:none;stroke:var(--borde);stroke-width:1}
 .treemap .tmGrupoLbl{font-size:11px;font-weight:700;fill:var(--tinta2);letter-spacing:.02em}
@@ -729,7 +738,8 @@ body.video .tarjetaCanal{display:none}
 .periodoCtrl input[type=date]{font:inherit;font-size:13px;padding:4px 8px;border:1px solid var(--borde);border-radius:8px;background:var(--sup2);color:var(--tinta)}
 .periodoCtrl .periodoFlecha{color:var(--tinta3)}
 .periodoCtrl .btn.mini{padding:4px 9px;font-size:12px;border-radius:7px}
-.periodoPresets{display:inline-flex;gap:6px;flex-wrap:wrap;margin-left:4px}
+.periodoPresets{display:inline-flex;gap:6px;flex-wrap:wrap}
+.periodoCtrl .periodoSep{color:var(--tinta3);margin:0 2px}
 .periodoCard{margin:0 0 4px;border-left:4px solid var(--s1)}
 .periodoCard .pKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:6px}
 .periodoCard .pKpi{background:var(--sup2);border-radius:10px;padding:10px 14px}
@@ -942,7 +952,6 @@ body.video .tarjetaCanal{display:none}
         <h2>Evolución del patrimonio</h2>
         <span class="subt" id="evolNota"></span>
         <div class="sep"></div>
-        <div class="segm" id="segRango"></div>
         <div class="segm" id="segVista"></div>
       </header>
       <div class="filtros" id="filtros"></div>
@@ -1101,8 +1110,8 @@ body.video .tarjetaCanal{display:none}
     <p>Liberty se descarga y se actualiza desde su repositorio en GitHub. Para actualizar, baja el nuevo
       <code>.exe</code> y copia tu carpeta <code>mis_datos</code> a la nueva ubicación: así no pierdes nada.</p>
     <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-      <a class="btn prim" href="https://github.com/AlonsoVine/liberty/releases/latest" target="_blank" rel="noopener">⬇ Descargar la última versión</a>
-      <a class="btn" href="https://github.com/AlonsoVine/liberty" target="_blank" rel="noopener">Repositorio de Liberty</a>
+      <a class="btn prim" href="https://alonsovine.github.io/liberty/" target="_blank" rel="noopener">⬇ Descargar la última versión</a>
+      <a class="btn" href="https://github.com/AlonsoVine/liberty" target="_blank" rel="noopener">Repositorio en GitHub</a>
     </div>
     <p style="color:var(--tinta3);font-size:13px;margin-top:10px">Activa «Buscar actualizaciones» en Configuración si quieres que la app te avise cuando haya una versión nueva.</p>
   </section>

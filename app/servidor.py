@@ -670,9 +670,10 @@ def api_exportar_web():
                     headers={"Content-Disposition": f'attachment; filename="{nombre}"'})
 
 
-# Repositorio de distribución de Liberty (página de descargas y releases).
+# Liberty: web de descargas (destino principal para el usuario) y repositorio (secundario).
+WEB_LIBERTY = "https://alonsovine.github.io/liberty/"
 REPO = "https://github.com/AlonsoVine/liberty"
-DESCARGA = REPO + "/releases/latest"
+DESCARGA = WEB_LIBERTY
 _API_RELEASE = "https://api.github.com/repos/AlonsoVine/liberty/releases/latest"
 _VERSION = {}
 

@@ -722,11 +722,12 @@
     if (!tits.length && !dims.length) { cont.innerHTML = ""; return; }
     if (tits.length && !["todos", ...tits].includes(estado.titular)) estado.titular = "todos";
 
-    let html = "";
+    const campos = [];
     if (tits.length) {
-      html += `<span class="filtroCampo"><label for="selTitular">Ver de:</label>
-        <select id="selTitular" data-fil="tit"><option value="todos">Todos los titulares</option>
-        ${tits.map(t => `<option value="${esc(t)}"${t === estado.titular ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></span>`;
+      const act = estado.titular && estado.titular !== "todos";
+      campos.push(`<span class="filtroCampo${act ? " activo" : ""}"><label for="selTitular">Titular</label>
+        <select id="selTitular" data-fil="tit"><option value="todos">Todos</option>
+        ${tits.map(t => `<option value="${esc(t)}"${t === estado.titular ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></span>`);
     }
     dims.forEach(dm => {
       // Valores sugeridos + los realmente usados por los activos.
@@ -734,11 +735,13 @@
       const vals = [...new Set([...(dm.valores || []), ...usados])];
       if (!vals.length) return;
       const sel = estado.filtroDim[dm.id] || "";
-      html += `<span class="filtroCampo"><label>${esc(dm.nombre)}:</label>
+      campos.push(`<span class="filtroCampo${sel ? " activo" : ""}"><label>${esc(dm.nombre)}</label>
         <select data-fil="dim" data-dim="${esc(dm.id)}"><option value="">Todas</option>
-        ${vals.map(v => `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(v)}</option>`).join("")}</select></span>`;
+        ${vals.map(v => `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(v)}</option>`).join("")}</select></span>`);
     });
-    cont.innerHTML = html;
+    const hayFiltro = filtroTit() || filtroDimAct();
+    cont.innerHTML = `<span class="filtroTitulo">🔎 Filtrar:</span>${campos.join("")}` +
+      (hayFiltro ? `<button class="btn mini filtroQuitar" id="btnQuitarFiltros">✕ Quitar filtros</button>` : "");
     cont.querySelectorAll("[data-fil]").forEach(s => {
       s.onchange = e => {
         if (e.target.dataset.fil === "tit") estado.titular = e.target.value;
@@ -746,6 +749,8 @@
         pintaPatrimonio();
       };
     });
+    const bq = $("#btnQuitarFiltros");
+    if (bq) bq.onclick = () => { estado.titular = "todos"; estado.filtroDim = {}; pintaPatrimonio(); };
   }
 
   /* Evolución del hogar: patrimonio neto frente a deudas en el tiempo. */
@@ -1139,33 +1144,43 @@
     const minF = fechas[0];
     const hd = hastaDia();
     const activo = !!(D.hasta || estado.desde);
-    const ir = (desde, hasta) => {
+    // Recarga (recomputa en backend) solo cuando hace falta: ver un día pasado, o volver
+    // de uno. Para rangos que terminan HOY, todo se calcula al instante en cliente.
+    const reload = (desde, hasta) => {
       const qs = new URLSearchParams(location.search);
       if (hasta && hasta < hoy) qs.set("hasta", hasta); else qs.delete("hasta");
       if (desde) qs.set("desde", desde); else qs.delete("desde");
       qs.set("tab", "panel");
       location.search = qs.toString();
     };
+    const aplicar = (desde, hasta) => {
+      const hastaPasado = hasta && hasta < hoy;
+      if (hastaPasado || D.hasta) { reload(desde, hastaPasado ? hasta : null); return; }
+      estado.desde = desde || null;         // instantáneo, sin recargar
+      pintaPatrimonio();
+    };
     const restaDias = d => { const t = new Date(hoy); t.setDate(t.getDate() - d); return t.toISOString().slice(0, 10); };
     const presets = [
       { et: "1M", desde: restaDias(30) }, { et: "3M", desde: restaDias(91) },
       { et: "6M", desde: restaDias(182) }, { et: "1 año", desde: restaDias(365) },
-      { et: "Año en curso", desde: hoy.slice(0, 4) + "-01-01" },
+      { et: "YTD", desde: hoy.slice(0, 4) + "-01-01" }, { et: "Todo", desde: null },
     ];
+    const activoPreset = d => (d || null) === (estado.desde || null) && !D.hasta;
     cont.innerHTML = `
       <div class="periodoCtrl">
         <span class="periodoLbl">Periodo:</span>
-        <input type="date" id="inpDesde" value="${estado.desde || ""}" min="${minF}" max="${hoy}" title="Desde (opcional, para ver un rango)">
+        <span class="periodoPresets">${presets.map(p => `<button class="btn mini${activoPreset(p.desde) ? " act" : ""}" data-desde="${p.desde || ""}">${p.et}</button>`).join("")}</span>
+        <span class="periodoSep">· o rango exacto:</span>
+        <input type="date" id="inpDesde" value="${estado.desde || ""}" min="${minF}" max="${hoy}" title="Desde (para ver un rango)">
         <span class="periodoFlecha">→</span>
-        <input type="date" id="inpHasta" value="${hd}" min="${minF}" max="${hoy}" title="Hasta">
+        <input type="date" id="inpHasta" value="${hd}" min="${minF}" max="${hoy}" title="Hasta (un día pasado recalcula el panel a esa fecha)">
         <button class="btn" id="btnVerPeriodo">Ver</button>
-        ${activo ? '<button class="btn" id="btnHoy">Hoy</button>' : ""}
-        <span class="periodoPresets">${presets.map(p => `<button class="btn mini" data-desde="${p.desde}">${p.et}</button>`).join("")}</span>
+        ${activo ? '<button class="btn" id="btnHoy">↺ Hoy</button>' : ""}
       </div>
       ${(D.hasta && !estado.desde) ? `<div class="avisoHasta">📅 Estás viendo tu patrimonio <b>a fecha ${esc(G.fmtFecha(hd))}</b>, no los de hoy.${info("Las cantidades son las de aquella fecha. El colchón y los datos fijos de las deudas se muestran con su valor actual.")}</div>` : ""}`;
-    $("#btnVerPeriodo").onclick = () => ir($("#inpDesde").value || null, $("#inpHasta").value || null);
-    const bh = $("#btnHoy"); if (bh) bh.onclick = () => ir(null, null);
-    cont.querySelectorAll(".periodoPresets button").forEach(b => { b.onclick = () => ir(b.dataset.desde, null); });
+    $("#btnVerPeriodo").onclick = () => aplicar($("#inpDesde").value || null, $("#inpHasta").value || null);
+    const bh = $("#btnHoy"); if (bh) bh.onclick = () => aplicar(null, null);
+    cont.querySelectorAll(".periodoPresets button").forEach(b => { b.onclick = () => aplicar(b.dataset.desde || null, null); });
     cont.classList.toggle("activo", activo);
   }
 
@@ -1339,7 +1354,7 @@
     else if (pv === "fiscal") pintaFiscal();
     else if (pv === "producto") pintaFondos();
     // Segmentos: sus callbacks redibujan la vista activa.
-    pintaSegm($("#segRango"), RANGOS, estado.rango, id => { estado.rango = id; pintaPatrimonio(); });
+    // El rango de la evolución se controla ahora desde «Periodo» (arriba del panel).
     pintaSegm($("#segVista"), [
       { id: "apilado", et: "Por producto" }, { id: "total", et: "Total" },
       { id: "dinero", et: "Tu dinero vs mercado" }, { id: "reparto", et: "Reparto %" }

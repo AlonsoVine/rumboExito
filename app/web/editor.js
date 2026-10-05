@@ -395,10 +395,10 @@
   }
 
   function siguienteColor() {
-    const usos = Array(13).fill(0);
+    const usos = Array(17).fill(0);
     E.cfg.productos.forEach(p => { usos[p.slot || 1]++; });
     let mejor = 1;
-    for (let i = 1; i <= 12; i++) if (usos[i] < usos[mejor]) mejor = i;
+    for (let i = 1; i <= 16; i++) if (usos[i] < usos[mejor]) mejor = i;
     return mejor;
   }
 
@@ -429,7 +429,7 @@
           "opcional")).join("")}
       </div>
       <p class="ayuda">Ejes para agrupar y filtrar el panel (Distribución, Reparto %, Estructura). Los defines en <b>Configuración → Dimensiones</b>.</p>` : "";
-    const colores = Array.from({ length: 12 }, (_, i) =>
+    const colores = Array.from({ length: 16 }, (_, i) =>
       `<label class="color" style="--c:var(--s${i + 1})" title="Color ${i + 1}"><input type="radio" name="slot" value="${i + 1}"><i></i></label>`).join("");
     const esDeuda = (tipoInicial === "deuda" || p.tipo === "deuda");
     const tituloNuevo = esDeuda ? "Añadir deuda" : "Añadir activo";
