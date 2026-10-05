@@ -669,7 +669,10 @@ def api_exportar_web():
                     headers={"Content-Disposition": f'attachment; filename="{nombre}"'})
 
 
-REPO = "https://github.com/danidm98/rumbo"
+# Repositorio de distribución de Liberty (página de descargas y releases).
+REPO = "https://github.com/AlonsoVine/liberty"
+DESCARGA = REPO + "/releases/latest"
+_API_RELEASE = "https://api.github.com/repos/AlonsoVine/liberty/releases/latest"
 _VERSION = {}
 
 
@@ -680,24 +683,27 @@ def version_actual():
 
 @app.get("/api/version")
 def api_version():
-    """Compara esta versión con la publicada en GitHub (se consulta como mucho una vez
-    al día). Solo sale a internet si lo activas en Configuración: por defecto está
-    apagado, para que la app sea 100 % local salvo la descarga de precios."""
+    """Compara esta versión con la última release publicada en el repositorio de Liberty
+    (se consulta como mucho una vez al día). Solo sale a internet si lo activas en
+    Configuración: por defecto está apagado, para que la app sea 100 % local salvo la
+    descarga de precios."""
     actual = version_actual()
     activado = bool((cartera().get("config") or {}).get("buscarActualizaciones"))
     if not activado:
-        return jsonify(actual=actual, ultima=None, repo=REPO, hayNueva=False, desactivado=True)
+        return jsonify(actual=actual, ultima=None, repo=REPO, descarga=DESCARGA,
+                       hayNueva=False, desactivado=True)
     if not _VERSION or dt.datetime.now() - _VERSION["cuando"] > dt.timedelta(hours=24):
         try:
-            url = REPO.replace("github.com", "raw.githubusercontent.com") + "/main/app/VERSION"
-            with urllib.request.urlopen(urllib.request.Request(url, headers=motor.UA), timeout=5) as r:
-                _VERSION.update(ultima=r.read().decode().strip(), cuando=dt.datetime.now())
+            req = urllib.request.Request(_API_RELEASE, headers=motor.UA)
+            with urllib.request.urlopen(req, timeout=5) as r:
+                tag = (json.loads(r.read().decode()).get("tag_name") or "").lstrip("vV")
+                _VERSION.update(ultima=tag or None, cuando=dt.datetime.now())
         except Exception:
             _VERSION.update(ultima=None, cuando=dt.datetime.now())
     ultima = _VERSION.get("ultima")
     def como_tupla(v):
         return tuple(int(x) for x in re.findall(r"\d+", v or "0"))
-    return jsonify(actual=actual, ultima=ultima, repo=REPO,
+    return jsonify(actual=actual, ultima=ultima, repo=REPO, descarga=DESCARGA,
                    hayNueva=bool(ultima) and como_tupla(ultima) > como_tupla(actual))
 
 

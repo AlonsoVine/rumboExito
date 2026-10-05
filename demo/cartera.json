@@ -27,7 +27,11 @@
    "riesgo": 6,
    "largoPlazo": true,
    "politica": "Acumulación",
-   "papel": "Núcleo de la cartera: renta variable global diversificada a bajo coste."
+   "papel": "Núcleo de la cartera: renta variable global diversificada a bajo coste.",
+   "categorias": {
+    "clase-de-activo": "Renta variable",
+    "geografia": "Global"
+   }
   },
   {
    "id": "etfworld",
@@ -50,7 +54,11 @@
    "riesgo": 6,
    "largoPlazo": true,
    "politica": "Acumulación",
-   "papel": "Misma exposición global que el fondo, en formato ETF cotizado."
+   "papel": "Misma exposición global que el fondo, en formato ETF cotizado.",
+   "categorias": {
+    "clase-de-activo": "Renta variable",
+    "geografia": "Global"
+   }
   },
   {
    "id": "emergentes",
@@ -72,7 +80,11 @@
    "riesgo": 6,
    "largoPlazo": true,
    "politica": "Acumulación",
-   "papel": "Complemento al World para diversificar fuera de los países desarrollados."
+   "papel": "Complemento al World para diversificar fuera de los países desarrollados.",
+   "categorias": {
+    "clase-de-activo": "Renta variable",
+    "geografia": "Emergentes"
+   }
   },
   {
    "id": "bitcoin",
@@ -89,7 +101,11 @@
    "tipoDetalle": "Criptomoneda",
    "riesgo": 7,
    "largoPlazo": true,
-   "papel": "Posición pequeña y controlada, de alto riesgo."
+   "papel": "Posición pequeña y controlada, de alto riesgo.",
+   "categorias": {
+    "clase-de-activo": "Alternativos",
+    "geografia": "Global"
+   }
   },
   {
    "id": "monetario",
@@ -112,7 +128,11 @@
    "largoPlazo": false,
    "politica": "Acumulación",
    "disponible": true,
-   "papel": "Colchón remunerado y liquidez para aprovechar caídas."
+   "papel": "Colchón remunerado y liquidez para aprovechar caídas.",
+   "categorias": {
+    "clase-de-activo": "Liquidez",
+    "geografia": "Europa"
+   }
   },
   {
    "id": "acciones",
@@ -128,7 +148,11 @@
    "tipoDetalle": "Acciones",
    "riesgo": 6,
    "largoPlazo": true,
-   "papel": "Pequeña cartera de acciones individuales."
+   "papel": "Pequeña cartera de acciones individuales.",
+   "categorias": {
+    "clase-de-activo": "Renta variable",
+    "geografia": "EEUU"
+   }
   },
   {
    "id": "oro",
@@ -143,7 +167,11 @@
    "entidad": "Caja de seguridad",
    "tipoDetalle": "Metal precioso",
    "largoPlazo": true,
-   "papel": "Reserva de valor como cobertura."
+   "papel": "Reserva de valor como cobertura.",
+   "categorias": {
+    "clase-de-activo": "Alternativos",
+    "geografia": "Global"
+   }
   },
   {
    "id": "bono",
@@ -160,7 +188,11 @@
    "riesgo": 2,
    "largoPlazo": false,
    "fechaVencimiento": "2028-04-30",
-   "papel": "Renta fija a vencimiento para dar estabilidad."
+   "papel": "Renta fija a vencimiento para dar estabilidad.",
+   "categorias": {
+    "clase-de-activo": "Renta fija",
+    "geografia": "España"
+   }
   },
   {
    "id": "pension",
@@ -175,7 +207,11 @@
    "entidad": "Entidad de ejemplo",
    "tipoDetalle": "Plan de pensiones",
    "largoPlazo": true,
-   "papel": "Ahorro finalista para la jubilación, con ventaja fiscal."
+   "papel": "Ahorro finalista para la jubilación, con ventaja fiscal.",
+   "categorias": {
+    "clase-de-activo": "Renta variable",
+    "geografia": "Global"
+   }
   },
   {
    "id": "seguro",
@@ -190,7 +226,11 @@
    "entidad": "Entidad de ejemplo",
    "tipoDetalle": "Seguro de ahorro",
    "largoPlazo": true,
-   "papel": "Provisión garantizada de rentabilidad baja."
+   "papel": "Provisión garantizada de rentabilidad baja.",
+   "categorias": {
+    "clase-de-activo": "Renta fija",
+    "geografia": "España"
+   }
   },
   {
    "id": "cuenta",
@@ -205,7 +245,11 @@
    "entidad": "Banco principal",
    "tipoDetalle": "Cuenta corriente",
    "largoPlazo": false,
-   "papel": "Cuenta del día a día: nómina, recibos y gasto corriente."
+   "papel": "Cuenta del día a día: nómina, recibos y gasto corriente.",
+   "categorias": {
+    "clase-de-activo": "Liquidez",
+    "geografia": "España"
+   }
   },
   {
    "id": "ahorro",
@@ -222,7 +266,11 @@
    "largoPlazo": false,
    "disponible": true,
    "fechaVencimiento": "2026-12-31",
-   "papel": "Ahorro remunerado disponible a corto plazo."
+   "papel": "Ahorro remunerado disponible a corto plazo.",
+   "categorias": {
+    "clase-de-activo": "Liquidez",
+    "geografia": "España"
+   }
   },
   {
    "id": "ahorro_usd",
@@ -238,7 +286,11 @@
    "tipoDetalle": "Cuenta en divisa",
    "largoPlazo": false,
    "disponible": true,
-   "papel": "Pequeño ahorro en dólares (multidivisa)."
+   "papel": "Pequeño ahorro en dólares (multidivisa).",
+   "categorias": {
+    "clase-de-activo": "Liquidez",
+    "geografia": "EEUU"
+   }
   },
   {
    "id": "vivienda",
@@ -253,7 +305,11 @@
    "entidad": "—",
    "tipoDetalle": "Vivienda",
    "largoPlazo": true,
-   "papel": "Vivienda habitual de la familia."
+   "papel": "Vivienda habitual de la familia.",
+   "categorias": {
+    "clase-de-activo": "Inmuebles",
+    "geografia": "España"
+   }
   },
   {
    "id": "hipoteca",
@@ -1714,6 +1770,30 @@
     "nombre": "Otros gastos",
     "tipo": "gasto",
     "presupuesto": 150
+   }
+  ],
+  "dimensiones": [
+   {
+    "id": "clase-de-activo",
+    "nombre": "Clase de activo",
+    "valores": [
+     "Renta variable",
+     "Renta fija",
+     "Liquidez",
+     "Alternativos",
+     "Inmuebles"
+    ]
+   },
+   {
+    "id": "geografia",
+    "nombre": "Geografía",
+    "valores": [
+     "Global",
+     "Europa",
+     "EEUU",
+     "Emergentes",
+     "España"
+    ]
    }
   ]
  }

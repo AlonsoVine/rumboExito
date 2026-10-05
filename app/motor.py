@@ -749,6 +749,7 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
         p["tipoClave"] = clave
         p["tipo"] = p.get("tipoDetalle") or TIPOS[clave]
         p.setdefault("clase", CLASE_DEFECTO[clave])
+        p.setdefault("categorias", {})   # dimensiones de clasificación del usuario
         p["fuentePrecio"] = FUENTES.get(p["fuente"], p["fuente"])
         etq = ETIQUETAS.get(clave, ("Precio", "Unidades", "El precio"))
         if "ETP" in (p.get("tipoDetalle") or "").upper():
@@ -1705,6 +1706,7 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
         "fiscal": detalle_fiscal(cfg),
         "titular": cfg.get("titular", "Mi patrimonio"),
         "titulares": cfg.get("titulares", []) or [],
+        "dimensiones": (cfg.get("config") or {}).get("dimensiones", []) or [],
         "apartados": apartados_out,
         "deudas": deudas_detalle,
         "flujos": flujos_out,

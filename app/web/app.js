@@ -141,6 +141,7 @@
     btcVivo: null,
     compRef: recuerda.lee("patrimonio.compRef") || "mundo",
     ocultos: new Set(),
+    filtroDim: {},
   };
 
   /* ---------------------------------------------- ¿y si lo hubieras metido en un indexado? */
@@ -221,9 +222,14 @@
 
   const TODOS = () => D.productos.concat(D.otrosActivos || [], D.pasivos || []);
   const filtroTit = () => estado.titular && estado.titular !== "todos";
+  const filtroDimPares = () => Object.entries(estado.filtroDim || {}).filter(([, v]) => v);
+  const filtroDimAct = () => filtroDimPares().length > 0;
+  const casaDim = p => filtroDimPares().every(([dim, val]) => (p.categorias || {})[dim] === val);
   const visibles = () => TODOS().filter(p =>
-    !estado.ocultos.has(p.id) && (!filtroTit() || (p.titular || "Sin asignar") === estado.titular));
-  const filtrando = () => estado.ocultos.size > 0 || filtroTit();
+    !estado.ocultos.has(p.id)
+    && (!filtroTit() || (p.titular || "Sin asignar") === estado.titular)
+    && casaDim(p));
+  const filtrando = () => estado.ocultos.size > 0 || filtroTit() || filtroDimAct();
 
   // Iconito ⓘ con explicación al pasar el ratón (tooltip nativo: nunca se recorta,
   // ni dentro de los cuadros con scroll). aria-label para lectores de pantalla.
@@ -348,10 +354,17 @@
     };
   }
 
+  // Valor de un producto en un "campo" de agrupación. Si el campo es "dim:<id>",
+  // se lee de las dimensiones de clasificación del usuario; si no, de un campo plano.
+  function valorCampo(p, campo) {
+    if (campo && campo.slice(0, 4) === "dim:") return (p.categorias || {})[campo.slice(4)] || "Sin clasificar";
+    return p[campo] || "Otros";
+  }
+
   function agrupa(lista, campo) {
     const acc = new Map();
     lista.forEach(p => {
-      const k = p[campo] || "Otros";
+      const k = valorCampo(p, campo);
       const g = acc.get(k) || { nombre: k, valor: 0, color: color(p) };
       g.valor += valorDe(p);
       acc.set(k, g);
@@ -423,20 +436,24 @@
     cont.appendChild(sep);
 
     const cortos = idsCorto();
+    const todosIds = TODOS().map(p => p.id);
     const esLargo = cortos.length > 0 && cortos.length === estado.ocultos.size &&
       cortos.every(id => estado.ocultos.has(id));
+    const esNada = todosIds.length > 0 && estado.ocultos.size >= todosIds.length;
     [
-      { id: "todo", et: "Ver todo", act: !filtrando(), fn: () => { estado.ocultos.clear(); estado.titular = "todos"; } },
-      { id: "largo", et: "Solo largo plazo", act: esLargo, fn: () => { estado.ocultos = new Set(cortos); } },
+      { id: "todo", et: "Ver todo", act: !filtrando(), ti: "Vuelve a mostrar todos los componentes",
+        fn: () => { estado.ocultos.clear(); estado.titular = "todos"; estado.filtroDim = {}; } },
+      { id: "nada", et: "Quitar todo", act: esNada, ti: "Quita todos los componentes del gráfico; luego añade solo los que quieras",
+        fn: () => { estado.ocultos = new Set(todosIds); estado.titular = "todos"; } },
+      { id: "largo", et: "Solo largo plazo", act: esLargo, ti: "Deja fuera el colchón y el efectivo: solo lo que tienes invertido a largo plazo",
+        fn: () => { estado.ocultos = new Set(cortos); } },
     ].forEach(pr => {
       if (pr.id === "largo" && !cortos.length) return;
       const b = document.createElement("button");
       b.className = "filtro preset";
       b.setAttribute("aria-pressed", String(pr.act));
       b.textContent = pr.et;
-      b.title = pr.id === "largo"
-        ? "Deja fuera el colchón y el efectivo: solo lo que tienes invertido a largo plazo"
-        : "Vuelve a mostrar todos los componentes";
+      b.title = pr.ti;
       b.onclick = () => { pr.fn(); pintaPatrimonio(); };
       cont.appendChild(b);
     });
@@ -473,7 +490,7 @@
     }
     $("#heroSub").innerHTML = partes.join('<span style="color:var(--tinta3)">·</span>');
     const reset = $("#btnReset");
-    if (reset) reset.onclick = () => { estado.ocultos.clear(); estado.titular = "todos"; pintaPatrimonio(); };
+    if (reset) reset.onclick = () => { estado.ocultos.clear(); estado.titular = "todos"; estado.filtroDim = {}; pintaPatrimonio(); };
 
     if (filtro) { $("#progEnv").hidden = true; return; }
 
@@ -665,19 +682,42 @@
     }
   }
 
-  /* Selector para ver el Panel de un solo titular (o de todos). */
+  /* Selector para ver el Panel de un solo titular (o de todos) y filtros por dimensión. */
   function pintaFiltroTitular() {
     const cont = $("#filtroTitular");
     if (!cont) return;
     const tits = (D.titulares && D.titulares.length)
       ? D.titulares
       : [...new Set(TODOS().map(p => p.titular).filter(Boolean))];
-    if (!tits.length) { cont.innerHTML = ""; return; }
-    if (!["todos", ...tits].includes(estado.titular)) estado.titular = "todos";
-    cont.innerHTML = `<label for="selTitular">Ver de:</label>
-      <select id="selTitular"><option value="todos">Todos los titulares</option>
-      ${tits.map(t => `<option value="${esc(t)}"${t === estado.titular ? " selected" : ""}>${esc(t)}</option>`).join("")}</select>`;
-    $("#selTitular").onchange = e => { estado.titular = e.target.value; pintaPatrimonio(); };
+    estado.filtroDim = estado.filtroDim || {};
+    const dims = D.dimensiones || [];
+    if (!tits.length && !dims.length) { cont.innerHTML = ""; return; }
+    if (tits.length && !["todos", ...tits].includes(estado.titular)) estado.titular = "todos";
+
+    let html = "";
+    if (tits.length) {
+      html += `<span class="filtroCampo"><label for="selTitular">Ver de:</label>
+        <select id="selTitular" data-fil="tit"><option value="todos">Todos los titulares</option>
+        ${tits.map(t => `<option value="${esc(t)}"${t === estado.titular ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></span>`;
+    }
+    dims.forEach(dm => {
+      // Valores sugeridos + los realmente usados por los activos.
+      const usados = [...new Set(TODOS().map(p => (p.categorias || {})[dm.id]).filter(Boolean))];
+      const vals = [...new Set([...(dm.valores || []), ...usados])];
+      if (!vals.length) return;
+      const sel = estado.filtroDim[dm.id] || "";
+      html += `<span class="filtroCampo"><label>${esc(dm.nombre)}:</label>
+        <select data-fil="dim" data-dim="${esc(dm.id)}"><option value="">Todas</option>
+        ${vals.map(v => `<option value="${esc(v)}"${v === sel ? " selected" : ""}>${esc(v)}</option>`).join("")}</select></span>`;
+    });
+    cont.innerHTML = html;
+    cont.querySelectorAll("[data-fil]").forEach(s => {
+      s.onchange = e => {
+        if (e.target.dataset.fil === "tit") estado.titular = e.target.value;
+        else estado.filtroDim[e.target.dataset.dim] = e.target.value;
+        pintaPatrimonio();
+      };
+    });
   }
 
   /* Evolución del hogar: patrimonio neto frente a deudas en el tiempo. */
@@ -794,6 +834,14 @@
     const prods = visibles().filter(p => (p.serie || []).some(v => v));
     const cont = $("#grafPrincipal");
     let nota = "";
+
+    // "Quitar todo" (o filtro que deja fuera todo): gráfico vacío con pista.
+    if (!visibles().length) {
+      if (cont) cont.innerHTML =
+        '<div class="vacioGraf">Selecciona componentes en la leyenda de abajo para verlos en el gráfico.</div>';
+      $("#evolNota").textContent = "";
+      return;
+    }
 
     if (estado.vista === "total") {
       G.lineaConEventos(cont, {
@@ -1146,7 +1194,8 @@
     pintaSegm($("#segDist"), [
       { id: "clase", et: "Activo" }, { id: "producto", et: "Producto" },
       { id: "entidad", et: "Entidad" }, { id: "tipo", et: "Tipo" }
-    ], estado.dist, id => { estado.dist = id; pintaDistribucion(); });
+    ].concat((D.dimensiones || []).map(dm => ({ id: "dim:" + dm.id, et: dm.nombre }))),
+      estado.dist, id => { estado.dist = id; pintaDistribucion(); });
     pintaSegm($("#segTabla"), [{ id: "todos", et: "Todos" }].concat(
       D.productos.filter(p => (p.aportaciones || []).some(a => a.importe))
         .map(p => ({ id: p.id, et: p.corto || p.nombre }))),
@@ -1829,7 +1878,7 @@
     // cualquier boton, que es justo cuando los quieres.
     const t = e.target;
     if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
-    if (e.key === "Escape" && filtrando()) { estado.ocultos.clear(); pintaPatrimonio(); }
+    if (e.key === "Escape" && filtrando()) { estado.ocultos.clear(); estado.titular = "todos"; estado.filtroDim = {}; pintaPatrimonio(); }
     if (e.key === "v" && !e.metaKey && !e.ctrlKey) {
       recuerda.guarda("patrimonio.video", document.body.classList.contains("video") ? "0" : "1");
       aplicaPrefs(); pintaAjustes(); setTimeout(pintarTab, 60);

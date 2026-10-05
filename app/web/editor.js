@@ -418,6 +418,17 @@
     p = p || { tipo: tipoInicial || "fondo", fuente: tipoInicial === "deuda" ? "manual" : "morningstar", moneda: "EUR", largoPlazo: true, slot: siguienteColor() };
     const clases = [...new Set(E.cfg.productos.map(x => x.clase).filter(Boolean))];
     const entidades = [...new Set(E.cfg.productos.map(x => x.entidad).filter(Boolean))].sort();
+    const dims = ((E.cfg.config || {}).dimensiones) || [];
+    const cats = p.categorias || {};
+    const seccionDims = dims.length ? `
+      ${seccion("Clasificación")}
+      <div class="rejilla">
+        ${dims.map(dm => campo(esc(dm.nombre),
+          `<input name="cat_${esc(dm.id)}" list="dl_${esc(dm.id)}" value="${esc(cats[dm.id] || "")}" placeholder="…" autocomplete="off">
+           <datalist id="dl_${esc(dm.id)}">${(dm.valores || []).map(v => `<option value="${esc(v)}">`).join("")}</datalist>`,
+          "opcional")).join("")}
+      </div>
+      <p class="ayuda">Ejes para agrupar y filtrar el panel (Distribución, Reparto %, Estructura). Los defines en <b>Configuración → Dimensiones</b>.</p>` : "";
     const colores = Array.from({ length: 12 }, (_, i) =>
       `<label class="color" style="--c:var(--s${i + 1})" title="Color ${i + 1}"><input type="radio" name="slot" value="${i + 1}"><i></i></label>`).join("");
     const esDeuda = (tipoInicial === "deuda" || p.tipo === "deuda");
@@ -476,6 +487,7 @@
         <label class="interruptor ancho"><input type="checkbox" name="disponible"><span class="pista"></span>
           <span><b>Disponible</b><small>Liquidez inmediata (cuentas, efectivo). Las inversiones e inmuebles no suelen serlo.</small></span></label>
       </div>
+      ${seccionDims}
       <p class="relleno" id="bRelleno" hidden></p>
 
       <details class="avanzado"><summary>Ficha y opciones avanzadas</summary>
@@ -715,6 +727,11 @@
       </div>
       <p class="ayuda">Aparecen en el desplegable al anotar. En los gastos puedes añadir un presupuesto mensual con
         «= importe» (p. ej. <code>Alimentación = 600</code>); el Panel te dirá si te pasas. Si las dejas vacías, escribes la categoría a mano.</p>
+      ${seccion("Dimensiones de clasificación")}
+      <div class="rejilla">
+        ${campo("Una dimensión por línea: «Nombre: valor1, valor2, …»", '<textarea name="dimensiones" rows="4" placeholder="Clase de activo: Renta variable, Renta fija, Liquidez, Alternativos\nGeografía: Global, EEUU, Europa, Emergentes"></textarea>', "", "ancho")}
+      </div>
+      <p class="ayuda">Ejes propios para clasificar tus activos (además de Tipo y Entidad). A cada activo le asignas un valor por eje en su ficha; luego puedes agrupar y filtrar <b>Distribución</b>, <b>Reparto %</b> y <b>Estructura</b> por ellos. Los valores tras los dos puntos son sugerencias; en la ficha del activo puedes escribir otro.</p>
       ${seccion("Privacidad")}
       <div class="rejilla">
         <label class="interruptor ancho"><input type="checkbox" name="buscarActualizaciones"><span class="pista"></span>
@@ -739,6 +756,12 @@
         return o;
       }).filter(o => o.nombre);
       const categorias = lineas("catIng").map(n => ({ nombre: n, tipo: "ingreso" })).concat(catGas);
+      const dimensiones = lineas("dimensiones").map(l => {
+        const i = l.indexOf(":");
+        const nombre = (i >= 0 ? l.slice(0, i) : l).trim();
+        const valores = i >= 0 ? l.slice(i + 1).split(",").map(s => s.trim()).filter(Boolean) : [];
+        return { nombre, valores };
+      }).filter(dm => dm.nombre);
       await guardaConfig({
         titular: (d.nombreCartera || "").trim(),
         objetivoImporte: d.objetivoImporte,
@@ -749,7 +772,7 @@
         diasAviso: d.diasAviso,
         diasSinAnotar: d.diasSinAnotar,
         buscarActualizaciones: f.elements.buscarActualizaciones.checked,
-        objetivos, monedas, categorias,
+        objetivos, monedas, categorias, dimensiones,
       });
       // El nombre sale en el selector de arriba: recargar para que se vea al momento.
       location.reload();
@@ -773,6 +796,8 @@
     f.elements.catIng.value = cats.filter(c => c.tipo === "ingreso").map(c => c.nombre).join("\n");
     f.elements.catGas.value = cats.filter(c => c.tipo === "gasto")
       .map(c => c.presupuesto != null ? `${c.nombre} = ${c.presupuesto}` : c.nombre).join("\n");
+    f.elements.dimensiones.value = (conf.dimensiones || [])
+      .map(dm => (dm.valores || []).length ? `${dm.nombre}: ${dm.valores.join(", ")}` : dm.nombre).join("\n");
     return f;
   }
 
@@ -1295,7 +1320,7 @@
       <a href="${esc(v.repo)}" target="_blank" rel="noopener">página del proyecto en GitHub</a>.`;
     if (!v.hayNueva) return;
     $("#bannerVersionTexto").innerHTML = `<b>Hay una versión nueva (${esc(v.ultima)}).</b> Descárgala en
-      <a href="${esc(v.repo)}" target="_blank" rel="noopener">GitHub</a> y copia tu carpeta <code>mis_datos</code> a la
+      <a href="${esc(v.descarga || v.repo)}" target="_blank" rel="noopener">la página de Liberty</a> y copia tu carpeta <code>mis_datos</code> a la
       nueva: así no pierdes nada. Los pasos están en la pestaña Ayuda.`;
     $("#bannerVersion").hidden = false;
   }).catch(() => { /* sin internet: no pasa nada */ });

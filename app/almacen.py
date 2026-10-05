@@ -198,6 +198,16 @@ def guarda_producto(cfg, datos):
         nuevo.update(codigo="", respaldo="", respaldoMoneda="")
     nuevo["corto"] = nuevo["corto"] or nuevo["nombre"][:24]
 
+    # Clasificación por dimensiones: el formulario manda un campo cat_<dimId> por eje.
+    dims = {d["id"] for d in (cfg.get("config") or {}).get("dimensiones", [])}
+    cats = {}
+    for k, v in (datos or {}).items():
+        if isinstance(k, str) and k.startswith("cat_"):
+            did, val = k[4:], texto(v, 40)
+            if did in dims and val:
+                cats[did] = val
+    nuevo["categorias"] = cats or ""   # vacío -> se elimina en el guardado de abajo
+
     existente = producto(cfg, datos.get("id")) if datos.get("id") else None
     if existente:
         cambio = (existente.get("fuente"), existente.get("codigo")) != (fuente, nuevo["codigo"])
@@ -481,6 +491,32 @@ def guarda_config(cfg, datos):
                     cat["presupuesto"] = round(pres, 2)
                 cats.append(cat)
         conf["categorias"] = cats
+    if "dimensiones" in datos:
+        # Dimensiones de clasificación del usuario: ejes con valor único por activo
+        # (p. ej. «Clase de activo»: Renta variable / Renta fija / Liquidez). Cada
+        # activo elige un valor por eje; luego se puede agrupar/filtrar por ellas.
+        previo = {d.get("nombre", "").lower(): d.get("id") for d in conf.get("dimensiones", [])}
+        dims, ids = [], set()
+        for it in (datos.get("dimensiones") or [])[:8]:   # máximo razonable de ejes
+            nombre = texto((it or {}).get("nombre"), 40)
+            if not nombre:
+                continue
+            # Id estable: se reutiliza el de una dimensión con el mismo nombre; si no,
+            # se deriva del nombre (así renombrar no rompe silenciosamente, y editar
+            # valores conserva la clasificación de los activos).
+            did = previo.get(nombre.lower()) or re.sub(r"[^a-z0-9]+", "-", nombre.lower()).strip("-") or "dim"
+            base, k = did, 2
+            while did in ids:
+                did, k = f"{base}-{k}", k + 1
+            ids.add(did)
+            valores, vv = [], set()
+            for v in ((it or {}).get("valores") or [])[:40]:
+                x = texto(v, 40)
+                if x and x.lower() not in vv:
+                    vv.add(x.lower())
+                    valores.append(x)
+            dims.append({"id": did, "nombre": nombre, "valores": valores})
+        conf["dimensiones"] = dims
     if errores:
         raise ErrorValidacion(errores)
     return {"config": conf, "titulares": cfg.get("titulares", [])}
