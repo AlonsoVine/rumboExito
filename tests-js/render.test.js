@@ -46,12 +46,14 @@ test("el panel se dibuja sin errores y con cifras", () => {
   assert.ok(hero && hero !== "—", "el patrimonio del hero debería tener valor, es: " + hero);
 });
 
-test("el selector de mes de referencia aparece con los meses disponibles", () => {
+test("el control de periodo aparece con los selectores de fecha", () => {
   const { window, errores } = montaPanel();
-  const sel = window.document.getElementById("selMesRef");
-  assert.ok(sel, "debería existir el selector de mes de referencia");
-  // «Hoy» + un option por cada mes disponible.
-  assert.strictEqual(sel.querySelectorAll("option").length, 1 + 3);
+  const desde = window.document.getElementById("inpDesde");
+  const hasta = window.document.getElementById("inpHasta");
+  const ver = window.document.getElementById("btnVerPeriodo");
+  assert.ok(desde && hasta && ver, "deberían existir los selectores desde/hasta y el botón Ver");
+  // Hay presets de rango (1M, 3M, …).
+  assert.ok(window.document.querySelectorAll(".periodoPresets button").length >= 4);
   assert.strictEqual(errores.length, 0, "sin errores: " + errores.join(" | "));
 });
 

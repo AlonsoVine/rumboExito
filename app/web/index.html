@@ -724,7 +724,20 @@ body.video .tarjetaCanal{display:none}
 .mesRef .avisoHasta{color:var(--tinta)}
 .mesRef .mesRefCtrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .mesRef label{font-size:13px;color:var(--tinta2)}
-@media print{.mesRefCtrl{display:none !important}}
+.periodoCtrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--tinta2)}
+.periodoCtrl .periodoLbl{font-weight:600}
+.periodoCtrl input[type=date]{font:inherit;font-size:13px;padding:4px 8px;border:1px solid var(--borde);border-radius:8px;background:var(--sup2);color:var(--tinta)}
+.periodoCtrl .periodoFlecha{color:var(--tinta3)}
+.periodoCtrl .btn.mini{padding:4px 9px;font-size:12px;border-radius:7px}
+.periodoPresets{display:inline-flex;gap:6px;flex-wrap:wrap;margin-left:4px}
+.periodoCard{margin:0 0 4px;border-left:4px solid var(--s1)}
+.periodoCard .pKpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:6px}
+.periodoCard .pKpi{background:var(--sup2);border-radius:10px;padding:10px 14px}
+.periodoCard .pEt{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tinta3);font-weight:600}
+.periodoCard .pVal{font-size:19px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.periodoCard .pVal.pos{color:var(--bien)}.periodoCard .pVal.neg{color:var(--mal)}
+#resultadoPeriodo[hidden]{display:none}
+@media print{.mesRefCtrl,.periodoCtrl{display:none !important}}
 /* ---- Impresión / PDF: solo el panel, sin botones ni navegación ---- */
 @media print{
   :root{--fondo:#fff;--sup:#fff;--tinta:#000;--tinta2:#222;--tinta3:#555;--borde:#ccc}
@@ -785,6 +798,7 @@ body.video .tarjetaCanal{display:none}
 
   <div id="filtroTitular" class="filtroTitular"></div>
   <div id="mesReferencia" class="mesRef"></div>
+  <div id="resultadoPeriodo" hidden></div>
   <div id="bannerAlertas" class="bannerAlertas"></div>
 
   <!-- ===== PATRIMONIO ===== -->

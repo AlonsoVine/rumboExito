@@ -1322,6 +1322,138 @@
  ],
  "valoraciones": [
   {
+   "id": "v12",
+   "producto": "pension",
+   "fecha": "2024-10-01",
+   "valor": 9000
+  },
+  {
+   "id": "v13",
+   "producto": "pension",
+   "fecha": "2025-10-01",
+   "valor": 10500
+  },
+  {
+   "id": "v14",
+   "producto": "seguro",
+   "fecha": "2024-10-01",
+   "valor": 3600
+  },
+  {
+   "id": "v15",
+   "producto": "seguro",
+   "fecha": "2025-10-01",
+   "valor": 3800
+  },
+  {
+   "id": "v16",
+   "producto": "cuenta",
+   "fecha": "2024-10-01",
+   "valor": 4000
+  },
+  {
+   "id": "v17",
+   "producto": "cuenta",
+   "fecha": "2025-10-01",
+   "valor": 4200
+  },
+  {
+   "id": "v18",
+   "producto": "ahorro",
+   "fecha": "2024-10-01",
+   "valor": 4000
+  },
+  {
+   "id": "v19",
+   "producto": "ahorro",
+   "fecha": "2025-10-01",
+   "valor": 5500
+  },
+  {
+   "id": "v20",
+   "producto": "ahorro_usd",
+   "fecha": "2024-10-01",
+   "valor": 2000
+  },
+  {
+   "id": "v21",
+   "producto": "ahorro_usd",
+   "fecha": "2025-10-01",
+   "valor": 2500
+  },
+  {
+   "id": "v22",
+   "producto": "vivienda",
+   "fecha": "2024-10-01",
+   "valor": 178000
+  },
+  {
+   "id": "v23",
+   "producto": "vivienda",
+   "fecha": "2025-10-01",
+   "valor": 181000
+  },
+  {
+   "id": "v24",
+   "producto": "acciones",
+   "fecha": "2024-10-01",
+   "valor": 1600
+  },
+  {
+   "id": "v25",
+   "producto": "acciones",
+   "fecha": "2025-10-01",
+   "valor": 2000
+  },
+  {
+   "id": "v26",
+   "producto": "oro",
+   "fecha": "2024-10-01",
+   "valor": 1500
+  },
+  {
+   "id": "v27",
+   "producto": "oro",
+   "fecha": "2025-10-01",
+   "valor": 1800
+  },
+  {
+   "id": "v28",
+   "producto": "bono",
+   "fecha": "2024-10-01",
+   "valor": 5000
+  },
+  {
+   "id": "v29",
+   "producto": "bono",
+   "fecha": "2025-10-01",
+   "valor": 5000
+  },
+  {
+   "id": "v30",
+   "producto": "hipoteca",
+   "fecha": "2024-10-01",
+   "valor": 130000
+  },
+  {
+   "id": "v31",
+   "producto": "hipoteca",
+   "fecha": "2025-10-01",
+   "valor": 125500
+  },
+  {
+   "id": "v32",
+   "producto": "prestamo_coche",
+   "fecha": "2024-10-01",
+   "valor": 11000
+  },
+  {
+   "id": "v33",
+   "producto": "prestamo_coche",
+   "fecha": "2025-10-01",
+   "valor": 9400
+  },
+  {
    "id": "v1",
    "producto": "acciones",
    "fecha": "2026-09-30",

@@ -256,7 +256,8 @@ def datos_js():
     # Vista de un mes pasado: recalcula el panel como estaba a fin de ese mes, sin
     # persistir nada ni salir a la red (usa los precios de la caché).
     hasta = request.args.get("hasta")
-    if hasta and re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", hasta):
+    # Acepta un mes (AAAA-MM, fin de mes) o un día concreto (AAAA-MM-DD).
+    if hasta and re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?", hasta):
         with cerrojo:
             datos = motor.construir(cartera(), carpeta(), descargar=False, hasta=hasta)
         if datos is not None:

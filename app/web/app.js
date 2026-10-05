@@ -147,6 +147,9 @@
     inflacionOn: false,
     inflacionTasa: D.inflacion != null ? D.inflacion : 0.025,
   };
+  // Rango temporal "desde" (día). El "hasta" lo fija el backend (D.hasta); las series
+  // ya llegan acotadas a ese día, así que el tramo [desde, hasta] se calcula aquí.
+  try { estado.desde = new URLSearchParams(location.search).get("desde") || null; } catch (e) { estado.desde = null; }
 
   /* ---------------------------------------------- ¿y si lo hubieras metido en un indexado? */
   function pintaComparacion() {
@@ -384,6 +387,11 @@
   ];
   function desdeIdx() {
     const n = D.fechas.length;
+    // Rango personalizado (desde un día concreto): tiene prioridad sobre los presets.
+    if (estado.desde) {
+      const i = D.fechas.findIndex(f => f >= estado.desde);
+      return i < 0 ? 0 : i;
+    }
     const r = RANGOS.find(x => x.id === estado.rango);
     if (!r || r.id === "todo") return 0;
     if (r.id === "ytd") {
@@ -1117,28 +1125,91 @@
   /* Mes de referencia: ver el panel como estaba a fin de un mes pasado. */
   const NOMBRE_MES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   function mesBonito(m) { const p = String(m).split("-"); return NOMBRE_MES[+p[1] - 1] + " " + p[0]; }
+  const finDeMes = m => { const y = +m.slice(0, 4), mo = +m.slice(5, 7); return new Date(y, mo, 0).toISOString().slice(0, 10); };
+  const hastaDia = () => D.hasta ? (D.hasta.length >= 10 ? D.hasta : finDeMes(D.hasta)) : new Date().toISOString().slice(0, 10);
+
+  // Control de periodo: ver a un día concreto, o un rango desde→hasta (recarga el panel
+  // a 'hasta'; el tramo se calcula con pintaResultadoPeriodo).
   function pintaMesReferencia() {
     const cont = $("#mesReferencia");
     if (!cont) return;
-    const meses = (D.mesesDisponibles || []);
-    if (!meses.length) { cont.innerHTML = ""; cont.classList.remove("activo"); return; }
-    const actual = D.hasta || "";
-    const ir = m => {
+    const fechas = D.fechas || [];
+    if (!fechas.length) { cont.innerHTML = ""; cont.classList.remove("activo"); return; }
+    const hoy = new Date().toISOString().slice(0, 10);
+    const minF = fechas[0];
+    const hd = hastaDia();
+    const activo = !!(D.hasta || estado.desde);
+    const ir = (desde, hasta) => {
       const qs = new URLSearchParams(location.search);
-      if (m) qs.set("hasta", m); else qs.delete("hasta");
+      if (hasta && hasta < hoy) qs.set("hasta", hasta); else qs.delete("hasta");
+      if (desde) qs.set("desde", desde); else qs.delete("desde");
       qs.set("tab", "panel");
       location.search = qs.toString();
     };
-    const ops = `<option value="">Hoy (último dato)</option>` +
-      meses.slice().reverse().map(m => `<option value="${esc(m)}"${m === actual ? " selected" : ""}>${esc(mesBonito(m))}</option>`).join("");
-    cont.innerHTML =
-      (actual ? `<span class="avisoHasta">📅 Estás viendo tu patrimonio <b>a fin de ${esc(mesBonito(actual))}</b>, no los datos de hoy.${info("Las cantidades (saldos, precios) son las de aquella fecha. Algunos ajustes que no guardan histórico —el colchón y los datos fijos de las deudas— se muestran con su valor actual.")}</span>` : "") +
-      `<span class="mesRefCtrl"><label for="selMesRef">Ver a fecha:</label>
-        <select id="selMesRef">${ops}</select>
-        ${actual ? '<button class="btn" id="btnHoy">Volver a hoy</button>' : ""}</span>`;
-    $("#selMesRef").onchange = e => ir(e.target.value || null);
-    const bh = $("#btnHoy"); if (bh) bh.onclick = () => ir(null);
-    cont.classList.toggle("activo", !!actual);
+    const restaDias = d => { const t = new Date(hoy); t.setDate(t.getDate() - d); return t.toISOString().slice(0, 10); };
+    const presets = [
+      { et: "1M", desde: restaDias(30) }, { et: "3M", desde: restaDias(91) },
+      { et: "6M", desde: restaDias(182) }, { et: "1 año", desde: restaDias(365) },
+      { et: "Año en curso", desde: hoy.slice(0, 4) + "-01-01" },
+    ];
+    cont.innerHTML = `
+      <div class="periodoCtrl">
+        <span class="periodoLbl">Periodo:</span>
+        <input type="date" id="inpDesde" value="${estado.desde || ""}" min="${minF}" max="${hoy}" title="Desde (opcional, para ver un rango)">
+        <span class="periodoFlecha">→</span>
+        <input type="date" id="inpHasta" value="${hd}" min="${minF}" max="${hoy}" title="Hasta">
+        <button class="btn" id="btnVerPeriodo">Ver</button>
+        ${activo ? '<button class="btn" id="btnHoy">Hoy</button>' : ""}
+        <span class="periodoPresets">${presets.map(p => `<button class="btn mini" data-desde="${p.desde}">${p.et}</button>`).join("")}</span>
+      </div>
+      ${(D.hasta && !estado.desde) ? `<div class="avisoHasta">📅 Estás viendo tu patrimonio <b>a fecha ${esc(G.fmtFecha(hd))}</b>, no los de hoy.${info("Las cantidades son las de aquella fecha. El colchón y los datos fijos de las deudas se muestran con su valor actual.")}</div>` : ""}`;
+    $("#btnVerPeriodo").onclick = () => ir($("#inpDesde").value || null, $("#inpHasta").value || null);
+    const bh = $("#btnHoy"); if (bh) bh.onclick = () => ir(null, null);
+    cont.querySelectorAll(".periodoPresets button").forEach(b => { b.onclick = () => ir(b.dataset.desde, null); });
+    cont.classList.toggle("activo", activo);
+  }
+
+  // Tarjeta "del tramo" cuando hay un rango (desde→hasta) activo.
+  function pintaResultadoPeriodo() {
+    const cont = $("#resultadoPeriodo");
+    if (!cont) return;
+    const fechas = D.fechas || [];
+    if (!estado.desde || fechas.length < 2) { cont.innerHTML = ""; cont.hidden = true; return; }
+    const iX = Math.max(0, fechas.findIndex(f => f >= estado.desde));
+    const iY = fechas.length - 1;
+    if (iY <= iX) { cont.innerHTML = ""; cont.hidden = true; return; }
+    const t = D.total || {};
+    const serie = t.serie || [], serieAp = t.serieAportado || [], serieDeuda = t.serieDeuda;
+    const neto = i => (serie[i] || 0) + (serieDeuda ? (serieDeuda[i] || 0) : 0);
+    const dNeto = neto(iY) - neto(iX);
+    const dAp = (serieAp[iY] || 0) - (serieAp[iX] || 0);
+    let twr = 1, hay = false;
+    for (let i = iX + 1; i <= iY; i++) {
+      const base = (serie[i - 1] || 0) + ((serieAp[i] || 0) - (serieAp[i - 1] || 0));
+      if (base > 1e-6) { twr *= (serie[i] || 0) / base; hay = true; }
+    }
+    const rent = hay ? twr - 1 : null;
+    const hastaF = fechas[iY];
+    // Ingresos/gastos del tramo: series mensuales (D.flujos) sumadas por meses en rango.
+    const f = D.flujos || {}, mesesF = f.meses || [];
+    const desdeM = estado.desde.slice(0, 7), hastaM = hastaF.slice(0, 7);
+    let ing = 0, gas = 0;
+    mesesF.forEach((m, i) => {
+      if (m >= desdeM && m <= hastaM) { ing += (f.ingresos || [])[i] || 0; gas += (f.gastos || [])[i] || 0; }
+    });
+    const cls = v => v >= 0 ? "pos" : "neg";
+    const kpi = (et, val, c) => `<div class="pKpi"><div class="pEt">${et}</div><div class="pVal ${c || ""}">${val}</div></div>`;
+    cont.hidden = false;
+    cont.innerHTML = `
+      <section class="tarjeta periodoCard">
+        <header><h2>Resultado del periodo</h2><span class="subt">${esc(G.fmtFecha(fechas[iX]))} → ${esc(G.fmtFecha(hastaF))}</span></header>
+        <div class="pKpis">
+          ${kpi("Cambio de patrimonio neto", G.fmtEurSigno(dNeto), cls(dNeto))}
+          ${kpi("Rentabilidad del tramo" + info("Rentabilidad limpia del efecto de cuándo entró el dinero (TWR encadenado en el periodo)."), rent == null ? "—" : G.fmtPctSigno(rent), rent == null ? "" : cls(rent))}
+          ${kpi("Aportado en el periodo", G.fmtEur(dAp))}
+          ${kpi("Ingresos − gastos", G.fmtEurSigno(ing - gas), cls(ing - gas))}
+        </div>
+      </section>`;
   }
 
   /* Descarga el informe fiscal del año como CSV (para el asesor o para guardarlo). */
@@ -1250,6 +1321,7 @@
     pintaKPIs(mVis);
     pintaAlertas();
     pintaMesReferencia();
+    pintaResultadoPeriodo();
     pintaFiltroTitular();
     pintaHogar();
     pintaDeudas();

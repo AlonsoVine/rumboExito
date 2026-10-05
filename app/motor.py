@@ -683,8 +683,12 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
                          for x in (cfg.get(clave) or []) if x.get("fecha")})
 
     if hasta:
-        anyo, mes = int(hasta[:4]), int(hasta[5:7])
-        lim = f"{anyo:04d}-{mes:02d}-{calendar.monthrange(anyo, mes)[1]:02d}"
+        # Acepta tanto un mes (AAAA-MM -> fin de mes) como un día concreto (AAAA-MM-DD).
+        if len(hasta) >= 10:
+            lim = hasta[:10]
+        else:
+            anyo, mes = int(hasta[:4]), int(hasta[5:7])
+            lim = f"{anyo:04d}-{mes:02d}-{calendar.monthrange(anyo, mes)[1]:02d}"
         cfg = dict(cfg,
                    movimientos=[m for m in cfg.get("movimientos", []) if str(m.get("fecha", "")) <= lim],
                    valoraciones=[v for v in cfg.get("valoraciones", []) if str(v.get("fecha", "")) <= lim],
