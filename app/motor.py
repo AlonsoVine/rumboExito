@@ -1707,6 +1707,7 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
         "titular": cfg.get("titular", "Mi patrimonio"),
         "titulares": cfg.get("titulares", []) or [],
         "dimensiones": (cfg.get("config") or {}).get("dimensiones", []) or [],
+        "inflacion": (cfg.get("config") or {}).get("inflacion"),
         "apartados": apartados_out,
         "deudas": deudas_detalle,
         "flujos": flujos_out,

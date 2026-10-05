@@ -263,10 +263,11 @@
     if (!n || !validos.length) { cont.innerHTML = '<p class="vacio">Sin datos en este rango.</p>'; return; }
 
     let maxV = Math.max(...validos), minV = Math.min(...validos);
-    if (cfg.overlay) {
-      const o = cfg.overlay.valores.filter(v => v != null);
+    [cfg.overlay, cfg.overlay2].forEach(ov => {
+      if (!ov) return;
+      const o = ov.valores.filter(v => v != null);
       if (o.length) { maxV = Math.max(maxV, ...o); minV = Math.min(minV, ...o); }
-    }
+    });
     const esc = escalaBonita(maxV, cfg.desdeCero === false ? minV - (maxV - minV) * 0.12 : 0);
     const x = i => P.l + (n === 1 ? iw / 2 : i * iw / (n - 1));
     const y = v => P.t + ih - ((v - esc.min) / (esc.max - esc.min)) * ih;
@@ -290,15 +291,19 @@
         dLin.replace(/^M/, "L") + `L${x(ultimoX).toFixed(1)} ${(P.t + ih).toFixed(1)} Z`;
       svg.appendChild(el("path", { d: dArea, fill: cfg.color, "fill-opacity": 0.14 }));
     }
-    if (cfg.overlay) {
+    const dibujaLinea = (ov, attrs) => {
       let dd = "", ab = false;
-      cfg.overlay.valores.forEach((v, i) => {
+      ov.valores.forEach((v, i) => {
         if (v == null) { ab = false; return; }
         dd += (ab ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1) + " ";
         ab = true;
       });
-      svg.appendChild(el("path", { d: dd, fill: "none", class: "overlay" }));
-    }
+      svg.appendChild(el("path", Object.assign({ d: dd, fill: "none" }, attrs)));
+    };
+    if (cfg.overlay) dibujaLinea(cfg.overlay, { class: "overlay" });
+    if (cfg.overlay2) dibujaLinea(cfg.overlay2, {
+      stroke: cfg.overlay2.color || css("--s4"), "stroke-width": 2, "stroke-dasharray": "6 4", "stroke-linecap": "round"
+    });
     svg.appendChild(el("path", { d: dLin, fill: "none", stroke: cfg.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
 
     // linea de referencia (por ejemplo, tu precio medio de compra)

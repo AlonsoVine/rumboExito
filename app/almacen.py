@@ -517,6 +517,11 @@ def guarda_config(cfg, datos):
                     valores.append(x)
             dims.append({"id": did, "nombre": nombre, "valores": valores})
         conf["dimensiones"] = dims
+    if "inflacion" in datos:
+        # Inflación anual (%) para la línea de referencia de la evolución. Se guarda
+        # como fracción (2,5 % -> 0.025). Vacío = sin valor por defecto.
+        inf = numero(datos.get("inflacion"), "la inflación", errores, obligatorio=False, minimo=0)
+        conf["inflacion"] = round(inf / 100, 4) if inf is not None else None
     if errores:
         raise ErrorValidacion(errores)
     return {"config": conf, "titulares": cfg.get("titulares", [])}

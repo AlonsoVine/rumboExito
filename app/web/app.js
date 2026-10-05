@@ -144,6 +144,8 @@
     filtroDim: {},
     estr1: (D.dimensiones && D.dimensiones[0]) ? "dim:" + D.dimensiones[0].id : "tipo",
     estr2: "producto",
+    inflacionOn: false,
+    inflacionTasa: D.inflacion != null ? D.inflacion : 0.025,
   };
 
   /* ---------------------------------------------- ¿y si lo hubieras metido en un indexado? */
@@ -392,6 +394,22 @@
     return Math.max(0, n - 1 - r.dias);
   }
   const corta = arr => (arr || []).slice(desdeIdx());
+
+  // Línea "lo aportado si solo hubiera seguido a la inflación": cada día crece por el
+  // factor diario de inflación y suma las aportaciones nuevas de ese día. Es la barra
+  // a batir para no perder poder adquisitivo.
+  function serieInflacion(serieAp, tasaAnual) {
+    const f = Math.pow(1 + (tasaAnual || 0), 1 / 365);
+    const out = new Array(serieAp.length);
+    let acc = 0, prev = 0;
+    for (let i = 0; i < serieAp.length; i++) {
+      const ap = serieAp[i] == null ? prev : serieAp[i];
+      acc = acc * f + (ap - prev);
+      out[i] = acc;
+      prev = ap;
+    }
+    return out;
+  }
 
   function pintaSegm(cont, opciones, activo, alPulsar) {
     if (!cont) return;
@@ -846,10 +864,15 @@
     }
 
     if (estado.vista === "total") {
-      G.lineaConEventos(cont, {
+      const cfgL = {
         fechas, valores: corta(m.serie), color: G.css("--s1"), alto: 330,
         overlay: { nombre: "Aportado", valores: corta(m.serieAportado) },
-      });
+      };
+      if (estado.inflacionOn) {
+        const infl = serieInflacion(m.serieAportado, estado.inflacionTasa);
+        cfgL.overlay2 = { nombre: "Inflación", valores: corta(infl), color: G.css("--s4") };
+      }
+      G.lineaConEventos(cont, cfgL);
     } else if (estado.vista === "dinero") {
       // Lo que pusiste tú contra lo que ha puesto el mercado.
       const tuyo = m.serie.map((v, i) => Math.min(m.serieAportado[i], v));
@@ -894,6 +917,26 @@
       }
     }
     $("#evolNota").textContent = nota;
+  }
+
+  function pintaCtrlInflacion() {
+    const cont = $("#ctrlInflacion");
+    if (!cont) return;
+    cont.hidden = false;
+    const chk = $("#chkInflacion"), inp = $("#inpInflacion"), tasa = $("#inflTasa");
+    chk.checked = estado.inflacionOn;
+    tasa.hidden = !estado.inflacionOn;
+    inp.value = +(estado.inflacionTasa * 100).toFixed(2);
+    chk.onchange = () => {
+      estado.inflacionOn = chk.checked;
+      if (chk.checked && estado.vista !== "total") estado.vista = "total";
+      pintaPatrimonio();
+    };
+    inp.onchange = () => {
+      const v = parseFloat(String(inp.value).replace(",", "."));
+      if (!isNaN(v) && v >= 0 && v <= 100) estado.inflacionTasa = v / 100;
+      pintaPatrimonio();
+    };
   }
 
   function pintaChips() {
@@ -1216,7 +1259,7 @@
     pintaChips();
     pintaHitos(mTodo);
     // Gráficos: solo los de la vista visible (un SVG en un panel oculto sale con ancho 0).
-    if (pv === "evolucion") { pintaPrincipal(mVis); pintaBarras(); pintaMes(); pintaEvolucionHogar(); }
+    if (pv === "evolucion") { pintaPrincipal(mVis); pintaBarras(); pintaMes(); pintaEvolucionHogar(); pintaCtrlInflacion(); }
     else if (pv === "distribucion") pintaDistribucion();
     else if (pv === "estructura") pintaEstructura();
     else if (pv === "rentabilidad") { pintaProyeccion(); pintaTabla(); pintaRendimiento(); }

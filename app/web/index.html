@@ -168,6 +168,10 @@ body.vistaAmplia .segm button{padding:10px 16px}
 .treemap .tmHoja.act{opacity:.82}
 .treemap .tmHojaLbl{font-size:12px;font-weight:600;fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.28);stroke-width:2.4px;stroke-linejoin:round}
 .treemap .tmHojaVal{font-size:11px;fill:rgba(255,255,255,.92);paint-order:stroke;stroke:rgba(0,0,0,.28);stroke-width:2.4px;stroke-linejoin:round}
+.ctrlInflacion{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:10px;font-size:13px;color:var(--tinta2)}
+.ctrlInflacion label{display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.ctrlInflacion .inflTasa{display:inline-flex;align-items:center;gap:6px}
+.ctrlInflacion input[type=number]{width:64px;font:inherit;font-size:13px;padding:3px 6px;border:1px solid var(--borde);border-radius:7px;background:var(--sup2);color:var(--tinta)}
 
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin:30px 0 26px}
 .kpi{background:var(--sup);border:1px solid var(--borde);border-radius:12px;padding:14px 16px}
@@ -929,6 +933,11 @@ body.video .tarjetaCanal{display:none}
       </header>
       <div class="filtros" id="filtros"></div>
       <div class="envGraf" id="grafPrincipal"></div>
+      <div class="ctrlInflacion" id="ctrlInflacion" hidden>
+        <label><input type="checkbox" id="chkInflacion"> Comparar con la inflación</label>
+        <span class="inflTasa" id="inflTasa" hidden><input id="inpInflacion" type="number" step="0.1" min="0" max="30" inputmode="decimal"> % anual</span>
+        <span class="subt" id="inflNota"></span>
+      </div>
     </section>
     <section class="tarjeta" id="tarjetaDeudaEvol" style="margin-top:16px" hidden>
       <header><h2>Patrimonio neto y deudas</h2><span class="subt">Cómo evolucionan en el tiempo</span></header>

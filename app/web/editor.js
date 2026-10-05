@@ -698,6 +698,7 @@
       ${seccion("Colchón de seguridad")}
       <div class="rejilla">
         ${campo("Colchón deseado", '<input name="colchon" inputmode="decimal" placeholder="3000">', "€, liquidez mínima")}
+        ${campo("Inflación anual", '<input name="inflacion" inputmode="decimal" placeholder="2,5">', "%, referencia en Evolución; puedes cambiarla también en la gráfica")}
       </div>
       ${seccion("Titulares")}
       <div class="rejilla">
@@ -766,6 +767,7 @@
         titular: (d.nombreCartera || "").trim(),
         objetivoImporte: d.objetivoImporte,
         colchon: d.colchon,
+        inflacion: d.inflacion,
         titulares: (d.titulares || "").split(/\n+/).map(s => s.trim()).filter(Boolean),
         umbralConcentracion: d.umbralConcentracion,
         desviacionMax: d.desviacionMax,
@@ -780,6 +782,7 @@
     f.elements.nombreCartera.value = E.cfg.titular || "";
     f.elements.objetivoImporte.value = (E.cfg.objetivo && E.cfg.objetivo.activo) ? (E.cfg.objetivo.importe || "") : "";
     f.elements.colchon.value = conf.colchon || "";
+    f.elements.inflacion.value = conf.inflacion != null ? +(conf.inflacion * 100).toFixed(2) : "";
     f.elements.titulares.value = (E.cfg.titulares || []).join("\n");
     const pct = v => v != null ? +(v * 100).toFixed(2) : "";
     f.elements.umbralConcentracion.value = pct(conf.umbralConcentracion);
