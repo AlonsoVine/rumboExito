@@ -763,9 +763,103 @@
     captura.addEventListener("pointerleave", () => { tt.classList.remove("on"); resalte.setAttribute("opacity", 0); });
   }
 
+  /* ==================================================
+     Treemap (estructura patrimonial). Algoritmo squarified.
+     ================================================== */
+  function _peorRatio(fila, lado) {
+    const sum = fila.reduce((a, b) => a + b, 0);
+    const mx = Math.max(...fila), mn = Math.min(...fila);
+    const s2 = sum * sum, l2 = lado * lado;
+    return Math.max((l2 * mx) / s2, s2 / (l2 * mn));
+  }
+  // Reparte 'items' [{d, valor}] en el rectángulo (x,y,w,h). Devuelve [{d,x,y,w,h}].
+  function _squarify(items, x0, y0, w, h) {
+    const total = items.reduce((a, i) => a + i.valor, 0);
+    if (total <= 0 || w <= 0 || h <= 0) return [];
+    const escala = (w * h) / total;
+    const data = items.map(i => ({ d: i, a: Math.max(i.valor * escala, 1e-6) }));
+    const out = [];
+    let x = x0, y = y0, W = w, H = h, i = 0;
+    while (i < data.length) {
+      const lado = Math.min(W, H);
+      const fila = [], filaA = [];
+      let mejor = Infinity;
+      while (i < data.length) {
+        const prueba = filaA.concat([data[i].a]);
+        const p = _peorRatio(prueba, lado);
+        if (fila.length === 0 || p <= mejor) {
+          fila.push(data[i]); filaA.push(data[i].a); mejor = _peorRatio(filaA, lado); i++;
+        } else break;
+      }
+      const sum = filaA.reduce((a, b) => a + b, 0);
+      if (W >= H) {
+        const cw = sum / H; let cy = y;
+        fila.forEach((it, k) => { const ch = filaA[k] / cw; out.push({ d: it.d, x, y: cy, w: cw, h: ch }); cy += ch; });
+        x += cw; W -= cw;
+      } else {
+        const rh = sum / W; let cx = x;
+        fila.forEach((it, k) => { const cwi = filaA[k] / rh; out.push({ d: it.d, x: cx, y, w: cwi, h: rh }); cx += cwi; });
+        y += rh; H -= rh;
+      }
+    }
+    return out;
+  }
+  function _recorta(s, ancho) {
+    const max = Math.floor((ancho - 8) / 6.3);
+    s = String(s || "");
+    return s.length > max ? s.slice(0, Math.max(1, max - 1)) + "…" : s;
+  }
+  // cfg.raiz = { hijos:[ {nombre, valor, color, hijos:[{nombre,valor,color,id}]} ] }
+  function treemap(cont, cfg) {
+    cont.innerHTML = "";
+    const W = Math.max(cont.clientWidth, 240);
+    const H = cfg.alto || 440;
+    const grupos0 = (cfg.raiz.hijos || []).filter(g => g.valor > 0).sort((a, b) => b.valor - a.valor);
+    const total = grupos0.reduce((a, g) => a + g.valor, 0);
+    if (!total) { cont.innerHTML = '<p class="vacio">Sin datos que mostrar.</p>'; return; }
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, class: "grafico treemap" });
+    const tt = creaTooltip(cont);
+    const gruposLay = _squarify(grupos0, 0, 0, W, H);
+    gruposLay.forEach(g => {
+      const cab = (g.h > 28 && g.w > 60) ? 18 : 0;
+      svg.appendChild(el("rect", { x: g.x, y: g.y, width: g.w, height: g.h, class: "tmGrupo" }));
+      if (cab) {
+        const lbl = txt(g.x + 6, g.y + 13, _recorta(`${g.d.nombre} · ${fmtEurCorto(g.d.valor)}`, g.w), "tmGrupoLbl");
+        svg.appendChild(lbl);
+      }
+      const hijos = (g.d.hijos || []).filter(h => h.valor > 0).sort((a, b) => b.valor - a.valor);
+      const pad = 2;
+      const hojas = _squarify(hijos, g.x + pad, g.y + cab, Math.max(0, g.w - pad * 2), Math.max(0, g.h - cab - pad));
+      hojas.forEach(h => {
+        const r = el("rect", {
+          x: h.x + 0.5, y: h.y + 0.5, width: Math.max(0, h.w - 1), height: Math.max(0, h.h - 1),
+          fill: h.d.color || css("--s1"), rx: 3, class: "tmHoja" + (cfg.onClick && h.d.id ? " clic" : "")
+        });
+        svg.appendChild(r);
+        if (h.w > 44 && h.h > 22) {
+          svg.appendChild(txt(h.x + 6, h.y + 15, _recorta(h.d.nombre, h.w), "tmHojaLbl"));
+          if (h.h > 34) svg.appendChild(txt(h.x + 6, h.y + 29, fmtEurCorto(h.d.valor), "tmHojaVal"));
+        }
+        r.addEventListener("pointerenter", () => {
+          r.classList.add("act");
+          tt.innerHTML = `<b>${escHtml(h.d.nombre)}</b><div class="ttTotal">${fmtEur(h.d.valor)}</div>
+            <table><tr><td>${escHtml(g.d.nombre)}</td><td>${fmtPct(h.d.valor / total, 1)}</td></tr></table>`;
+          tt.classList.add("on");
+        });
+        r.addEventListener("pointermove", e => {
+          const rr = cont.getBoundingClientRect();
+          colocaTooltip(tt, cont, e.clientX - rr.left, e.clientY - rr.top);
+        });
+        r.addEventListener("pointerleave", () => { r.classList.remove("act"); tt.classList.remove("on"); });
+        if (cfg.onClick && h.d.id) r.addEventListener("click", () => cfg.onClick(h.d));
+      });
+    });
+    cont.appendChild(svg);
+  }
+
   global.G = {
     fmtEur, fmtEurCorto, fmtPct, fmtPctSigno, fmtEurSigno, fmtFecha, fmtFechaCorta, fmtMes, nfNum: nfUnidades,
     areaApilada, lineaConEventos, barrasApiladas, donut, mini, escalaBonita, css,
-    barrasHorizontales, barrasSimples, multiLinea, barrasAgrupadas
+    barrasHorizontales, barrasSimples, multiLinea, barrasAgrupadas, treemap
   };
 })(window);

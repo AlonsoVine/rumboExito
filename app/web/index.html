@@ -160,6 +160,14 @@ body.vistaAmplia .segm button{padding:10px 16px}
 #filtroTitular{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
 #filtroTitular .filtroCampo{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--tinta2)}
 #filtroTitular .filtroCampo label{white-space:nowrap}
+/* Treemap (Estructura) */
+.treemap .tmGrupo{fill:none;stroke:var(--borde);stroke-width:1}
+.treemap .tmGrupoLbl{font-size:11px;font-weight:700;fill:var(--tinta2);letter-spacing:.02em}
+.treemap .tmHoja{stroke:var(--sup);stroke-width:1.5;transition:opacity .12s}
+.treemap .tmHoja.clic{cursor:pointer}
+.treemap .tmHoja.act{opacity:.82}
+.treemap .tmHojaLbl{font-size:12px;font-weight:600;fill:#fff;paint-order:stroke;stroke:rgba(0,0,0,.28);stroke-width:2.4px;stroke-linejoin:round}
+.treemap .tmHojaVal{font-size:11px;fill:rgba(255,255,255,.92);paint-order:stroke;stroke:rgba(0,0,0,.28);stroke-width:2.4px;stroke-linejoin:round}
 
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin:30px 0 26px}
 .kpi{background:var(--sup);border:1px solid var(--borde);border-radius:12px;padding:14px 16px}
@@ -763,6 +771,7 @@ body.video .tarjetaCanal{display:none}
   <nav class="subtabs" id="subtabs" role="tablist">
     <button data-pv="patrimonio" aria-selected="true">Patrimonio</button>
     <button data-pv="distribucion" aria-selected="false">Distribución</button>
+    <button data-pv="estructura" aria-selected="false">Estructura</button>
     <button data-pv="rentabilidad" aria-selected="false">Rentabilidad</button>
     <button data-pv="evolucion" aria-selected="false">Evolución</button>
     <button data-pv="ingresos" aria-selected="false">Ingresos y gastos</button>
@@ -822,6 +831,23 @@ body.video .tarjetaCanal{display:none}
       <header><h2>Asignación objetivo</h2><span class="subt" id="asigSub"></span></header>
       <div class="tablaEnv"><table class="dt" id="asigTabla"></table></div>
       <div id="asigRebal"></div>
+    </section>
+  </div>
+
+  <!-- ===== ESTRUCTURA (treemap) ===== -->
+  <div class="pv" id="pv-estructura" hidden>
+    <p class="ayudaVista">La estructura de tu patrimonio como un mapa: cada bloque es proporcional a su valor, anidado por las dimensiones que elijas. Pulsa un activo para ver su ficha.</p>
+    <section class="tarjeta" style="margin-top:8px">
+      <header style="flex-wrap:wrap;gap:10px">
+        <h2>Estructura patrimonial</h2>
+        <div class="sep"></div>
+        <span class="subt">Agrupar por</span>
+        <div class="segm" id="segEstr1"></div>
+        <span class="subt">y luego</span>
+        <div class="segm" id="segEstr2"></div>
+      </header>
+      <div class="envGraf" id="grafTreemap" style="min-height:420px"></div>
+      <p class="subt" id="estrNota" style="margin-top:8px"></p>
     </section>
   </div>
 

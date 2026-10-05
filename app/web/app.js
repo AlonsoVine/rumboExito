@@ -142,6 +142,8 @@
     compRef: recuerda.lee("patrimonio.compRef") || "mundo",
     ocultos: new Set(),
     filtroDim: {},
+    estr1: (D.dimensiones && D.dimensiones[0]) ? "dim:" + D.dimensiones[0].id : "tipo",
+    estr2: "producto",
   };
 
   /* ---------------------------------------------- ¿y si lo hubieras metido en un indexado? */
@@ -934,6 +936,41 @@
        <td>${G.fmtEur(d.valor)}</td><td>${G.fmtPct(d.valor / total, 1)}</td></tr>`).join("");
   }
 
+  /* ---------------------------------------------- estructura (treemap) */
+  const etqCampo = op => (op && op.slice(0, 4) === "dim:"
+    ? ((D.dimensiones || []).find(x => "dim:" + x.id === op) || {}).nombre || op
+    : ({ tipo: "Tipo", entidad: "Entidad", clase: "Activo", producto: "Activos" })[op] || op);
+
+  function arbolEstructura(lista, campo1, campo2) {
+    const grupos = new Map();
+    lista.forEach(p => {
+      const k1 = valorCampo(p, campo1);
+      let g = grupos.get(k1);
+      if (!g) { g = { nombre: k1, valor: 0, hijos: new Map() }; grupos.set(k1, g); }
+      g.valor += valorDe(p);
+      const esProd = campo2 === "producto";
+      const k2 = esProd ? (p.corto || p.nombre) : valorCampo(p, campo2);
+      let h = g.hijos.get(k2);
+      if (!h) { h = { nombre: k2, valor: 0, color: color(p), id: esProd ? p.id : null }; g.hijos.set(k2, h); }
+      h.valor += valorDe(p);
+    });
+    return { hijos: [...grupos.values()].map(g => ({ nombre: g.nombre, valor: g.valor, hijos: [...g.hijos.values()] })) };
+  }
+
+  function pintaEstructura() {
+    const idsPasivo = new Set((D.pasivos || []).map(p => p.id));
+    const activos = visibles().filter(p => !idsPasivo.has(p.id) && valorDe(p) > 0);
+    const raiz = arbolEstructura(activos, estado.estr1, estado.estr2);
+    G.treemap($("#grafTreemap"), {
+      raiz, alto: 440,
+      onClick: d => { if (d.id) { estado.fondo = d.id; irVista("producto"); } },
+    });
+    const n = activos.length;
+    $("#estrNota").textContent = n
+      ? `${n} ${n === 1 ? "activo" : "activos"} · agrupados por ${etqCampo(estado.estr1)} y luego ${etqCampo(estado.estr2)}. Pulsa un activo para abrir su ficha.`
+      : "No hay activos que mostrar con el filtro actual.";
+  }
+
   function pintaBarras() {
     const am = D.aportacionesMensuales;
     const desde = D.fechas[desdeIdx()].slice(0, 7);
@@ -1181,6 +1218,7 @@
     // Gráficos: solo los de la vista visible (un SVG en un panel oculto sale con ancho 0).
     if (pv === "evolucion") { pintaPrincipal(mVis); pintaBarras(); pintaMes(); pintaEvolucionHogar(); }
     else if (pv === "distribucion") pintaDistribucion();
+    else if (pv === "estructura") pintaEstructura();
     else if (pv === "rentabilidad") { pintaProyeccion(); pintaTabla(); pintaRendimiento(); }
     else if (pv === "ingresos") pintaFlujosGraf();
     else if (pv === "fiscal") pintaFiscal();
@@ -1196,6 +1234,12 @@
       { id: "entidad", et: "Entidad" }, { id: "tipo", et: "Tipo" }
     ].concat((D.dimensiones || []).map(dm => ({ id: "dim:" + dm.id, et: dm.nombre }))),
       estado.dist, id => { estado.dist = id; pintaDistribucion(); });
+    const opsGrupo = [
+      { id: "tipo", et: "Tipo" }, { id: "entidad", et: "Entidad" }, { id: "clase", et: "Activo" }
+    ].concat((D.dimensiones || []).map(dm => ({ id: "dim:" + dm.id, et: dm.nombre })));
+    pintaSegm($("#segEstr1"), opsGrupo, estado.estr1, id => { estado.estr1 = id; pintaEstructura(); });
+    pintaSegm($("#segEstr2"), [{ id: "producto", et: "Activos" }].concat(opsGrupo),
+      estado.estr2, id => { estado.estr2 = id; pintaEstructura(); });
     pintaSegm($("#segTabla"), [{ id: "todos", et: "Todos" }].concat(
       D.productos.filter(p => (p.aportaciones || []).some(a => a.importe))
         .map(p => ({ id: p.id, et: p.corto || p.nombre }))),
@@ -1889,7 +1933,7 @@
     }
     // Teclas 1-7: sub-pestañas del Panel.
     const n = "1234567".indexOf(e.key);
-    const pv = ["patrimonio", "distribucion", "rentabilidad", "evolucion", "ingresos", "deudas", "fiscal"][n];
+    const pv = ["patrimonio", "distribucion", "estructura", "rentabilidad", "evolucion", "ingresos", "deudas", "fiscal"][n];
     if (n >= 0 && document.getElementById("pv-" + pv)) { if (estado.tab !== "panel") irA("panel"); irVista(pv); }
   });
 
