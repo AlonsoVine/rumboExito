@@ -16,7 +16,7 @@ a = Analysis(
     hiddenimports=["openpyxl"],
     hookspath=[],
     runtime_hooks=[],
-    excludes=["tkinter", "pytest", "ruff"],
+    excludes=["tkinter", "pytest", "ruff", "PIL", "numpy"],
     noarchive=False,
 )
 pyz = PYZ(a.pure, a.zipped_data)
