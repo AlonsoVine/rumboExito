@@ -1353,18 +1353,6 @@
    "valor": 10500
   },
   {
-   "id": "v14",
-   "producto": "seguro",
-   "fecha": "2024-10-01",
-   "valor": 3600
-  },
-  {
-   "id": "v15",
-   "producto": "seguro",
-   "fecha": "2025-10-01",
-   "valor": 3800
-  },
-  {
    "id": "v16",
    "producto": "cuenta",
    "fecha": "2024-10-01",
@@ -1375,66 +1363,6 @@
    "producto": "cuenta",
    "fecha": "2025-10-01",
    "valor": 4200
-  },
-  {
-   "id": "v18",
-   "producto": "ahorro",
-   "fecha": "2024-10-01",
-   "valor": 4000
-  },
-  {
-   "id": "v19",
-   "producto": "ahorro",
-   "fecha": "2025-10-01",
-   "valor": 5500
-  },
-  {
-   "id": "v20",
-   "producto": "ahorro_usd",
-   "fecha": "2024-10-01",
-   "valor": 2000
-  },
-  {
-   "id": "v21",
-   "producto": "ahorro_usd",
-   "fecha": "2025-10-01",
-   "valor": 2500
-  },
-  {
-   "id": "v24",
-   "producto": "acciones",
-   "fecha": "2024-10-01",
-   "valor": 1600
-  },
-  {
-   "id": "v25",
-   "producto": "acciones",
-   "fecha": "2025-10-01",
-   "valor": 2000
-  },
-  {
-   "id": "v26",
-   "producto": "oro",
-   "fecha": "2024-10-01",
-   "valor": 1500
-  },
-  {
-   "id": "v27",
-   "producto": "oro",
-   "fecha": "2025-10-01",
-   "valor": 1800
-  },
-  {
-   "id": "v28",
-   "producto": "bono",
-   "fecha": "2024-10-01",
-   "valor": 5000
-  },
-  {
-   "id": "v29",
-   "producto": "bono",
-   "fecha": "2025-10-01",
-   "valor": 5000
   },
   {
    "id": "v32",
@@ -1449,38 +1377,10 @@
    "valor": 9400
   },
   {
-   "id": "v1",
-   "producto": "acciones",
-   "fecha": "2026-09-30",
-   "valor": 2500,
-   "aportado": null
-  },
-  {
-   "id": "v2",
-   "producto": "oro",
-   "fecha": "2026-09-30",
-   "valor": 2100,
-   "aportado": null
-  },
-  {
-   "id": "v3",
-   "producto": "bono",
-   "fecha": "2026-09-30",
-   "valor": 5000,
-   "aportado": null
-  },
-  {
    "id": "v4",
    "producto": "pension",
    "fecha": "2026-09-30",
    "valor": 12000,
-   "aportado": null
-  },
-  {
-   "id": "v5",
-   "producto": "seguro",
-   "fecha": "2026-09-30",
-   "valor": 4000,
    "aportado": null
   },
   {
@@ -1491,60 +1391,10 @@
    "aportado": null
   },
   {
-   "id": "v7",
-   "producto": "ahorro",
-   "fecha": "2026-09-30",
-   "valor": 7000,
-   "aportado": null
-  },
-  {
-   "id": "v8",
-   "producto": "ahorro_usd",
-   "fecha": "2026-09-30",
-   "valor": 3000,
-   "aportado": null
-  },
-  {
    "id": "v11",
    "producto": "prestamo_coche",
    "fecha": "2026-09-30",
    "valor": 7800
-  },
-  {
-   "id": "v101",
-   "producto": "trastero",
-   "fecha": "2024-10-01",
-   "valor": 17000
-  },
-  {
-   "id": "v102",
-   "producto": "trastero",
-   "fecha": "2025-10-01",
-   "valor": 17600
-  },
-  {
-   "id": "v103",
-   "producto": "trastero",
-   "fecha": "2026-09-30",
-   "valor": 18200
-  },
-  {
-   "id": "v104",
-   "producto": "garaje",
-   "fecha": "2024-10-01",
-   "valor": 15000
-  },
-  {
-   "id": "v105",
-   "producto": "garaje",
-   "fecha": "2025-10-01",
-   "valor": 15500
-  },
-  {
-   "id": "v106",
-   "producto": "garaje",
-   "fecha": "2026-09-30",
-   "valor": 16000
   },
   {
    "id": "v107",
@@ -1563,6 +1413,138 @@
    "producto": "prestamo_reforma",
    "fecha": "2026-09-30",
    "valor": 5200
+  },
+  {
+   "id": "v201",
+   "producto": "oro",
+   "fecha": "2025-01-01",
+   "valor": 1500
+  },
+  {
+   "id": "v202",
+   "producto": "oro",
+   "fecha": "2025-10-01",
+   "valor": 1800
+  },
+  {
+   "id": "v203",
+   "producto": "oro",
+   "fecha": "2026-09-30",
+   "valor": 2100
+  },
+  {
+   "id": "v204",
+   "producto": "bono",
+   "fecha": "2025-04-01",
+   "valor": 5000
+  },
+  {
+   "id": "v205",
+   "producto": "bono",
+   "fecha": "2026-09-30",
+   "valor": 5000
+  },
+  {
+   "id": "v206",
+   "producto": "seguro",
+   "fecha": "2025-03-01",
+   "valor": 3600
+  },
+  {
+   "id": "v207",
+   "producto": "seguro",
+   "fecha": "2025-10-01",
+   "valor": 3800
+  },
+  {
+   "id": "v208",
+   "producto": "seguro",
+   "fecha": "2026-09-30",
+   "valor": 4000
+  },
+  {
+   "id": "v209",
+   "producto": "acciones",
+   "fecha": "2025-07-01",
+   "valor": 1600
+  },
+  {
+   "id": "v210",
+   "producto": "acciones",
+   "fecha": "2026-01-01",
+   "valor": 2000
+  },
+  {
+   "id": "v211",
+   "producto": "acciones",
+   "fecha": "2026-09-30",
+   "valor": 2500
+  },
+  {
+   "id": "v212",
+   "producto": "ahorro",
+   "fecha": "2025-09-01",
+   "valor": 4000
+  },
+  {
+   "id": "v213",
+   "producto": "ahorro",
+   "fecha": "2026-03-01",
+   "valor": 5500
+  },
+  {
+   "id": "v214",
+   "producto": "ahorro",
+   "fecha": "2026-09-30",
+   "valor": 7000
+  },
+  {
+   "id": "v215",
+   "producto": "ahorro_usd",
+   "fecha": "2026-01-01",
+   "valor": 2000
+  },
+  {
+   "id": "v216",
+   "producto": "ahorro_usd",
+   "fecha": "2026-05-01",
+   "valor": 2500
+  },
+  {
+   "id": "v217",
+   "producto": "ahorro_usd",
+   "fecha": "2026-09-30",
+   "valor": 3000
+  },
+  {
+   "id": "v218",
+   "producto": "trastero",
+   "fecha": "2025-06-01",
+   "valor": 17000
+  },
+  {
+   "id": "v219",
+   "producto": "trastero",
+   "fecha": "2026-01-01",
+   "valor": 17600
+  },
+  {
+   "id": "v220",
+   "producto": "trastero",
+   "fecha": "2026-09-30",
+   "valor": 18200
+  },
+  {
+   "id": "v221",
+   "producto": "garaje",
+   "fecha": "2026-02-01",
+   "valor": 15000
+  },
+  {
+   "id": "v222",
+   "producto": "garaje",
+   "fecha": "2026-09-30",
+   "valor": 16000
   }
  ],
  "comparador": [

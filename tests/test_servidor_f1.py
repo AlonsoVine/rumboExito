@@ -150,3 +150,54 @@ def test_cartera_corrupta_devuelve_400_no_500(tmp_path, monkeypatch):
     assert r.status_code == 400
     j = r.get_json()
     assert j["ok"] is False and "dañado" in " ".join(j["errores"]).lower()
+
+
+class _RespFake:
+    """Respuesta fake de urlopen (context manager) para /api/version."""
+    def __init__(self, body):
+        self._body = body
+    def __enter__(self):
+        return self
+    def __exit__(self, *a):
+        return False
+    def read(self):
+        return self._body
+
+
+def test_api_version_avisa_de_nueva(tmp_path, monkeypatch):
+    """Si hay una release de Liberty con versión MAYOR que la instalada, avisa."""
+    servidor = _prepara(tmp_path, monkeypatch)
+    client = servidor.app.test_client()
+    client.post("/api/config", json={"buscarActualizaciones": True})
+    servidor._VERSION.clear()
+    monkeypatch.setattr(servidor.urllib.request, "urlopen",
+                        lambda *a, **k: _RespFake(b'{"tag_name": "v9.9.9"}'))
+    v = client.get("/api/version").get_json()
+    assert v["hayNueva"] is True
+    assert v["ultima"] == "9.9.9"
+    assert v["descarga"] == servidor.WEB_LIBERTY            # lleva a la web de descargas
+    assert "AlonsoVine/liberty" in v["repo"]
+
+
+def test_api_version_no_falso_positivo(tmp_path, monkeypatch):
+    """Si la release es igual o menor, NO avisa (sin falsos positivos)."""
+    servidor = _prepara(tmp_path, monkeypatch)
+    client = servidor.app.test_client()
+    client.post("/api/config", json={"buscarActualizaciones": True})
+    servidor._VERSION.clear()
+    monkeypatch.setattr(servidor.urllib.request, "urlopen",
+                        lambda *a, **k: _RespFake(b'{"tag_name": "v0.0.1"}'))
+    v = client.get("/api/version").get_json()
+    assert v["hayNueva"] is False
+
+
+def test_api_version_desactivado_por_defecto(tmp_path, monkeypatch):
+    """Sin activar «buscar actualizaciones», no sale a internet y no avisa."""
+    servidor = _prepara(tmp_path, monkeypatch)
+    client = servidor.app.test_client()
+    servidor._VERSION.clear()
+    def _boom(*a, **k):
+        raise AssertionError("no debería salir a internet si está desactivado")
+    monkeypatch.setattr(servidor.urllib.request, "urlopen", _boom)
+    v = client.get("/api/version").get_json()
+    assert v["hayNueva"] is False and v.get("desactivado") is True
