@@ -144,6 +144,11 @@
     filtroDim: {},
     estr1: (D.dimensiones && D.dimensiones[0]) ? "dim:" + D.dimensiones[0].id : "tipo",
     estr2: "producto",
+    distModo: "anillo",
+    ig: recuerda.lee("patrimonio.ig") || "resumen",
+    catTipo: "gasto",
+    catPeriodo: "total12",
+    tendTipo: "gasto",
     inflacionOn: false,
     inflacionTasa: D.inflacion != null ? D.inflacion : 0.025,
   };
@@ -649,9 +654,13 @@
 
   /* Ingresos, gastos y ahorro: mes en curso vs. media de 12 meses + tabla mensual. */
   function pintaFlujos() {
-    const card = $("#tarjetaFlujos"), f = D.flujos;
-    if (!f) { card.hidden = true; return; }
-    card.hidden = false;
+    const f = D.flujos, kp = $("#flujosKpis");
+    if (!kp) return;
+    if (!f) {
+      kp.innerHTML = "";
+      ["#flujosTabla", "#flujosCatEnv", "#flujosSub"].forEach(s => { const e = $(s); if (e) e.innerHTML = ""; });
+      return;
+    }
     const em = f.esteMes, m12 = f.media12;
     $("#flujosSub").textContent = "Últimos 12 meses hasta " + G.fmtFechaCorta(D.fechaExtracto);
     const pct = v => v != null ? G.fmtPct(v, 0) : "—";
@@ -783,6 +792,146 @@
       ],
       formatoY: v => G.fmtEurCorto(v), formatoValor: v => G.fmtEur(v),
     });
+  }
+
+  /* ---------------------------------------------- Ingresos y gastos (análisis) */
+  // Color estable por nombre de categoría (hash -> uno de los 16 slots de paleta).
+  function colorCat(nombre) {
+    let h = 0;
+    const s = String(nombre || "");
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return G.css("--s" + (h % 16 + 1));
+  }
+
+  function pintaIngresos() {
+    const f = D.flujos, hay = !!f;
+    const nav = $("#igNav"); if (nav) nav.hidden = !hay;
+    const vac = $("#igVacio"); if (vac) vac.hidden = hay;
+    document.querySelectorAll(".ig").forEach(el => { el.hidden = true; });
+    if (!hay) return;
+    const ig = estado.ig || "resumen";
+    document.querySelectorAll("#igNav button").forEach(b =>
+      b.setAttribute("aria-selected", String(b.dataset.ig === ig)));
+    const cont = $("#ig-" + ig); if (cont) cont.hidden = false;
+    if (ig === "resumen") { pintaFlujosGraf(); pintaCascada(); }
+    else if (ig === "categorias") { pintaCategorias(); pintaTitular(); }
+    else if (ig === "tendencias") pintaTendencias();
+    else if (ig === "presupuesto") pintaPresupuesto();
+  }
+
+  function pintaCascada() {
+    const cont = $("#grafCascada"); if (!cont) return;
+    const f = D.flujos, em = f.esteMes;
+    const gastos = f.porCategoria.filter(c => c.tipo === "gasto" && c.mes > 0).sort((a, b) => b.mes - a.mes);
+    const sub = $("#cascSub");
+    if (!em.ingresos && !gastos.length) {
+      cont.innerHTML = '<p class="vacio" style="padding:24px 0">Sin ingresos ni gastos este mes.</p>';
+      if (sub) sub.textContent = ""; return;
+    }
+    const TOP = 7, top = gastos.slice(0, TOP), resto = gastos.slice(TOP);
+    const items = [{ nombre: "Ingresos", valor: em.ingresos, tipo: "inicio" }];
+    top.forEach(c => items.push({ nombre: c.categoria, valor: -c.mes, tipo: "gasto" }));
+    const otros = resto.reduce((a, c) => a + c.mes, 0);
+    if (otros > 0) items.push({ nombre: "Otros", valor: -otros, tipo: "gasto" });
+    items.push({ nombre: "Ahorro", valor: em.ahorro, tipo: "fin" });
+    G.cascada(cont, { items, alto: 300 });
+    if (sub) sub.textContent = G.fmtMes(f.meses[f.meses.length - 1]) + " · de los ingresos a lo que queda";
+  }
+
+  function pintaCategorias() {
+    pintaSegm($("#segCatTipo"), [{ id: "gasto", et: "Gastos" }, { id: "ingreso", et: "Ingresos" }],
+      estado.catTipo || "gasto", id => { estado.catTipo = id; pintaCategorias(); });
+    pintaSegm($("#segCatPeriodo"), [{ id: "mes", et: "Este mes" }, { id: "anio", et: "Año" }, { id: "total12", et: "12 meses" }],
+      estado.catPeriodo || "total12", id => { estado.catPeriodo = id; pintaCategorias(); });
+    const f = D.flujos, tipo = estado.catTipo || "gasto", per = estado.catPeriodo || "total12";
+    const campo = { mes: "mes", anio: "anio", total12: "total12" }[per];
+    const cats = f.porCategoria.filter(c => c.tipo === tipo && c[campo] > 0).sort((a, b) => b[campo] - a[campo]);
+    const total = cats.reduce((a, c) => a + c[campo], 0);
+    G.donut($("#grafCatDonut"), {
+      datos: cats.map(c => ({ nombre: c.categoria, valor: c[campo], color: colorCat(c.categoria) })),
+      alto: 236, tituloCentro: tipo === "gasto" ? "Gastos" : "Ingresos", valorCentro: G.fmtEurCorto(total),
+    });
+    const max = cats.length ? cats[0][campo] : 1;
+    $("#rankCat").innerHTML = cats.map(c => {
+      const col = colorCat(c.categoria);
+      return `<div class="rankFila">
+        <div class="nm"><i style="background:${col}"></i><span>${esc(c.categoria)}</span></div>
+        <div class="vl">${G.fmtEur(c[campo], 0)} <span class="pc">${G.fmtPct(c[campo] / total, 1)}</span></div>
+        <div class="barra"><i style="width:${Math.max(3, (c[campo] / max) * 100)}%;background:${col}"></i></div>
+      </div>`;
+    }).join("") || '<p class="subt">Sin datos en este periodo.</p>';
+    const etqPer = { mes: "este mes", anio: "en lo que va de año", total12: "en los últimos 12 meses" }[per];
+    $("#catNota").textContent = cats.length
+      ? `${cats.length} ${cats.length === 1 ? "categoría" : "categorías"} · ${G.fmtEur(total, 0)} ${tipo === "gasto" ? "gastados" : "ingresados"} ${etqPer}.` : "";
+  }
+
+  function pintaTitular() {
+    const cont = $("#grafTitular"), card = $("#tarjetaTitular"); if (!cont) return;
+    const pt = (D.flujos.porTitular || []).filter(x => x.total12.ingresos || x.total12.gastos);
+    const utiles = pt.filter(x => x.titular !== "Sin asignar");
+    if (pt.length <= 1 || !utiles.length) { if (card) card.hidden = true; return; }
+    if (card) card.hidden = false;
+    G.barrasAgrupadas(cont, {
+      categorias: pt.map(x => x.titular), alto: 240,
+      series: [
+        { nombre: "Ingresos", color: G.css("--s6"), valores: pt.map(x => x.total12.ingresos) },
+        { nombre: "Gastos", color: G.css("--s8"), valores: pt.map(x => x.total12.gastos) },
+      ],
+      formatoY: v => G.fmtEurCorto(v), formatoValor: v => G.fmtEur(v),
+    });
+    $("#legTitular").innerHTML = `<span><i style="background:${G.css("--s6")}"></i>Ingresos</span>
+      <span><i style="background:${G.css("--s8")}"></i>Gastos</span>`;
+  }
+
+  function pintaTendencias() {
+    pintaSegm($("#segTendTipo"), [{ id: "gasto", et: "Gastos" }, { id: "ingreso", et: "Ingresos" }],
+      estado.tendTipo || "gasto", id => { estado.tendTipo = id; pintaTendencias(); });
+    const f = D.flujos, tipo = estado.tendTipo || "gasto";
+    const cats = f.porCategoria.filter(c => c.tipo === tipo && c.total12 > 0).sort((a, b) => b.total12 - a.total12);
+    const TOP = 8, top = cats.slice(0, TOP), resto = cats.slice(TOP);
+    const series = top.map(c => ({ nombre: c.categoria, color: colorCat(c.categoria), valores: c.serie }));
+    if (resto.length) {
+      const otros = f.meses.map((_, i) => resto.reduce((a, c) => a + (c.serie[i] || 0), 0));
+      series.push({ nombre: "Otros", color: G.css("--tinta3"), valores: otros });
+    }
+    G.areaApilada($("#grafTendApilada"), {
+      fechas: f.meses.map(m => m + "-01"), alto: 300, series,
+      formatoY: v => G.fmtEurCorto(v), formatoValor: v => G.fmtEur(v),
+    });
+    $("#legTend").innerHTML = series.map(s => `<span><i style="background:${s.color}"></i>${esc(s.nombre)}</span>`).join("");
+    G.mapaCalor($("#grafHeatmap"), {
+      filas: cats.slice(0, 12).map(c => ({ nombre: c.categoria, valores: c.serie })),
+      columnas: f.meses.map(m => G.fmtMes(m)),
+      color: tipo === "gasto" ? G.css("--mal") : G.css("--s6"),
+      formatoValor: v => G.fmtEur(v, 0),
+    });
+  }
+
+  function pintaPresupuesto() {
+    const f = D.flujos;
+    const cats = f.porCategoria.filter(c => c.tipo === "gasto" && (c.presupuesto != null || c.mes > 0));
+    const conPres = cats.filter(c => c.presupuesto != null).sort((a, b) => b.presupuesto - a.presupuesto);
+    const sinPres = cats.filter(c => c.presupuesto == null && c.mes > 0).sort((a, b) => b.mes - a.mes);
+    const barra = c => {
+      const pres = c.presupuesto, g = c.mes;
+      const pct = pres > 0 ? Math.min(g / pres, 1) * 100 : (g > 0 ? 100 : 0);
+      const over = pres != null && g > pres;
+      const cls = pres == null ? "" : over ? "pasa" : (g >= pres * 0.85 ? "aviso" : "ok");
+      const estado = pres == null ? '<span class="estado">sin presupuesto</span>'
+        : over ? `<span class="estado neg">+${G.fmtEur(g - pres, 0)}</span>`
+          : `<span class="estado pos">${G.fmtEur(pres - g, 0)} libre</span>`;
+      return `<div class="presFila ${cls}">
+        <div class="cab"><b>${esc(c.categoria)}</b>
+          <span class="cifra">${G.fmtEur(g, 0)}${pres != null ? ` / ${G.fmtEur(pres, 0)}` : ""} ${estado}</span></div>
+        <div class="barra"><i style="width:${pct}%"></i></div></div>`;
+    };
+    $("#presBarras").innerHTML = (conPres.map(barra).join("")
+      + (sinPres.length ? '<p class="subt" style="margin:16px 0 8px">Sin presupuesto definido</p>' + sinPres.map(barra).join("") : ""))
+      || '<p class="subt">Aún no hay gastos este mes.</p>';
+    const pm = f.presupuestoMensual || 0, gm = f.esteMes.gastos;
+    $("#presSub").textContent = pm
+      ? `Gastado ${G.fmtEur(gm, 0)} de ${G.fmtEur(pm, 0)} presupuestados · ${G.fmtMes(f.meses[f.meses.length - 1])}`
+      : "Define un presupuesto por categoría en «Mis datos → Configuración» para ver si te pasas.";
   }
 
   /* Banner de alertas del cuadro de control (F4). */
@@ -1354,7 +1503,7 @@
       if (modo === "mapa") pintaEstructura(); else pintaDistribucion();
     }
     else if (pv === "rentabilidad") { pintaProyeccion(); pintaTabla(); pintaRendimiento(); }
-    else if (pv === "ingresos") pintaFlujosGraf();
+    else if (pv === "ingresos") pintaIngresos();
     else if (pv === "fiscal") pintaFiscal();
     else if (pv === "producto") pintaFondos();
     // Segmentos: sus callbacks redibujan la vista activa.
@@ -2030,6 +2179,9 @@
   if (location.protocol === "file:" && $("#btnPrecios")) $("#btnPrecios").hidden = true;
   document.querySelectorAll("#tabs button").forEach(b => { b.onclick = () => irA(b.dataset.tab); });
   document.querySelectorAll("#subtabs button").forEach(b => { b.onclick = () => irVista(b.dataset.pv); });
+  document.querySelectorAll("#igNav button").forEach(b => {
+    b.onclick = () => { estado.ig = b.dataset.ig; recuerda.guarda("patrimonio.ig", b.dataset.ig); pintaIngresos(); };
+  });
   function pasoPeriodo(d) {
     const rm = D.resumenMensual || [];
     if ((estado.periodo || "mes") === "anio") {

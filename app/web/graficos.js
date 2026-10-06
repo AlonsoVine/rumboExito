@@ -862,9 +862,128 @@
     cont.appendChild(svg);
   }
 
+  /* ==================================================
+     Cascada (waterfall): de los ingresos a lo que queda
+     ================================================== */
+  // cfg.items: [{nombre, valor, tipo}] con tipo "inicio" | "gasto" | "fin".
+  //   inicio: barra desde 0 hasta su valor (ingresos del mes).
+  //   gasto:  barra flotante que baja el acumulado (valor negativo).
+  //   fin:    barra desde 0 hasta el acumulado resultante (ahorro).
+  function cascada(cont, cfg) {
+    cont.innerHTML = "";
+    const items = (cfg.items || []).filter(it => it.tipo === "inicio" || it.tipo === "fin" || it.valor);
+    if (!items.length) { cont.innerHTML = '<p class="vacio">Sin datos.</p>'; return; }
+    const W = Math.max(cont.clientWidth, 300), H = cfg.alto || 300;
+    const P = { t: 22, r: 14, b: 62, l: 62 };
+    const iw = W - P.l - P.r, ih = H - P.t - P.b;
+    const fY = cfg.formatoY || (v => fmtEurCorto(v));
+    const fV = cfg.formatoValor || (v => fmtEurSigno(v));
+
+    let run = 0;
+    const segs = items.map(it => {
+      let s;
+      if (it.tipo === "inicio") { s = { it, desde: 0, hasta: it.valor, delta: it.valor }; run = it.valor; }
+      else if (it.tipo === "fin") { s = { it, desde: 0, hasta: run, delta: run }; }
+      else { const d = run; run += it.valor; s = { it, desde: d, hasta: run, delta: it.valor }; }
+      return s;
+    });
+    const vals = segs.flatMap(s => [s.desde, s.hasta]).concat([0]);
+    const esc = escalaBonita(Math.max(...vals), Math.min(...vals));
+    const max = esc.max, min = esc.min;
+    const y = v => P.t + ih - ((v - min) / (max - min)) * ih;
+
+    const cIng = css("--s6") || css("--bien") || "#1f9d72";
+    const cGas = css("--mal") || "#d6455d";
+    const cAho = run >= 0 ? (css("--s1") || "#2a78d6") : cGas;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, class: "grafico" });
+    for (let v = esc.min; v <= esc.max + 1e-9; v += esc.paso) {
+      svg.appendChild(el("line", { x1: P.l, x2: W - P.r, y1: y(v), y2: y(v), class: "rejilla" }));
+      svg.appendChild(txt(P.l - 8, y(v) + 4, fY(v), "ejeY", { "text-anchor": "end" }));
+    }
+    svg.appendChild(el("line", { x1: P.l, x2: W - P.r, y1: y(0), y2: y(0), class: "eje" }));
+    const tt = creaTooltip(cont);
+    const paso = iw / segs.length, ancho = Math.min(paso - 12, 56);
+    segs.forEach((s, i) => {
+      const x = P.l + paso * i + (paso - ancho) / 2;
+      const yTop = y(Math.max(s.desde, s.hasta)), yBot = y(Math.min(s.desde, s.hasta));
+      const alto = Math.max(2, yBot - yTop);
+      const fill = s.it.tipo === "inicio" ? cIng : s.it.tipo === "fin" ? cAho : cGas;
+      if (i > 0) {   // conector punteado al nivel del acumulado anterior
+        const yc = y(segs[i - 1].hasta);
+        svg.appendChild(el("line", { x1: P.l + paso * (i - 1) + (paso + ancho) / 2, x2: x, y1: yc, y2: yc, class: "cascConec" }));
+      }
+      const r = el("rect", { x, y: yTop, width: ancho, height: alto, rx: 3, fill, "fill-opacity": 0.9 });
+      svg.appendChild(r);
+      svg.appendChild(txt(x + ancho / 2, yTop - 6, fV(s.delta), "barValArriba", { "text-anchor": "middle" }));
+      svg.appendChild(txt(x + ancho / 2, H - P.b + 16, _recorta(s.it.nombre, paso + 16), "ejeX",
+        { "text-anchor": "middle", transform: `rotate(-18 ${x + ancho / 2} ${H - P.b + 16})` }));
+      r.addEventListener("pointerenter", () => {
+        tt.innerHTML = `<b>${escHtml(s.it.nombre)}</b><div class="ttTotal">${fV(s.delta)}</div>`
+          + (s.it.tipo === "gasto" ? `<table><tr><td>Queda</td><td>${fmtEur(s.hasta)}</td></tr></table>` : "");
+        tt.classList.add("on");
+      });
+      r.addEventListener("pointermove", e => {
+        const rr = cont.getBoundingClientRect();
+        colocaTooltip(tt, cont, e.clientX - rr.left, e.clientY - rr.top);
+      });
+      r.addEventListener("pointerleave", () => tt.classList.remove("on"));
+    });
+    cont.appendChild(svg);
+  }
+
+  /* ==================================================
+     Mapa de calor: filas (categorías) x columnas (meses)
+     ================================================== */
+  // cfg.filas: [{nombre, valores:[...]}]; cfg.columnas: [etiquetas]; cfg.color opcional.
+  function mapaCalor(cont, cfg) {
+    cont.innerHTML = "";
+    const filas = cfg.filas || [], cols = cfg.columnas || [];
+    if (!filas.length || !cols.length) { cont.innerHTML = '<p class="vacio">Sin datos.</p>'; return; }
+    const W = Math.max(cont.clientWidth, 300);
+    const anchoEtq = Math.min(Math.max(...filas.map(f => f.nombre.length)) * 6.5 + 12, W * 0.34);
+    const top = 24, cellH = cfg.cellH || 26, pad = 2;
+    const nc = cols.length;
+    const cellW = (W - anchoEtq - pad) / nc;
+    const H = top + filas.length * cellH + 6;
+    const base = cfg.color || css("--mal") || "#d6455d";
+    const fV = cfg.formatoValor || (v => fmtEur(v, 0));
+    const max = Math.max(1, ...filas.flatMap(f => f.valores.map(v => v || 0)));
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, class: "grafico" });
+    const tt = creaTooltip(cont);
+    cols.forEach((c, j) => {
+      if (nc <= 14 || j % 2 === 0) {
+        svg.appendChild(txt(anchoEtq + cellW * j + cellW / 2, top - 8, c, "ejeX", { "text-anchor": "middle" }));
+      }
+    });
+    filas.forEach((f, i) => {
+      const yy = top + i * cellH;
+      svg.appendChild(txt(anchoEtq - 8, yy + cellH / 2 + 1, _recorta(f.nombre, anchoEtq), "barEtq", { "text-anchor": "end" }));
+      f.valores.forEach((v, j) => {
+        const t = (v || 0) / max;
+        const rect = el("rect", {
+          x: anchoEtq + cellW * j + 1, y: yy + 1, width: Math.max(1, cellW - 2), height: cellH - 2, rx: 3,
+          fill: base, "fill-opacity": v ? (0.10 + 0.9 * t).toFixed(3) : 0,
+          stroke: v ? "none" : "var(--borde)", "stroke-opacity": 0.5, class: "hmCell"
+        });
+        svg.appendChild(rect);
+        rect.addEventListener("pointerenter", () => {
+          tt.innerHTML = `<b>${escHtml(f.nombre)}</b><div class="ttTotal">${fV(v || 0)}</div>
+            <table><tr><td>${escHtml(cols[j])}</td></tr></table>`;
+          tt.classList.add("on");
+        });
+        rect.addEventListener("pointermove", e => {
+          const rr = cont.getBoundingClientRect();
+          colocaTooltip(tt, cont, e.clientX - rr.left, e.clientY - rr.top);
+        });
+        rect.addEventListener("pointerleave", () => tt.classList.remove("on"));
+      });
+    });
+    cont.appendChild(svg);
+  }
+
   global.G = {
     fmtEur, fmtEurCorto, fmtPct, fmtPctSigno, fmtEurSigno, fmtFecha, fmtFechaCorta, fmtMes, nfNum: nfUnidades,
     areaApilada, lineaConEventos, barrasApiladas, donut, mini, escalaBonita, css,
-    barrasHorizontales, barrasSimples, multiLinea, barrasAgrupadas, treemap
+    barrasHorizontales, barrasSimples, multiLinea, barrasAgrupadas, treemap, cascada, mapaCalor
   };
 })(window);

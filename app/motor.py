@@ -1558,14 +1558,14 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
     def _bloque_tit(d):
         ing, gas = round(d["ingreso"], 2), round(d["gasto"], 2)
         return {"ingresos": ing, "gastos": gas, "ahorro": round(ing - gas, 2)}
-    por_titular = [{"titular": tit, "mes": _bloque_tit(tit_mes.get(tit, {"ingreso": 0.0, "gasto": 0.0})),
-                    "total12": _bloque_tit(d)} for tit, d in tit_12.items()]
-    por_titular.sort(key=lambda x: -(x["total12"]["ingresos"] + x["total12"]["gastos"]))
+    por_titular_fl = [{"titular": tit, "mes": _bloque_tit(tit_mes.get(tit, {"ingreso": 0.0, "gasto": 0.0})),
+                       "total12": _bloque_tit(d)} for tit, d in tit_12.items()]
+    por_titular_fl.sort(key=lambda x: -(x["total12"]["ingresos"] + x["total12"]["gastos"]))
 
     flujos_out = {"meses": meses_ig, "ingresos": ser_ing, "gastos": ser_gas,
                   "ahorro": ser_aho, "tasaAhorro": ser_tasa, "esteMes": este_mes_ig,
                   "anio": ano_ig, "media12": media12_ig, "porCategoria": por_categoria,
-                  "porTitular": por_titular,
+                  "porTitular": por_titular_fl,
                   "presupuestoMensual": presupuesto_mensual} if flujos_cfg else None
 
     # Cuota de deudas sobre ingresos: del mes en curso, o de la media si el mes no tiene ingresos.
