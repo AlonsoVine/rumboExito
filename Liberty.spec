@@ -12,6 +12,7 @@ a = Analysis(
         ("demo/cartera.json", "demo"),
         ("app/VERSION", "app"),
         ("app/prompt_ia.txt", "app"),
+        ("app/prompt_ia_banco.txt", "app"),
     ],
     hiddenimports=["openpyxl"],
     hookspath=[],

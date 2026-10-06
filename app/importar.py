@@ -24,6 +24,7 @@ from .motor import num_es, valor_en
 
 COLUMNAS = ["fecha", "identificador", "nombre", "tipo_producto", "tipo_movimiento",
             "unidades", "importe", "moneda", "comision", "nota"]
+COLUMNAS_BANCO = ["fecha", "concepto", "importe", "tipo", "categoria", "titular"]
 
 # Nombres alternativos que se aceptan en la cabecera.
 SINONIMOS = {
@@ -241,9 +242,11 @@ class Plan:
         self.productos_nuevos = []   # [{"ref": "nuevo:1", "datos": {...}, "precio": ..., "fecha": ...}]
         self.movimientos = []        # [{"fila", "producto" (id o ref), campos del movimiento, "marcas"}]
         self.valoraciones = []
+        self.flujos = []             # [{"fila", "fecha", "tipo", "importe", "categoria", "titular", "concepto"}]
         self.reemplazar = []         # [(producto id o ref, origen)]: se borran sus importados previos
         self.errores = []            # [{"fila", "mensaje"}]
         self.avisos = []
+        self.tipoImport = "activos"  # "activos" o "banco"
 
     def error(self, fila, mensaje):
         self.errores.append({"fila": fila, "mensaje": mensaje})
@@ -434,6 +437,165 @@ def preparar_myinvestor(cfg, archivos, carpeta):
     return plan
 
 
+# ---------------------------------------------------------------- banco (ingresos/gastos)
+
+# Cabeceras que se aceptan en el CSV/extracto del banco.
+SINONIMOS_BANCO = {
+    "fecha": ["fecha", "date", "fecha operacion", "fecha valor", "fecha contable", "f valor", "f operacion", "fecha de la operacion"],
+    "concepto": ["concepto", "descripcion", "description", "detalle", "movimiento", "beneficiario",
+                 "nombre", "referencia", "observaciones", "concepto de la operacion"],
+    "importe": ["importe", "amount", "cantidad", "importe eur", "importe (eur)", "total"],
+    "cargo": ["cargo", "cargos", "debe", "gasto", "salida", "pago", "retiro", "debito"],
+    "abono": ["abono", "abonos", "haber", "ingreso", "entrada", "cobro", "credito"],
+    "tipo": ["tipo", "tipo movimiento", "tipo de movimiento", "ingreso/gasto"],
+    "categoria": ["categoria", "category", "categoría"],
+    "titular": ["titular", "titulares", "cuenta", "owner"],
+}
+
+# Palabra clave en el concepto -> nombre de categoría. Se aplica solo si esa categoría
+# existe en la configuración del usuario (del tipo correcto); si no, se deja sin categoría.
+REGLAS_CATEGORIA = {
+    "gasto": {
+        "Alimentación": ["mercadona", "carrefour", "lidl", "aldi", " dia ", "consum", "eroski", "alcampo",
+                         "supermercado", "super ", "fruteria", "panaderia", "carniceria", "hipercor", "ahorramas"],
+        "Transporte": ["gasolinera", "repsol", "cepsa", " bp ", "shell", "galp", "renfe", "metro", " emt ",
+                       "taxi", "cabify", "uber", "parking", "aparcamiento", "autopista", "peaje", "dgt", " itv ", "bicimad"],
+        "Ocio y restaurantes": ["restaurante", "bar ", "cafeteria", "cafe ", "netflix", "spotify", " hbo", "disney",
+                                "cine", "amazon prime", "mcdonald", "burger", "telepizza", "dominos", "glovo",
+                                "just eat", "uber eats", "steam", "playstation", "gimnasio", "decathlon"],
+        "Vivienda": ["alquiler", "hipoteca", "comunidad", "administrador de fincas", " ibi", "seguro hogar"],
+        "Suministros": ["iberdrola", "endesa", "naturgy", "movistar", "vodafone", "orange", "masmovil", "yoigo",
+                        "digi", "agua", "canal de isabel", "gas natural", "electricidad", "fibra", "internet", "luz "],
+        "Salud": ["farmacia", "clinica", "dentista", "hospital", "sanitas", "adeslas", " dkv", "optica", "seguro de salud"],
+    },
+    "ingreso": {
+        "Nómina": ["nomina", "nómina", "salario", "paga", "transferencia nomina", "haberes"],
+        "Alquileres cobrados": ["alquiler cobrado", "renta", "arrendamiento"],
+        "Intereses y dividendos": ["intereses", "interes", "dividendo", "dividendos", "cupon", "rendimiento"],
+    },
+}
+
+
+def leer_tabla_banco(nombre, contenido):
+    """Extracto del banco (Excel, CSV o texto pegado) -> [(fila, {columna: valor})].
+    Flexible: reconoce fecha + (importe con signo, o columnas cargo/abono) + concepto."""
+    if nombre and nombre.lower().endswith((".xlsx", ".xlsm")):
+        from openpyxl import load_workbook
+        libro = load_workbook(io.BytesIO(contenido), data_only=True, read_only=True)
+        hoja = libro["Movimientos"] if "Movimientos" in libro.sheetnames else libro.worksheets[0]
+        filas = [list(f) for f in hoja.iter_rows(values_only=True)]
+    else:
+        texto = decodifica(contenido)
+        texto = re.sub(r"^\s*```[a-zA-Z]*\s*$", "", texto, flags=re.M).strip()
+        lineas = [l for l in texto.splitlines() if l.strip()]
+        if not lineas:
+            return [], "El texto está vacío."
+        delim = max([";", "\t", ","], key=lineas[0].count)
+        filas = list(csv.reader(io.StringIO("\n".join(lineas)), delimiter=delim))
+    filas = [(n, f) for n, f in enumerate(filas, start=1)
+             if f and any(c not in (None, "") and str(c).strip() for c in f)]
+    if not filas:
+        return [], "No hay ninguna fila con datos."
+    cab = [sin_tildes(c) for c in filas[0][1]]
+    idx = {}
+    for col, alias in SINONIMOS_BANCO.items():
+        for i, c in enumerate(cab):
+            if c in alias and i not in idx.values():
+                idx[col] = i
+                break
+    if "fecha" not in idx:
+        return [], ("No encuentro la columna de la fecha. La primera fila tiene que ser la cabecera; "
+                    "lo normal en un extracto es: Fecha; Concepto; Importe.")
+    if "importe" not in idx and not ("cargo" in idx or "abono" in idx):
+        return [], ("No encuentro la columna del importe (ni «cargo»/«abono»). Añade una columna «importe» "
+                    "con el signo (negativo = gasto) o deja las de cargo y abono de tu banco.")
+    if len(filas) < 2:
+        return [], "Solo hay cabecera: debajo deben ir tus movimientos del banco, uno por fila."
+    salida = [(n, {col: (f[i] if i < len(f) else None) for col, i in idx.items()}) for n, f in filas[1:]]
+    return salida, None
+
+
+def _importe_banco(f):
+    """Devuelve (tipo, importe_positivo) a partir de la fila. tipo = 'ingreso'/'gasto'.
+    Usa la columna 'tipo' si existe; si no, el signo del importe, o cargo/abono."""
+    imp = lee_numero_con_signo(f.get("importe"))
+    tipo_col = sin_tildes(f.get("tipo"))
+    if imp == "error":
+        return None, "error"
+    if imp is None:
+        cargo = lee_numero(f.get("cargo"))
+        abono = lee_numero(f.get("abono"))
+        if "error" in (cargo, abono):
+            return None, "error"
+        if abono:
+            return "ingreso", abs(abono)
+        if cargo:
+            return "gasto", abs(cargo)
+        return None, None
+    if tipo_col in ("ingreso", "ingresos", "abono", "haber", "entrada"):
+        return "ingreso", abs(imp)
+    if tipo_col in ("gasto", "gastos", "cargo", "debe", "salida", "pago"):
+        return "gasto", abs(imp)
+    # Sin columna de tipo: el signo manda (negativo = gasto).
+    return ("gasto" if imp < 0 else "ingreso"), abs(imp)
+
+
+def lee_numero_con_signo(v):
+    """Como lee_numero pero CONSERVANDO el signo (para el importe del banco)."""
+    if v is None or (isinstance(v, str) and not v.strip()):
+        return None
+    if isinstance(v, (int, float)):
+        return float(v)
+    t = str(v).strip().replace("€", "").replace("$", "").replace(" ", "")
+    neg = t.startswith("-") or (t.startswith("(") and t.endswith(")"))
+    t = t.lstrip("+-").strip("()")
+    if not re.fullmatch(r"[\d.,]+", t):
+        return "error"
+    n = num_es(t)
+    return -n if neg else n
+
+
+def _categoria_auto(concepto, tipo, cats_del_tipo):
+    """Asigna una categoría por palabra clave, solo si existe en la config del usuario."""
+    disponibles = {sin_tildes(c): c for c in cats_del_tipo}
+    conc = " " + sin_tildes(concepto) + " "
+    for cat, claves in REGLAS_CATEGORIA.get(tipo, {}).items():
+        if sin_tildes(cat) in disponibles and any(sin_tildes(k) in conc for k in claves):
+            return disponibles[sin_tildes(cat)]
+    return ""
+
+
+def preparar_banco(cfg, filas):
+    """Extracto del banco -> Plan con flujos (ingresos/gastos)."""
+    plan = Plan()
+    plan.tipoImport = "banco"
+    cats = (cfg.get("config") or {}).get("categorias") or []
+    por_tipo = {"ingreso": [c["nombre"] for c in cats if c.get("tipo") == "ingreso"],
+                "gasto": [c["nombre"] for c in cats if c.get("tipo") == "gasto"]}
+    titulares = cfg.get("titulares") or []
+    for n, f in filas:
+        fecha = lee_fecha(f.get("fecha"))
+        if not fecha:
+            plan.error(n, f"La fecha «{f.get('fecha') or ''}» no es válida. Usa 2025-03-10 o 10/03/2025.")
+            continue
+        tipo, importe = _importe_banco(f)
+        if importe == "error":
+            plan.error(n, "El importe no se entiende.")
+            continue
+        if not tipo or not importe:
+            plan.error(n, "La fila no tiene importe (ni cargo/abono).")
+            continue
+        concepto = str(f.get("concepto") or "").strip()
+        cat_dada = str(f.get("categoria") or "").strip()
+        disp = {sin_tildes(c): c for c in por_tipo.get(tipo, [])}
+        categoria = disp.get(sin_tildes(cat_dada), "") if cat_dada else _categoria_auto(concepto, tipo, por_tipo.get(tipo, []))
+        tit = str(f.get("titular") or "").strip()
+        titular = next((t for t in titulares if sin_tildes(t) == sin_tildes(tit)), tit if tit else "")
+        plan.flujos.append({"fila": n, "fecha": fecha, "tipo": tipo, "importe": round(abs(importe), 2),
+                            "categoria": categoria, "titular": titular, "concepto": concepto[:120]})
+    return plan
+
+
 # ---------------------------------------------------------------- aplicar
 
 def aplicar(cfg, plan):
@@ -488,12 +650,41 @@ def aplicar(cfg, plan):
         except almacen.ErrorValidacion as e:
             errores.append({"fila": v["fila"], "mensaje": " ".join(e.errores)})
 
+    # Flujos del banco (ingresos y gastos). Dedup por fecha+tipo+importe+concepto.
+    def firma_fl(fl):
+        return (fl["fecha"], fl["tipo"], round(float(fl.get("importe") or 0), 2),
+                (fl.get("nota") or fl.get("concepto") or "")[:60].strip().lower())
+    flujos_existentes = {firma_fl(x) for x in cfg.get("flujos", [])}
+    flujos_add, flujos_rep, flujos_filas = 0, 0, []
+    for fl in plan.flujos:
+        datos = {"fecha": fl["fecha"], "tipo": fl["tipo"], "importe": fl["importe"],
+                 "categoria": fl.get("categoria") or "", "titular": fl.get("titular") or "",
+                 "nota": fl.get("concepto") or ""}
+        estado = "nuevo"
+        if firma_fl(fl) in flujos_existentes:
+            flujos_rep += 1
+            estado = "repetido"
+        else:
+            try:
+                almacen.guarda_flujo(cfg, datos)
+                flujos_existentes.add(firma_fl(fl))
+                flujos_add += 1
+            except almacen.ErrorValidacion as e:
+                errores.append({"fila": fl["fila"], "mensaje": " ".join(e.errores)})
+                estado = "error"
+        flujos_filas.append({"fila": fl["fila"], "fecha": fl["fecha"], "tipo": fl["tipo"],
+                             "categoria": fl.get("categoria") or "", "concepto": fl.get("concepto") or "",
+                             "importe": fl["importe"], "estado": estado})
+
     def total(t):
         return round(sum(f["importe"] for f in filas if f["tipo"] == t and f["estado"] == "nuevo"), 2)
     nombres = {p["id"]: p.get("corto") or p["nombre"] for p in cfg["productos"]}
     for f in filas:
         f["productoNombre"] = nombres.get(f["producto"], f["producto"])
+    def total_fl(t):
+        return round(sum(f["importe"] for f in flujos_filas if f["tipo"] == t and f["estado"] == "nuevo"), 2)
     return {
+        "tipoImport": plan.tipoImport,
         "añadidos": añadidos, "repetidos": duplicados, "saldos": saldos, "sustituidos": sustituidos,
         "errores": sorted(errores, key=lambda e: (str(type(e["fila"])), str(e["fila"]).zfill(6))),
         "avisos": plan.avisos,
@@ -504,6 +695,11 @@ def aplicar(cfg, plan):
                              "monedaPrecio": n["monedaPrecio"], "fechaPrecio": n["fecha"],
                              "mercado": n["mercado"]} for n in plan.productos_nuevos],
         "filas": sorted(filas, key=lambda f: f["fecha"], reverse=True),
+        "flujosAñadidos": flujos_add, "flujosRepetidos": flujos_rep,
+        "flujosFilas": sorted(flujos_filas, key=lambda f: f["fecha"], reverse=True),
+        "totalesBanco": {"ingresos": total_fl("ingreso"), "gastos": total_fl("gasto"),
+                         "numIngresos": sum(1 for f in flujos_filas if f["tipo"] == "ingreso" and f["estado"] == "nuevo"),
+                         "numGastos": sum(1 for f in flujos_filas if f["tipo"] == "gasto" and f["estado"] == "nuevo")},
     }
 
 

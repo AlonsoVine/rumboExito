@@ -7,11 +7,12 @@ plantilla.py  ·  La plantilla de importación, en Excel y en CSV
 import datetime as dt
 import io
 
-from .importar import COLUMNAS
+from .importar import COLUMNAS, COLUMNAS_BANCO
 
 TIPOS_PRODUCTO = ["fondo", "etf", "accion", "cripto", "commodity", "bono", "pension",
                   "efectivo", "inmueble", "deuda", "otro"]
 TIPOS_MOVIMIENTO = ["compra", "venta", "dividendo", "comision", "saldo"]
+TIPOS_FLUJO = ["ingreso", "gasto"]
 
 EXPLICACION = [
     ("fecha", "Sí", "Día de la operación. Por ejemplo 10/03/2025."),
@@ -91,6 +92,95 @@ def excel():
         for k, v in cab_estilo.items():
             setattr(c, k, v)
     for fila in EXPLICACION:
+        ins.append(list(fila))
+    for fila in ins.iter_rows(min_row=5):
+        for c in fila:
+            c.alignment = Alignment(wrap_text=True, vertical="top")
+
+    salida = io.BytesIO()
+    libro.save(salida)
+    return salida.getvalue()
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  Plantilla del banco (ingresos y gastos → flujos)
+# ─────────────────────────────────────────────────────────────────────────────
+
+EXPLICACION_BANCO = [
+    ("fecha", "Sí", "Día del movimiento en tu cuenta. Por ejemplo 10/03/2025."),
+    ("concepto", "Sí", "La descripción que pone el banco. Por ejemplo «Nómina ACME S.L.» o «Compra MERCADONA»."),
+    ("importe", "Sí", "Dinero del movimiento. Negativo (o entre paréntesis) si es un gasto, positivo si es un ingreso. "
+                      "Alternativa: déjalo con signo y no hace falta rellenar «tipo»."),
+    ("tipo", "No", "ingreso o gasto. Si lo dejas vacío, se deduce del signo del importe (negativo = gasto)."),
+    ("categoria", "No", "Tu categoría (Alimentación, Nómina, Ocio…). Si la dejas vacía, la app intenta adivinarla por el "
+                        "concepto; luego podrás revisarla antes de confirmar."),
+    ("titular", "No", "A quién corresponde el movimiento. Si lo dejas vacío, queda sin asignar."),
+]
+EJEMPLO_BANCO = [
+    (dt.date(2025, 3, 25), "Nómina ACME S.L.", 2100, "ingreso", "Nómina", "Yo"),
+    (dt.date(2025, 3, 3), "Compra MERCADONA", -84.30, "gasto", "Alimentación", "Común"),
+    (dt.date(2025, 3, 5), "Recibo IBERDROLA", -61.20, "gasto", "Suministros", "Común"),
+    (dt.date(2025, 3, 10), "Transferencia alquiler trastero", 150, "ingreso", "Alquileres cobrados", "Yo"),
+    (dt.date(2025, 3, 18), "Pago restaurante", -43.5, "gasto", "Ocio y restaurantes", "Novia"),
+]
+
+
+def csv_vacio_banco():
+    return (";".join(COLUMNAS_BANCO) + "\n").encode("utf-8-sig")
+
+
+def excel_banco():
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font, PatternFill
+    from openpyxl.worksheet.datavalidation import DataValidation
+
+    libro = Workbook()
+    cab_estilo = dict(font=Font(bold=True, color="FFFFFF"), fill=PatternFill("solid", fgColor="2A78D6"),
+                      alignment=Alignment(vertical="center"))
+    anchos = [13, 36, 13, 10, 22, 14]
+
+    def prepara(hoja, filas):
+        hoja.append(COLUMNAS_BANCO)
+        for c in hoja[1]:
+            for k, v in cab_estilo.items():
+                setattr(c, k, v)
+        for i, a in enumerate(anchos):
+            hoja.column_dimensions[chr(65 + i)].width = a
+        hoja.row_dimensions[1].height = 22
+        hoja.freeze_panes = "A2"
+        for f in filas:
+            hoja.append(list(f))
+        for fila in hoja.iter_rows(min_row=2, max_row=max(hoja.max_row, 500)):
+            fila[0].number_format = "DD/MM/YYYY"
+            fila[2].number_format = "#,##0.00"
+
+    hoja = libro.active
+    hoja.title = "Movimientos"
+    prepara(hoja, [])
+    dv = DataValidation(type="list", formula1='"' + ",".join(TIPOS_FLUJO) + '"', allow_blank=True,
+                        showErrorMessage=True, errorTitle="Valor no válido",
+                        error="Elige ingreso o gasto.")
+    dv.add("D2:D2000")
+    hoja.add_data_validation(dv)
+
+    ej = libro.create_sheet("Ejemplo")
+    prepara(ej, EJEMPLO_BANCO)
+
+    ins = libro.create_sheet("Instrucciones")
+    ins.column_dimensions["A"].width = 14
+    ins.column_dimensions["B"].width = 16
+    ins.column_dimensions["C"].width = 100
+    ins.append(["Cómo rellenar la hoja «Movimientos» del banco"])
+    ins["A1"].font = Font(bold=True, size=14)
+    ins.append(["Una fila por movimiento de tu cuenta (ingresos y gastos). Mira la hoja «Ejemplo». La mayoría de bancos "
+                "permiten exportar los movimientos a Excel o CSV: pégalos aquí ajustando las columnas. Cuando termines, "
+                "guarda el archivo e impórtalo desde la app: Mis datos → Importar → Datos del banco → Plantilla."])
+    ins.append([])
+    ins.append(["Columna", "¿Obligatoria?", "Qué poner"])
+    for c in ins[4]:
+        for k, v in cab_estilo.items():
+            setattr(c, k, v)
+    for fila in EXPLICACION_BANCO:
         ins.append(list(fila))
     for fila in ins.iter_rows(min_row=5):
         for c in fila:

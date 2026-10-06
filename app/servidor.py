@@ -461,6 +461,7 @@ def api_importar_previsualizar():
     if modo() == "demo":
         return jsonify(ok=False, errores=[AVISO_DEMO]), 403
     origen = request.form.get("origen")
+    destino = request.form.get("destino") or "activos"   # "activos" o "banco"
     archivos = [(f.filename, f.read()) for f in request.files.getlist("archivos") if f.filename]
     texto = (request.form.get("texto") or "").strip()
     # Solo la lectura de la cartera necesita el cerrojo. La preparación del plan baja
@@ -468,7 +469,17 @@ def api_importar_previsualizar():
     with cerrojo:
         cfg = almacen.carga(os.path.join(carpeta(), "cartera.json"))
     dir_datos = carpeta()
-    if origen == "myinvestor":
+    if destino == "banco":
+        if not archivos and not texto:
+            return jsonify(ok=False, errores=["Sube el CSV del banco (o tu plantilla) o pega el texto."]), 400
+        filas, error = [], None
+        for nombre, contenido in archivos or [("pegado.csv", texto)]:
+            leidas, error = importar.leer_tabla_banco(nombre, contenido)
+            if error:
+                return jsonify(ok=False, errores=[f"{nombre}: {error}" if archivos else error]), 400
+            filas += leidas
+        plan = importar.preparar_banco(cfg, filas)
+    elif origen == "myinvestor":
         if not archivos:
             return jsonify(ok=False, errores=["Elige los archivos CSV que has descargado de MyInvestor."]), 400
         plan = importar.preparar_myinvestor(cfg, archivos, dir_datos)
@@ -491,9 +502,17 @@ def api_importar_previsualizar():
 
 @app.post("/api/importar/confirmar")
 def api_importar_confirmar():
-    plan = PLANES.pop((request.get_json(silent=True) or {}).get("token"), None)
+    cuerpo = request.get_json(silent=True) or {}
+    plan = PLANES.pop(cuerpo.get("token"), None)
     if plan is None:
         return jsonify(ok=False, errores=["Esa vista previa ya no vale: vuelve a revisar el archivo."]), 400
+    # El usuario puede haber corregido categorías en la vista previa (banco): {fila: categoria}.
+    cambios_cat = cuerpo.get("categorias") or {}
+    if cambios_cat and getattr(plan, "flujos", None):
+        for fl in plan.flujos:
+            key = str(fl.get("fila"))
+            if key in cambios_cat:
+                fl["categoria"] = str(cambios_cat[key] or "")[:40]
     informe = {}
 
     def fn(cfg):
@@ -503,7 +522,8 @@ def api_importar_confirmar():
     if isinstance(respuesta, tuple):
         return respuesta
     datos = respuesta.get_json()
-    datos["informe"] = {k: informe.get(k, 0) for k in ("añadidos", "repetidos", "saldos", "sustituidos")}
+    datos["informe"] = {k: informe.get(k, 0) for k in
+                        ("añadidos", "repetidos", "saldos", "sustituidos", "flujosAñadidos", "flujosRepetidos")}
     return jsonify(datos)
 
 
@@ -519,9 +539,27 @@ def api_plantilla_csv():
                     headers={"Content-Disposition": 'attachment; filename="plantilla_patrimonio.csv"'})
 
 
+@app.get("/api/plantilla-banco.xlsx")
+def api_plantilla_banco_xlsx():
+    return Response(plantilla.excel_banco(), headers={"Content-Disposition": 'attachment; filename="plantilla_banco.xlsx"'},
+                    mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@app.get("/api/plantilla-banco.csv")
+def api_plantilla_banco_csv():
+    return Response(plantilla.csv_vacio_banco(), mimetype="text/csv",
+                    headers={"Content-Disposition": 'attachment; filename="plantilla_banco.csv"'})
+
+
 @app.get("/api/prompt")
 def api_prompt():
     with open(os.path.join(RAIZ, "app", "prompt_ia.txt"), encoding="utf-8") as f:
+        return jsonify(texto=f.read())
+
+
+@app.get("/api/prompt-banco")
+def api_prompt_banco():
+    with open(os.path.join(RAIZ, "app", "prompt_ia_banco.txt"), encoding="utf-8") as f:
         return jsonify(texto=f.read())
 
 

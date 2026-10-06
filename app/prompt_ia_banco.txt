@@ -1,0 +1,20 @@
+Convierte los movimientos de mi cuenta bancaria (el texto que pego al final, o los PDF o capturas de pantalla que adjunto) en una tabla para importar mis ingresos y gastos en mi app de patrimonio. Lee con cuidado la fecha, el concepto y el importe de cada movimiento.
+
+Devuélveme SOLO un CSV dentro de un bloque de código, sin explicaciones, separado por punto y coma (;) y con esta cabecera exacta:
+fecha;concepto;importe;tipo;categoria;titular
+
+Reglas para cada columna:
+- fecha: la fecha del movimiento, en formato AAAA-MM-DD.
+- concepto: la descripción del movimiento tal y como aparece en el banco (por ejemplo «Nómina ACME S.L.» o «Compra MERCADONA»).
+- importe: el dinero del movimiento, con punto decimal y sin símbolo de moneda. Negativo si es un gasto (dinero que sale) y positivo si es un ingreso (dinero que entra).
+- tipo: la palabra ingreso o gasto. Debe ser coherente con el signo del importe.
+- categoria: clasifica el movimiento con una categoría corta y en español. Para gastos usa por ejemplo: Alimentación, Transporte, Ocio y restaurantes, Vivienda, Suministros, Salud. Para ingresos usa por ejemplo: Nómina, Alquileres cobrados, Intereses y dividendos. Si no lo tienes claro, déjalo vacío.
+- titular: déjalo vacío (lo asignaré yo en la app).
+
+Importante:
+- Una fila por movimiento, ordenadas por fecha.
+- No inventes nada: si un dato no aparece, deja esa casilla vacía.
+- NO incluyas compras o ventas de inversiones, aportaciones a fondos, traspasos entre tus propias cuentas ni el saldo de la cuenta: eso son activos y van por la otra importación. Aquí solo van los ingresos y gastos del día a día.
+
+MOVIMIENTOS:
+[Pega aquí tus movimientos o adjunta los PDF o capturas. ANTES, BORRA o tapa tu nombre, DNI, IBAN, números de cuenta y tarjeta, dirección y cualquier dato personal: solo hacen falta fechas, conceptos e importes.]
