@@ -517,6 +517,18 @@ def guarda_config(cfg, datos):
                     valores.append(x)
             dims.append({"id": did, "nombre": nombre, "valores": valores})
         conf["dimensiones"] = dims
+    if "reglasCategoria" in datos:
+        # Reglas propias para auto-categorizar la importación del banco: si el concepto
+        # del movimiento contiene «palabra», se le asigna «categoria» (si existe para
+        # su tipo). Prevalecen sobre las reglas que trae la app por defecto.
+        reglas, vistos = [], set()
+        for it in (datos.get("reglasCategoria") or [])[:200]:
+            palabra = texto((it or {}).get("palabra"), 40).lower()
+            categoria = texto((it or {}).get("categoria"), 40)
+            if palabra and categoria and palabra not in vistos:
+                vistos.add(palabra)
+                reglas.append({"palabra": palabra, "categoria": categoria})
+        conf["reglasCategoria"] = reglas
     if "inflacion" in datos:
         # Inflación anual (%) para la línea de referencia de la evolución. Se guarda
         # como fracción (2,5 % -> 0.025). Vacío = sin valor por defecto.

@@ -729,6 +729,13 @@
       </div>
       <p class="ayuda">Aparecen en el desplegable al anotar. En los gastos puedes añadir un presupuesto mensual con
         «= importe» (p. ej. <code>Alimentación = 600</code>); el Panel te dirá si te pasas. Si las dejas vacías, escribes la categoría a mano.</p>
+      ${seccion("Reglas para categorizar el banco")}
+      <div class="rejilla">
+        ${campo("Una regla por línea: «palabra = Categoría»", '<textarea name="reglasCat" rows="4" placeholder="mercadona = Alimentación\niberdrola = Suministros\nnetflix = Ocio y restaurantes"></textarea>', "", "ancho")}
+      </div>
+      <p class="ayuda">Al <b>importar movimientos del banco</b>, si el concepto contiene esa palabra se asigna esa categoría
+        (si existe y es del tipo correcto). Tienen prioridad sobre las que trae la app. Al importar puedes marcar
+        «recordar mis correcciones» y se añaden aquí solas.</p>
       ${seccion("Dimensiones de clasificación")}
       <div class="rejilla">
         ${campo("Una dimensión por línea: «Nombre: valor1, valor2, …»", '<textarea name="dimensiones" rows="4" placeholder="Clase de activo: Renta variable, Renta fija, Liquidez, Alternativos\nGeografía: Global, EEUU, Europa, Emergentes"></textarea>', "", "ancho")}
@@ -758,6 +765,10 @@
         return o;
       }).filter(o => o.nombre);
       const categorias = lineas("catIng").map(n => ({ nombre: n, tipo: "ingreso" })).concat(catGas);
+      const reglasCategoria = lineas("reglasCat").map(l => {
+        const i = l.indexOf("=");
+        return i < 0 ? null : { palabra: l.slice(0, i).trim(), categoria: l.slice(i + 1).trim() };
+      }).filter(r => r && r.palabra && r.categoria);
       const dimensiones = lineas("dimensiones").map(l => {
         const i = l.indexOf(":");
         const nombre = (i >= 0 ? l.slice(0, i) : l).trim();
@@ -775,7 +786,7 @@
         diasAviso: d.diasAviso,
         diasSinAnotar: d.diasSinAnotar,
         buscarActualizaciones: f.elements.buscarActualizaciones.checked,
-        objetivos, monedas, categorias, dimensiones,
+        objetivos, monedas, categorias, dimensiones, reglasCategoria,
       });
       // El nombre sale en el selector de arriba: recargar para que se vea al momento.
       location.reload();
@@ -802,6 +813,8 @@
       .map(c => c.presupuesto != null ? `${c.nombre} = ${c.presupuesto}` : c.nombre).join("\n");
     f.elements.dimensiones.value = (conf.dimensiones || [])
       .map(dm => (dm.valores || []).length ? `${dm.nombre}: ${dm.valores.join(", ")}` : dm.nombre).join("\n");
+    f.elements.reglasCat.value = (conf.reglasCategoria || [])
+      .map(r => `${r.palabra} = ${r.categoria}`).join("\n");
     return f;
   }
 
@@ -1288,7 +1301,10 @@
       ${filas ? `<div class="tablaEnv alto" style="margin-top:16px"><table class="dt"><thead><tr><th>Fecha</th>
         <th style="text-align:left">Concepto</th><th>Tipo</th><th style="text-align:left">Categoría</th><th>Importe</th>
         <th>Estado</th></tr></thead><tbody>${filas}</tbody></table></div>` : ""}
-      <div class="imAcc"><button class="btn" data-acc="imCancelar">Cancelar</button><span class="sp"></span>
+      <div class="imAcc"><button class="btn" data-acc="imCancelar">Cancelar</button>
+        <label class="imRecordar" title="Guarda tus categorías como reglas para la próxima importación">
+          <input type="checkbox" id="imRecordar" checked> Recordar mis correcciones</label>
+        <span class="sp"></span>
         <button class="btn prim" data-acc="imConfirmar" id="imConfirmarBtn"${n ? "" : " disabled"}>
           ${n ? `Importar ${n} ${n === 1 ? "movimiento" : "movimientos"}` : "No hay nada nuevo que importar"}</button></div></section>`;
   }
@@ -1299,7 +1315,11 @@
     b.textContent = "Importando…";
     try {
       const cuerpo = { token: IMP.token };
-      if (IMP.informe && IMP.informe.tipoImport === "banco") cuerpo.categorias = IMP.cats;
+      if (IMP.informe && IMP.informe.tipoImport === "banco") {
+        cuerpo.categorias = IMP.cats;
+        const rec = $("#imRecordar");
+        cuerpo.recordar = rec ? rec.checked : false;
+      }
       const j = await api("POST", "api/importar/confirmar", cuerpo);
       E.cfg = j.cartera;
       window.EDITOR_SUCIO = true;
@@ -1307,7 +1327,8 @@
       const pl = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
       if (IMP.informe && IMP.informe.tipoImport === "banco") {
         IMP.hecho = "Importado: " + (pl(i.flujosAñadidos || 0, "movimiento del banco", "movimientos del banco")) +
-          (i.flujosRepetidos ? `. ${pl(i.flujosRepetidos, "ya estaba y se ha omitido", "ya estaban y se han omitido")}` : "") + ".";
+          (i.flujosRepetidos ? `. ${pl(i.flujosRepetidos, "ya estaba y se ha omitido", "ya estaban y se han omitido")}` : "") + "." +
+          (i.reglasAprendidas ? ` Aprendí ${pl(i.reglasAprendidas, "regla de categoría", "reglas de categoría")} para la próxima vez.` : "");
       } else {
         IMP.hecho = "Importado: " + [i.añadidos && pl(i.añadidos, "movimiento", "movimientos"),
           i.saldos && pl(i.saldos, "saldo", "saldos")].filter(Boolean).join(" y ") +

@@ -521,9 +521,12 @@ def api_importar_confirmar():
             key = str(fl.get("fila"))
             if key in cambios_cat:
                 fl["categoria"] = str(cambios_cat[key] or "")[:40]
+    aprender = bool(cuerpo.get("recordar")) and cambios_cat and getattr(plan, "flujos", None)
     informe = {}
 
     def fn(cfg):
+        if aprender:
+            informe["reglasAprendidas"] = importar.aprende_reglas(cfg, plan, cambios_cat)
         informe.update(importar.aplicar(cfg, plan))
         return None
     respuesta = cambia(fn)
@@ -531,7 +534,8 @@ def api_importar_confirmar():
         return respuesta
     datos = respuesta.get_json()
     datos["informe"] = {k: informe.get(k, 0) for k in
-                        ("añadidos", "repetidos", "saldos", "sustituidos", "flujosAñadidos", "flujosRepetidos")}
+                        ("añadidos", "repetidos", "saldos", "sustituidos", "flujosAñadidos",
+                         "flujosRepetidos", "reglasAprendidas")}
     return jsonify(datos)
 
 

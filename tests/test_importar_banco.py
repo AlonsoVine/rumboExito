@@ -130,3 +130,39 @@ def test_sin_columna_importe_ni_cargo_abono_falla():
     filas, error = importar.leer_tabla_banco("x.csv", "fecha;concepto\n2025-03-01;Algo\n")
     assert error is not None
     assert "importe" in error.lower()
+
+
+# ---------------------------------------------------------------- reglas de categoría propias
+
+def test_regla_usuario_tiene_prioridad():
+    cfg = cfg_con_categorias()
+    # Regla propia: "lidl" -> Alimentación (existe como gasto). Sin regla no habría match.
+    cfg["config"]["reglasCategoria"] = [{"palabra": "lidl", "categoria": "Alimentación"}]
+    plan = prepara(cfg, "fecha;concepto;importe\n2025-03-03;Compra LIDL centro;-30\n")
+    assert plan.flujos[0]["categoria"] == "Alimentación"
+
+
+def test_regla_usuario_solo_si_categoria_existe_del_tipo():
+    cfg = cfg_con_categorias()
+    # La regla apunta a una categoría que no existe en la config -> no se aplica.
+    cfg["config"]["reglasCategoria"] = [{"palabra": "peluqueria", "categoria": "Peluquería"}]
+    plan = prepara(cfg, "fecha;concepto;importe\n2025-03-03;PELUQUERIA Ana;-25\n")
+    assert plan.flujos[0]["categoria"] == ""
+
+
+def test_palabra_clave_ignora_genericas():
+    assert importar.palabra_clave("Compra MERCADONA centro") == "mercadona"
+    assert importar.palabra_clave("Pago TARJETA") == ""   # solo palabras genéricas
+
+
+def test_aprende_reglas_de_correcciones():
+    cfg = cfg_con_categorias()
+    plan = prepara(cfg, "fecha;concepto;importe\n2025-03-03;Compra DECATHLON;-60\n")
+    # El usuario corrige la fila 2 (la de datos) a "Ocio y restaurantes"... que no existe aquí;
+    # usamos una que sí: añadimos la categoría y corregimos.
+    cfg["config"]["categorias"].append({"nombre": "Ocio y restaurantes", "tipo": "gasto"})
+    fila = plan.flujos[0]["fila"]
+    n = importar.aprende_reglas(cfg, plan, {str(fila): "Ocio y restaurantes"})
+    assert n == 1
+    reglas = cfg["config"]["reglasCategoria"]
+    assert {"palabra": "decathlon", "categoria": "Ocio y restaurantes"} in reglas
