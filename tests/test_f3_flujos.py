@@ -130,6 +130,39 @@ def test_motor_presupuesto_por_categoria(tmp_path):
     assert d["flujos"]["presupuestoMensual"] == 700.0
 
 
+def test_motor_serie_mensual_por_categoria(tmp_path):
+    d = motor.construir(_cartera_con_flujos(), str(tmp_path), descargar=False)
+    fl = d["flujos"]
+    viv = next(c for c in fl["porCategoria"] if c["categoria"] == "Vivienda")
+    assert len(viv["serie"]) == 12
+    # meses_ig acaba en 2024-06 (índice 11) y el anterior es 2024-05 (índice 10).
+    assert viv["serie"][10] == 1000.0   # gasto de mayo
+    assert viv["serie"][11] == 1500.0   # gasto de junio
+    assert sum(viv["serie"]) == viv["total12"]
+
+
+def test_motor_desglose_por_titular(tmp_path):
+    cartera = {
+        "version": 1,
+        "titulares": ["Yo", "Novia"],
+        "productos": [{"id": "c", "nombre": "Caja", "corto": "Caja", "tipo": "efectivo",
+                       "fuente": "manual", "slot": 1}],
+        "movimientos": [],
+        "valoraciones": [{"id": "v", "producto": "c", "fecha": "2024-06-30", "valor": 100.0}],
+        "flujos": [
+            {"id": "f1", "tipo": "ingreso", "fecha": "2024-06-30", "importe": 2000.0, "titular": "Yo"},
+            {"id": "f2", "tipo": "gasto", "fecha": "2024-06-30", "importe": 500.0, "titular": "Yo"},
+            {"id": "f3", "tipo": "gasto", "fecha": "2024-06-30", "importe": 300.0, "titular": "Novia"},
+            {"id": "f4", "tipo": "gasto", "fecha": "2024-06-30", "importe": 100.0},   # sin titular
+        ],
+    }
+    d = motor.construir(cartera, str(tmp_path), descargar=False)
+    pt = {x["titular"]: x for x in d["flujos"]["porTitular"]}
+    assert pt["Yo"]["total12"] == {"ingresos": 2000.0, "gastos": 500.0, "ahorro": 1500.0}
+    assert pt["Novia"]["total12"]["gastos"] == 300.0
+    assert pt["Sin asignar"]["total12"]["gastos"] == 100.0
+
+
 def test_motor_sin_flujos_deja_flujos_none(tmp_path):
     cartera = {
         "version": 1,

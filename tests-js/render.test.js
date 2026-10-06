@@ -160,6 +160,36 @@ test("cada sub-pestaña del Panel se dibuja sin errores", () => {
   }
 });
 
+test("Ingresos y gastos: las 4 sub-vistas y sus segmentos se dibujan sin errores", () => {
+  const { window, errores } = montaPanel();
+  window.document.querySelector('#subtabs button[data-pv="ingresos"]').click();
+  const subs = [...window.document.querySelectorAll("#igNav button")];
+  assert.ok(subs.length === 4, "deberían estar Resumen/Categorías/Tendencias/Presupuesto");
+  for (const b of subs) {
+    b.click();
+    assert.strictEqual(errores.length, 0, `error en sub-vista «${b.textContent}»: ` + errores.join(" | "));
+  }
+  // Segmentos de Categorías (tipo y periodo) y de Tendencias.
+  window.document.querySelector('#igNav button[data-ig="categorias"]').click();
+  for (const sel of ["#segCatTipo", "#segCatPeriodo"]) {
+    for (const b of window.document.querySelectorAll(sel + " button")) b.click();
+  }
+  window.document.querySelector('#igNav button[data-ig="tendencias"]').click();
+  for (const b of window.document.querySelectorAll("#segTendTipo button")) b.click();
+  assert.strictEqual(errores.length, 0, "errores en segmentos de ingresos: " + errores.join(" | "));
+  // El mapa de calor y la cascada deben haber pintado un SVG.
+  assert.ok(window.document.querySelector("#grafHeatmap svg"), "el mapa de calor debería dibujarse");
+});
+
+test("Distribución: el toggle Anillo/Mapa no rompe", () => {
+  const { window, errores } = montaPanel();
+  window.document.querySelector('#subtabs button[data-pv="distribucion"]').click();
+  for (const b of window.document.querySelectorAll("#segDistModo button")) b.click();
+  assert.ok(window.document.querySelector("#grafTreemap svg") || window.document.querySelector("#grafDonut svg"),
+    "debería dibujarse el treemap o el donut");
+  assert.strictEqual(errores.length, 0, "errores en el toggle de distribución: " + errores.join(" | "));
+});
+
 test("los modos de los gráficos (segmentos) no rompen", () => {
   const { window, errores } = montaPanel();
   // Evolución: modos del gráfico principal (incluye «Reparto %») y mes/año.

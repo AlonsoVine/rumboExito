@@ -83,6 +83,37 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 .subtabs button:hover{color:var(--tinta);border-color:var(--tinta3)}
 .subtabs button[aria-selected="true"]{background:var(--s1);border-color:var(--s1);color:#fff}
 .pv[hidden]{display:none}
+/* Sub-navegación de 2º nivel (dentro de Ingresos y gastos) */
+.igNav{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0;border-bottom:1px solid var(--borde);padding-bottom:0}
+.igNav button{border:0;background:none;color:var(--tinta2);font:inherit;font-size:13.5px;font-weight:600;
+  padding:8px 12px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.13s}
+.igNav button:hover{color:var(--tinta)}
+.igNav button[aria-selected="true"]{color:var(--s1);border-bottom-color:var(--s1)}
+.ig[hidden]{display:none}
+/* Ranking de categorías (lista con barra) */
+.rankCat{display:flex;flex-direction:column;gap:9px;justify-content:center}
+.rankFila{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.rankFila .nm{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--tinta);min-width:0}
+.rankFila .nm i{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+.rankFila .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rankFila .vl{font-size:13.5px;font-variant-numeric:tabular-nums;color:var(--tinta);text-align:right}
+.rankFila .pc{font-size:12px;color:var(--tinta3);text-align:right}
+.rankFila .barra{grid-column:1/-1;height:6px;border-radius:4px;background:var(--sup2);overflow:hidden}
+.rankFila .barra i{display:block;height:100%;border-radius:4px}
+/* Barras de presupuesto con semáforo */
+.presFila{margin:0 0 13px}
+.presFila .cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13.5px}
+.presFila .cab b{font-weight:600;color:var(--tinta)}
+.presFila .cab .cifra{font-variant-numeric:tabular-nums;color:var(--tinta2)}
+.presFila .barra{height:9px;border-radius:5px;background:var(--sup2);overflow:hidden;margin-top:5px}
+.presFila .barra i{display:block;height:100%;border-radius:5px;background:var(--tinta3)}
+.legFlujo{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12.5px;color:var(--tinta2)}
+.legFlujo i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:-1px}
+.rankFila .pc{margin-left:4px}
+.presFila.ok .barra i{background:var(--bien,#1f9d72)}
+.presFila.aviso .barra i{background:#e0a21a}
+.presFila.pasa .barra i{background:var(--mal,#d6455d)}
+.presFila .estado{font-size:12px;font-variant-numeric:tabular-nums}
 /* Línea-guía en lenguaje llano al inicio de cada vista. */
 .ayudaVista{color:var(--tinta2);font-size:13.5px;margin:4px 0 16px;line-height:1.5}
 /* Iconito de ayuda (ⓘ): muestra su explicación con el tooltip nativo al pasar el ratón. */
@@ -341,6 +372,9 @@ svg.grafico .donutValor{fill:var(--tinta);font-size:21px;font-weight:660}
 svg.grafico .barEtq{fill:var(--tinta2);font-size:12px}
 svg.grafico .barVal{fill:var(--tinta3);font-size:11.5px;font-variant-numeric:tabular-nums}
 svg.grafico .barValArriba{fill:var(--tinta);font-size:12px;font-weight:640;font-variant-numeric:tabular-nums}
+svg.grafico .cascConec{stroke:var(--tinta3);stroke-width:1;stroke-dasharray:2 3;opacity:.7}
+svg.grafico .hmCell{cursor:default;transition:stroke .1s}
+svg.grafico .hmCell:hover{stroke:var(--tinta);stroke-opacity:1;stroke-width:1.5}
 .spark{display:block;width:100%;height:100%}
 .vacio{color:var(--tinta3);font-size:13px;text-align:center;padding:40px 0;margin:0}
 
@@ -809,7 +843,6 @@ body.video .tarjetaCanal{display:none}
   <nav class="subtabs" id="subtabs" role="tablist">
     <button data-pv="patrimonio" aria-selected="true">Patrimonio</button>
     <button data-pv="distribucion" aria-selected="false">Distribución</button>
-    <button data-pv="estructura" aria-selected="false">Estructura</button>
     <button data-pv="rentabilidad" aria-selected="false">Rentabilidad</button>
     <button data-pv="evolucion" aria-selected="false">Evolución</button>
     <button data-pv="ingresos" aria-selected="false">Ingresos y gastos</button>
@@ -849,7 +882,7 @@ body.video .tarjetaCanal{display:none}
 
   <!-- ===== DISTRIBUCIÓN ===== -->
   <div class="pv" id="pv-distribucion" hidden>
-    <p class="ayudaVista">En qué está repartido tu dinero: por tipo, por dónde lo tienes y a quién le corresponde. Pulsa un componente para ver su ficha.</p>
+    <p class="ayudaVista">En qué está repartido tu dinero. Cámbialo entre el <b>anillo</b> (reparto) y el <b>mapa</b> (bloques anidados), y agrúpalo por tipo, entidad, titular o tus dimensiones. Pulsa un componente para ver su ficha.</p>
     <section style="margin-top:8px">
       <header style="display:flex;align-items:center;gap:12px;margin-bottom:2px">
         <h2 style="font-size:15px">Componentes de la cartera</h2>
@@ -858,35 +891,31 @@ body.video .tarjetaCanal{display:none}
       <div class="chips" id="chips"></div>
     </section>
     <section class="tarjeta" style="margin-top:16px">
-      <header>
+      <header style="flex-wrap:wrap;gap:10px">
         <h2>Distribución</h2>
         <div class="sep"></div>
-        <div class="segm" id="segDist"></div>
+        <div class="segm" id="segDistModo"></div>
       </header>
-      <div class="envGraf" id="grafDonut"></div>
-      <table class="leyenda" id="leyendaDist" style="margin-top:14px"></table>
+      <!-- Modo anillo -->
+      <div id="distDonutWrap">
+        <div class="segm" id="segDist" style="margin:2px 0 12px"></div>
+        <div class="envGraf" id="grafDonut"></div>
+        <table class="leyenda" id="leyendaDist" style="margin-top:14px"></table>
+      </div>
+      <!-- Modo mapa (treemap) -->
+      <div id="distTreemapWrap" hidden>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 12px">
+          <span class="subt">Agrupar por</span><div class="segm" id="segEstr1"></div>
+          <span class="subt">y luego</span><div class="segm" id="segEstr2"></div>
+        </div>
+        <div class="envGraf" id="grafTreemap" style="min-height:420px"></div>
+        <p class="subt" id="estrNota" style="margin-top:8px"></p>
+      </div>
     </section>
     <section class="tarjeta" id="tarjetaAsignacion" style="margin-top:16px" hidden>
       <header><h2>Asignación objetivo</h2><span class="subt" id="asigSub"></span></header>
       <div class="tablaEnv"><table class="dt" id="asigTabla"></table></div>
       <div id="asigRebal"></div>
-    </section>
-  </div>
-
-  <!-- ===== ESTRUCTURA (treemap) ===== -->
-  <div class="pv" id="pv-estructura" hidden>
-    <p class="ayudaVista">La estructura de tu patrimonio como un mapa: cada bloque es proporcional a su valor, anidado por las dimensiones que elijas. Pulsa un activo para ver su ficha.</p>
-    <section class="tarjeta" style="margin-top:8px">
-      <header style="flex-wrap:wrap;gap:10px">
-        <h2>Estructura patrimonial</h2>
-        <div class="sep"></div>
-        <span class="subt">Agrupar por</span>
-        <div class="segm" id="segEstr1"></div>
-        <span class="subt">y luego</span>
-        <div class="segm" id="segEstr2"></div>
-      </header>
-      <div class="envGraf" id="grafTreemap" style="min-height:420px"></div>
-      <p class="subt" id="estrNota" style="margin-top:8px"></p>
     </section>
   </div>
 
@@ -1014,15 +1043,76 @@ body.video .tarjetaCanal{display:none}
 
   <!-- ===== INGRESOS Y GASTOS ===== -->
   <div class="pv" id="pv-ingresos" hidden>
-    <p class="ayudaVista">El día a día del hogar: lo que entra, lo que sale y cuánto ahorras.</p>
-    <section class="tarjeta" id="tarjetaFlujos" style="margin-top:8px">
-      <header><h2>Ingresos, gastos y ahorro</h2><span class="subt" id="flujosSub"></span></header>
-      <div class="kpis" id="flujosKpis"></div>
-      <div class="envGraf" id="grafFlujosEvol" style="margin-top:14px"></div>
-      <div class="tablaEnv" style="margin-top:14px"><table class="dt" id="flujosTabla"></table></div>
-      <div id="flujosCatEnv" style="margin-top:20px"></div>
-      <p class="subt" id="flujosVacio" hidden style="margin-top:12px">Todavía no has anotado ingresos ni gastos. Ve a «Mis datos → Ingresos y gastos» para empezar.</p>
-    </section>
+    <p class="ayudaVista">El día a día del hogar: lo que entra, lo que sale y cuánto ahorras. Elige una vista.</p>
+    <nav class="igNav" id="igNav" role="tablist">
+      <button data-ig="resumen" aria-selected="true">Resumen</button>
+      <button data-ig="categorias" aria-selected="false">Categorías</button>
+      <button data-ig="tendencias" aria-selected="false">Tendencias</button>
+      <button data-ig="presupuesto" aria-selected="false">Presupuesto</button>
+    </nav>
+    <p class="subt" id="igVacio" hidden style="margin-top:12px">Todavía no has anotado ingresos ni gastos. Ve a «Mis datos → Ingresos y gastos», o importa el extracto de tu banco en «Mis datos → Importar → Datos del banco».</p>
+
+    <!-- RESUMEN -->
+    <div class="ig" id="ig-resumen">
+      <section class="tarjeta" style="margin-top:12px">
+        <header><h2>Ingresos, gastos y ahorro</h2><span class="subt" id="flujosSub"></span></header>
+        <div class="kpis" id="flujosKpis"></div>
+        <div class="envGraf" id="grafFlujosEvol" style="margin-top:14px"></div>
+      </section>
+      <section class="tarjeta" style="margin-top:16px">
+        <header><h2>¿A dónde fue el dinero?</h2><span class="subt" id="cascSub"></span></header>
+        <div class="envGraf" id="grafCascada"></div>
+      </section>
+      <section class="tarjeta" style="margin-top:16px">
+        <header><h2>Mes a mes</h2><span class="subt">Ingresos, gastos, ahorro y tasa de los últimos 12 meses</span></header>
+        <div class="tablaEnv"><table class="dt" id="flujosTabla"></table></div>
+      </section>
+    </div>
+
+    <!-- CATEGORÍAS -->
+    <div class="ig" id="ig-categorias" hidden>
+      <section class="tarjeta" style="margin-top:12px">
+        <header style="flex-wrap:wrap;gap:10px">
+          <h2>¿En qué se va el dinero?</h2><div class="sep"></div>
+          <div class="segm" id="segCatTipo"></div>
+          <div class="segm" id="segCatPeriodo"></div>
+        </header>
+        <div class="rejilla2">
+          <div class="envGraf" id="grafCatDonut"></div>
+          <div id="rankCat"></div>
+        </div>
+        <p class="subt" id="catNota" style="margin-top:8px"></p>
+      </section>
+      <section class="tarjeta" id="tarjetaTitular" style="margin-top:16px">
+        <header><h2>Por titular</h2><span class="subt">Quién ingresa y quién gasta (últimos 12 meses)</span></header>
+        <div class="envGraf" id="grafTitular"></div>
+        <div class="legFlujo" id="legTitular"></div>
+      </section>
+    </div>
+
+    <!-- TENDENCIAS -->
+    <div class="ig" id="ig-tendencias" hidden>
+      <section class="tarjeta" style="margin-top:12px">
+        <header style="flex-wrap:wrap;gap:10px"><h2>Cómo cambia mes a mes</h2><div class="sep"></div>
+          <div class="segm" id="segTendTipo"></div></header>
+        <div class="envGraf" id="grafTendApilada"></div>
+        <div class="legFlujo" id="legTend"></div>
+        <p class="subt" style="margin-top:6px">Cada franja es una categoría apilada: ves si una parte crece o se dispara.</p>
+      </section>
+      <section class="tarjeta" style="margin-top:16px">
+        <header><h2>Mapa de calor · estacionalidad</h2><span class="subt">Cuánto en cada categoría y mes; más oscuro = más gasto</span></header>
+        <div class="envGraf" id="grafHeatmap"></div>
+      </section>
+    </div>
+
+    <!-- PRESUPUESTO -->
+    <div class="ig" id="ig-presupuesto" hidden>
+      <section class="tarjeta" style="margin-top:12px">
+        <header><h2>Presupuesto del mes</h2><span class="subt" id="presSub"></span></header>
+        <div id="presBarras"></div>
+        <div id="flujosCatEnv" style="margin-top:20px"></div>
+      </section>
+    </div>
   </div>
 
   <!-- ===== DEUDAS Y VENCIMIENTOS ===== -->
@@ -1061,6 +1151,19 @@ body.video .tarjetaCanal{display:none}
 <div class="panel" id="tab-ayuda" role="tabpanel" hidden>
   <div class="banner" id="bannerVersion" hidden><span id="bannerVersionTexto"></span></div>
   <div style="margin:4px 0 2px"><button class="btn" id="btnVerBienvenida">👋 Ver la presentación de bienvenida</button></div>
+
+  <section class="tarjeta ayudaTarjeta" style="border-left:4px solid var(--s1)">
+    <header><h2>Explora un patrimonio de ejemplo</h2><span class="subt">Un hogar de muestra, para ver cómo se usa todo sin tocar tus datos</span></header>
+    <p>Crea un <b>patrimonio de ejemplo</b> (un hogar de muestra con inversiones, deudas, apartados, ingresos y gastos
+      de un año) para <b>ver cómo está estructurado todo y cómo funcionan los gráficos</b>. Se crea como una
+      <b>cartera aparte</b>: no toca la tuya, y puedes volver a la tuya cuando quieras desde el selector de arriba, o
+      borrar el ejemplo cuando ya no lo necesites.</p>
+    <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn prim" id="btnCrearEjemplo">🧪 Crear un patrimonio de ejemplo</button>
+    </div>
+    <p style="color:var(--tinta3);font-size:13px;margin-top:10px">Aparecerá en el selector de carteras de arriba como «Ejemplo». Para quitarlo: <b>Mis datos → Copias y seguridad → Eliminar este patrimonio</b>.</p>
+  </section>
+
   <section class="tarjeta ayudaTarjeta">
     <header><h2>De dónde viene esta aplicación</h2><span class="subt">Gracias a Dani Dominguez Quant</span></header>
     <p>Esta herramienta nace de <b>Rumbo</b>, la aplicación que creó <span class="autorCanal"></span> para seguir una cartera
@@ -1203,17 +1306,26 @@ body.video .tarjetaCanal{display:none}
       <p>Arriba hay solo tres botones grandes:</p>
       <ul>
         <li><b>📊 Panel</b>: mirar tus números. Dentro tiene pestañas: <b>Patrimonio</b> (tu foto de hoy),
-          <b>Distribución</b> (en qué está el dinero), <b>Rentabilidad</b> (cuánto gana), <b>Evolución</b>
-          (cómo cambia en el tiempo y el mes a mes), <b>Ingresos y gastos</b> y <b>Deudas y vencimientos</b>.</li>
+          <b>Distribución</b> (en qué está el dinero, con un botón <b>Anillo / Mapa</b> para verlo como anillo o como
+          mapa de bloques), <b>Rentabilidad</b> (cuánto gana), <b>Evolución</b> (cómo cambia en el tiempo y el mes a
+          mes), <b>Ingresos y gastos</b> (con sub-pestañas <b>Resumen · Categorías · Tendencias · Presupuesto</b>) y
+          <b>Deudas y vencimientos</b>.</li>
         <li><b>✏️ Mis datos</b>: lo que escribes tú. Dentro: Activos, Deudas, Apartados, Ingresos y gastos,
           Saldos y movimientos, Configuración, Importar y Copias y seguridad.</li>
         <li><b>❓ Ayuda</b>: esto.</li>
       </ul></div></details>
 
     <details class="faq"><summary>¿Puedo tener varias carteras y cambiar entre ellas?</summary><div>
-      <p>Sí. Arriba, junto al nombre de la app, hay un desplegable con tus carteras. Elige <b>«＋ Nueva cartera…»</b>,
-      ponle un nombre y se crea vacía. Cada cartera guarda sus propios productos, saldos y copias. Para cambiar de una
+      <p>Sí. Arriba, junto al nombre de la app, hay un desplegable con tus carteras. Elige <b>«＋ Nuevo patrimonio…»</b>,
+      ponle un nombre y se crea vacío. Cada cartera guarda sus propios productos, saldos y copias. Para cambiar de una
       a otra, elígela en ese mismo desplegable.</p></div></details>
+
+    <details class="faq"><summary>¿Puedo ver un ejemplo para aprender, sin tocar mis datos?</summary><div>
+      <p>Sí. Al abrir la app por primera vez ves un <b>patrimonio de ejemplo</b>; en cuanto creas el tuyo, desaparece.
+      Para volver a tenerlo (aunque ya tengas el tuyo), ve a <b>❓ Ayuda</b> y pulsa <b>«🧪 Crear un patrimonio de
+      ejemplo»</b>: se crea como una <b>cartera aparte</b> llamada «Ejemplo», con inversiones, deudas, ingresos y
+      gastos de un año, para ver cómo está todo estructurado y comparar. No toca tu patrimonio, y puedes volver al tuyo
+      desde el selector de arriba o borrar el ejemplo en <b>Mis datos → Copias y seguridad → Eliminar este patrimonio</b>.</p></div></details>
 
     <details class="faq"><summary>¿Cómo le cambio el nombre a una cartera?</summary><div>
       <p>En <b>Mis datos → Configuración</b>, campo <b>«Nombre de esta cartera»</b>. El nombre nuevo aparece
@@ -1243,9 +1355,29 @@ body.video .tarjetaCanal{display:none}
       estimados y los ratios deuda/activos y cuota/ingresos.</p></div></details>
 
     <details class="faq"><summary>¿Cómo llevo los ingresos y gastos del hogar?</summary><div>
-      <p>En <b>Mis datos → Ingresos y gastos</b> anotas nóminas, alquileres, gastos… por categoría. En el Panel
-      verás ingresos, gastos, ahorro y <b>tasa de ahorro</b> por mes, año y media de 12 meses. Las categorías las
-      defines en <b>Configuración</b> (cada una como ingreso o gasto).</p></div></details>
+      <p>En <b>Mis datos → Ingresos y gastos</b> anotas nóminas, alquileres, gastos… por categoría (o los
+      <b>importas del banco</b>, ver la pregunta siguiente). Las categorías las defines en <b>Configuración</b>
+      (cada una como ingreso o gasto). En <b>Panel → Ingresos y gastos</b> tienes cuatro vistas:</p>
+      <ul>
+        <li><b>Resumen</b>: ingresos, gastos, ahorro y <b>tasa de ahorro</b> (mes, año y media 12m), y una <b>cascada</b>
+          que va de tus ingresos a lo que te queda, restando cada categoría.</li>
+        <li><b>Categorías</b>: en qué se va el dinero (anillo + ranking) y un desglose <b>por titular</b> (quién ingresa y quién gasta).</li>
+        <li><b>Tendencias</b>: cómo cambia cada categoría mes a mes y un <b>mapa de calor</b> para ver la estacionalidad.</li>
+        <li><b>Presupuesto</b>: lo gastado frente al presupuesto por categoría, con semáforo (si pones presupuestos en Configuración).</li>
+      </ul></div></details>
+
+    <details class="faq"><summary>¿Puedo importar los gastos e ingresos de mi banco?</summary><div>
+      <p>Sí. En <b>Mis datos → Importar</b>, elige <b>«Datos del banco»</b> (es una sección aparte de la de activos e
+      inversiones). Puedes traerlos de tres formas: descargando la <b>plantilla</b> (Excel o CSV) y rellenándola,
+      pegando directamente el <b>Excel/CSV que exporta tu banco</b>, o con ayuda de una <b>IA</b> (copias un prompt,
+      le pasas el extracto y pegas el resultado). La app <b>adivina la categoría</b> de cada movimiento por el concepto
+      y, antes de guardar, te enseña una <b>vista previa donde puedes corregir cada categoría</b>. No duplica lo que ya tengas.</p></div></details>
+
+    <details class="faq"><summary>¿Qué son las dimensiones de clasificación?</summary><div>
+      <p>Además del tipo, la entidad y los titulares, puedes crear tus propias <b>dimensiones</b> para clasificar los
+      activos a tu manera (por ejemplo «Clase de activo» con valores Renta variable / Renta fija / Alternativos, o
+      «Geografía»). Se definen en <b>Mis datos → Configuración</b> y asignas un valor a cada activo en su ficha. Luego,
+      en <b>Panel → Distribución</b> puedes agrupar y filtrar por esas dimensiones (tanto en el anillo como en el mapa).</p></div></details>
 
     <details class="faq"><summary>¿Qué son los objetivos de asignación y la concentración?</summary><div>
       <p>En <b>Configuración</b> puedes fijar un <b>objetivo (%)</b> por tipo de activo (deberían sumar 100 %). El

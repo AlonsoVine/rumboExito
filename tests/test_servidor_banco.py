@@ -4,7 +4,6 @@ Integración del servidor para la importación de datos del banco:
 descarga de plantilla/prompt y ciclo previsualizar -> confirmar con
 corrección de categorías. Carpeta temporal, sin red.
 """
-import io
 import json
 import os
 
