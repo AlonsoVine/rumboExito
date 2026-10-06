@@ -1514,16 +1514,26 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
     cat12 = defaultdict(float)          # últimos 12 meses por categoría
     cat_mes = defaultdict(float)        # mes en curso por categoría
     cat_ano = defaultdict(float)        # año en curso por categoría
+    cat_serie = defaultdict(lambda: [0.0] * 12)   # serie mensual por categoría (alineada a meses_ig)
+    idx_mes = {m: i for i, m in enumerate(meses_ig)}
+    # Desglose por titular (quién ingresa / gasta): mes en curso y 12 meses.
+    tit_mes = defaultdict(lambda: {"ingreso": 0.0, "gasto": 0.0})
+    tit_12 = defaultdict(lambda: {"ingreso": 0.0, "gasto": 0.0})
     for fl in flujos_cfg:
         t = fl.get("tipo")
         if t not in ("ingreso", "gasto"):
             continue
         clave = (fl.get("categoria") or "Sin categoría", t)
         imp = float(fl.get("importe") or 0)
-        if fl["fecha"][:7] in meses_ig:
+        mkey = fl["fecha"][:7]
+        titular = (fl.get("titular") or "").strip() or "Sin asignar"
+        if mkey in meses_ig:
             cat12[clave] += imp
-        if fl["fecha"][:7] == mes_ref_key:
+            cat_serie[clave][idx_mes[mkey]] += imp
+            tit_12[titular][t] += imp
+        if mkey == mes_ref_key:
             cat_mes[clave] += imp
+            tit_mes[titular][t] += imp
         if fl["fecha"][:4] == mes_ref_key[:4]:
             cat_ano[clave] += imp
     # Presupuesto mensual por categoría (F3+: A1), definido en Configuración.
@@ -1540,13 +1550,22 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
             "media": round(cat12.get((c, t), 0.0) / 12, 2), "mes": mes_v,
             "anio": round(cat_ano.get((c, t), 0.0), 2), "presupuesto": pres,
             "diferencia": round(mes_v - pres, 2) if pres is not None else None,
+            "serie": [round(v, 2) for v in cat_serie.get((c, t), [0.0] * 12)],
         })
     por_categoria.sort(key=lambda x: -x["total12"])
     presupuesto_mensual = round(sum(c.get("presupuesto") or 0 for c in cats_cfg if c.get("tipo") == "gasto"), 2)
 
+    def _bloque_tit(d):
+        ing, gas = round(d["ingreso"], 2), round(d["gasto"], 2)
+        return {"ingresos": ing, "gastos": gas, "ahorro": round(ing - gas, 2)}
+    por_titular = [{"titular": tit, "mes": _bloque_tit(tit_mes.get(tit, {"ingreso": 0.0, "gasto": 0.0})),
+                    "total12": _bloque_tit(d)} for tit, d in tit_12.items()]
+    por_titular.sort(key=lambda x: -(x["total12"]["ingresos"] + x["total12"]["gastos"]))
+
     flujos_out = {"meses": meses_ig, "ingresos": ser_ing, "gastos": ser_gas,
                   "ahorro": ser_aho, "tasaAhorro": ser_tasa, "esteMes": este_mes_ig,
                   "anio": ano_ig, "media12": media12_ig, "porCategoria": por_categoria,
+                  "porTitular": por_titular,
                   "presupuestoMensual": presupuesto_mensual} if flujos_cfg else None
 
     # Cuota de deudas sobre ingresos: del mes en curso, o de la media si el mes no tiene ingresos.

@@ -1347,8 +1347,12 @@
     pintaHitos(mTodo);
     // Gráficos: solo los de la vista visible (un SVG en un panel oculto sale con ancho 0).
     if (pv === "evolucion") { pintaPrincipal(mVis); pintaBarras(); pintaMes(); pintaEvolucionHogar(); pintaCtrlInflacion(); }
-    else if (pv === "distribucion") pintaDistribucion();
-    else if (pv === "estructura") pintaEstructura();
+    else if (pv === "distribucion") {
+      const modo = estado.distModo || "anillo";
+      $("#distDonutWrap").hidden = modo !== "anillo";
+      $("#distTreemapWrap").hidden = modo !== "mapa";
+      if (modo === "mapa") pintaEstructura(); else pintaDistribucion();
+    }
     else if (pv === "rentabilidad") { pintaProyeccion(); pintaTabla(); pintaRendimiento(); }
     else if (pv === "ingresos") pintaFlujosGraf();
     else if (pv === "fiscal") pintaFiscal();
@@ -1359,6 +1363,8 @@
       { id: "apilado", et: "Por producto" }, { id: "total", et: "Total" },
       { id: "dinero", et: "Tu dinero vs mercado" }, { id: "reparto", et: "Reparto %" }
     ], estado.vista, id => { estado.vista = id; pintaPatrimonio(); });
+    pintaSegm($("#segDistModo"), [{ id: "anillo", et: "Anillo" }, { id: "mapa", et: "Mapa" }],
+      estado.distModo || "anillo", id => { estado.distModo = id; recuerda.guarda("patrimonio.distModo", id); pintaPatrimonio(); });
     pintaSegm($("#segDist"), [
       { id: "clase", et: "Activo" }, { id: "producto", et: "Producto" },
       { id: "entidad", et: "Entidad" }, { id: "tipo", et: "Tipo" }
@@ -2063,8 +2069,8 @@
     }
     // Teclas 1-7: sub-pestañas del Panel.
     const n = "1234567".indexOf(e.key);
-    const pv = ["patrimonio", "distribucion", "estructura", "rentabilidad", "evolucion", "ingresos", "deudas", "fiscal"][n];
-    if (n >= 0 && document.getElementById("pv-" + pv)) { if (estado.tab !== "panel") irA("panel"); irVista(pv); }
+    const pv = ["patrimonio", "distribucion", "rentabilidad", "evolucion", "ingresos", "deudas", "fiscal"][n];
+    if (n >= 0 && pv && document.getElementById("pv-" + pv)) { if (estado.tab !== "panel") irA("panel"); irVista(pv); }
   });
 
   let t = null;
@@ -2074,8 +2080,10 @@
   estado.tab = ["panel", "datos", "ayuda", "ajustes"].includes(tabGuardada) ? tabGuardada : "panel";
   // Preferencia «Pantalla de inicio»: siempre el Panel o la última que usaste.
   if (pref("inicio", "ultima") === "panel") estado.tab = "panel";
-  const pvGuardada = recuerda.lee("patrimonio.pv");
+  let pvGuardada = recuerda.lee("patrimonio.pv");
+  if (pvGuardada === "estructura") { pvGuardada = "distribucion"; estado.distModo = "mapa"; }  // la antigua pestaña se fusionó
   if (pvGuardada && document.getElementById("pv-" + pvGuardada)) estado.pv = pvGuardada;
+  estado.distModo = estado.distModo || recuerda.lee("patrimonio.distModo") || "anillo";
   document.querySelectorAll("#tabs button").forEach(b =>
     b.setAttribute("aria-selected", String(b.dataset.tab === estado.tab)));
   document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "tab-" + estado.tab; });

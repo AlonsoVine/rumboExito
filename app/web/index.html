@@ -809,7 +809,6 @@ body.video .tarjetaCanal{display:none}
   <nav class="subtabs" id="subtabs" role="tablist">
     <button data-pv="patrimonio" aria-selected="true">Patrimonio</button>
     <button data-pv="distribucion" aria-selected="false">Distribución</button>
-    <button data-pv="estructura" aria-selected="false">Estructura</button>
     <button data-pv="rentabilidad" aria-selected="false">Rentabilidad</button>
     <button data-pv="evolucion" aria-selected="false">Evolución</button>
     <button data-pv="ingresos" aria-selected="false">Ingresos y gastos</button>
@@ -849,7 +848,7 @@ body.video .tarjetaCanal{display:none}
 
   <!-- ===== DISTRIBUCIÓN ===== -->
   <div class="pv" id="pv-distribucion" hidden>
-    <p class="ayudaVista">En qué está repartido tu dinero: por tipo, por dónde lo tienes y a quién le corresponde. Pulsa un componente para ver su ficha.</p>
+    <p class="ayudaVista">En qué está repartido tu dinero. Cámbialo entre el <b>anillo</b> (reparto) y el <b>mapa</b> (bloques anidados), y agrúpalo por tipo, entidad, titular o tus dimensiones. Pulsa un componente para ver su ficha.</p>
     <section style="margin-top:8px">
       <header style="display:flex;align-items:center;gap:12px;margin-bottom:2px">
         <h2 style="font-size:15px">Componentes de la cartera</h2>
@@ -858,35 +857,31 @@ body.video .tarjetaCanal{display:none}
       <div class="chips" id="chips"></div>
     </section>
     <section class="tarjeta" style="margin-top:16px">
-      <header>
+      <header style="flex-wrap:wrap;gap:10px">
         <h2>Distribución</h2>
         <div class="sep"></div>
-        <div class="segm" id="segDist"></div>
+        <div class="segm" id="segDistModo"></div>
       </header>
-      <div class="envGraf" id="grafDonut"></div>
-      <table class="leyenda" id="leyendaDist" style="margin-top:14px"></table>
+      <!-- Modo anillo -->
+      <div id="distDonutWrap">
+        <div class="segm" id="segDist" style="margin:2px 0 12px"></div>
+        <div class="envGraf" id="grafDonut"></div>
+        <table class="leyenda" id="leyendaDist" style="margin-top:14px"></table>
+      </div>
+      <!-- Modo mapa (treemap) -->
+      <div id="distTreemapWrap" hidden>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 12px">
+          <span class="subt">Agrupar por</span><div class="segm" id="segEstr1"></div>
+          <span class="subt">y luego</span><div class="segm" id="segEstr2"></div>
+        </div>
+        <div class="envGraf" id="grafTreemap" style="min-height:420px"></div>
+        <p class="subt" id="estrNota" style="margin-top:8px"></p>
+      </div>
     </section>
     <section class="tarjeta" id="tarjetaAsignacion" style="margin-top:16px" hidden>
       <header><h2>Asignación objetivo</h2><span class="subt" id="asigSub"></span></header>
       <div class="tablaEnv"><table class="dt" id="asigTabla"></table></div>
       <div id="asigRebal"></div>
-    </section>
-  </div>
-
-  <!-- ===== ESTRUCTURA (treemap) ===== -->
-  <div class="pv" id="pv-estructura" hidden>
-    <p class="ayudaVista">La estructura de tu patrimonio como un mapa: cada bloque es proporcional a su valor, anidado por las dimensiones que elijas. Pulsa un activo para ver su ficha.</p>
-    <section class="tarjeta" style="margin-top:8px">
-      <header style="flex-wrap:wrap;gap:10px">
-        <h2>Estructura patrimonial</h2>
-        <div class="sep"></div>
-        <span class="subt">Agrupar por</span>
-        <div class="segm" id="segEstr1"></div>
-        <span class="subt">y luego</span>
-        <div class="segm" id="segEstr2"></div>
-      </header>
-      <div class="envGraf" id="grafTreemap" style="min-height:420px"></div>
-      <p class="subt" id="estrNota" style="margin-top:8px"></p>
     </section>
   </div>
 
