@@ -104,7 +104,8 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 .anotarBar .arRec{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--tinta2);cursor:pointer}
 .anotarBar .arRec input{accent-color:var(--s1)}
 @media(max-width:640px){.anotarBar .arImp,.anotarBar .arFecha{width:100%}.anotarBar .arCat{flex-basis:100%}}
-.recChips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.recChips{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 2px}
+.recHint{font-size:12.5px;color:var(--tinta3);margin-right:2px}
 .recChip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:6px 8px 6px 11px;border-radius:999px;
   background:var(--sup);border:1px solid var(--borde);color:var(--tinta2);cursor:pointer;transition:.12s}
 .recChip:hover{border-color:var(--s1);color:var(--tinta)}
@@ -1068,8 +1069,7 @@ body.video .tarjetaCanal{display:none}
 
   <!-- ===== INGRESOS Y GASTOS ===== -->
   <div class="pv" id="pv-ingresos" hidden>
-    <p class="ayudaVista">El día a día del hogar: lo que entra, lo que sale y cuánto ahorras. Elige una vista.</p>
-    <div id="anotarRapido"></div>
+    <p class="ayudaVista">El día a día del hogar: lo que entra, lo que sale y cuánto ahorras. Elige una vista. Para anotar o importar apuntes, ve a «Mis datos → Ingresos y gastos».</p>
     <nav class="igNav" id="igNav" role="tablist">
       <button data-ig="resumen" aria-selected="true">Resumen</button>
       <button data-ig="categorias" aria-selected="false">Categorías</button>
@@ -1090,9 +1090,12 @@ body.video .tarjetaCanal{display:none}
         <div class="envGraf" id="grafCascada"></div>
       </section>
       <section class="tarjeta" style="margin-top:16px">
-        <header><h2>Mes a mes</h2><span class="subt">Ingresos, gastos, ahorro y tasa de los últimos 12 meses</span>
-          <span class="sp"></span><a class="btn" href="api/exportar/ingresos-gastos.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a></header>
-        <div class="tablaEnv"><table class="dt" id="flujosTabla"></table></div>
+        <header><h2>Mes a mes</h2><span class="subt">Ingresos, gastos, ahorro y tasa de los últimos 12 meses</span></header>
+        <div class="tablaBloque" data-tabla="ingresos_gastos_mensual">
+          <div class="tablaTools" style="display:flex;justify-content:flex-end;margin-bottom:8px">
+            <button type="button" class="btn" data-csv title="Descargar esta tabla en CSV (para Excel)">⤓ CSV</button></div>
+          <div class="tablaEnv"><table class="dt" id="flujosTabla"></table></div>
+        </div>
       </section>
     </div>
 
@@ -1103,7 +1106,6 @@ body.video .tarjetaCanal{display:none}
           <h2>¿En qué se va el dinero?</h2><div class="sep"></div>
           <div class="segm" id="segCatTipo"></div>
           <div class="segm" id="segCatPeriodo"></div>
-          <a class="btn" href="api/exportar/categorias.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a>
         </header>
         <div class="rejilla2">
           <div class="envGraf" id="grafCatDonut"></div>

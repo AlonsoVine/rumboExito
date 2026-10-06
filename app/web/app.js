@@ -722,11 +722,15 @@
         <td style="text-align:right">${dif(c)}</td>
         <td style="text-align:right">${G.fmtEur(c.media, 0)}</td></tr>`).join("");
       cont.innerHTML = cats.length
-        ? `<h3 style="font-size:13px;margin:0 0 8px;color:var(--tinta2)">Por categoría${hayPres ? " · presupuesto del mes" : ""}</h3>
+        ? `<div class="tablaBloque" data-tabla="gastos_por_categoria">
+           <div style="display:flex;align-items:center;gap:12px;margin:0 0 8px">
+             <h3 style="font-size:13px;margin:0;color:var(--tinta2)">Por categoría${hayPres ? " · presupuesto del mes" : ""}</h3>
+             <span class="sp" style="flex:1"></span>
+             <button type="button" class="btn" data-csv title="Descargar esta tabla en CSV (para Excel)">⤓ CSV</button></div>
            <div class="tablaEnv"><table class="dt"><thead><tr><th>Categoría</th><th>Tipo</th>
              <th style="text-align:right">Este mes</th><th style="text-align:right">Año</th>
              <th style="text-align:right">Presupuesto</th><th style="text-align:right">Margen</th>
-             <th style="text-align:right">Media 12m</th></tr></thead><tbody>${fil}</tbody></table></div>
+             <th style="text-align:right">Media 12m</th></tr></thead><tbody>${fil}</tbody></table></div></div>
            ${hayPres ? `<p class="subt" style="margin-top:8px">«Margen» = presupuesto − gasto del mes: en verde te sobra, en rojo te has pasado. Presupuesto mensual total de gastos: ${G.fmtEur(f.presupuestoMensual || 0, 0)}.</p>` : '<p class="subt" style="margin-top:8px">Pon un presupuesto por categoría en «Mis datos → Configuración» para ver si te pasas.</p>'}`
         : "";
     }
@@ -816,85 +820,7 @@
     return G.css("--s" + (h % 16 + 1));
   }
 
-  // Anotar un gasto/ingreso sin salir del Panel (bucle del día a día).
-  function pintaAnotarRapido() {
-    const cont = $("#anotarRapido"); if (!cont) return;
-    if (D.modo !== "propio") { cont.innerHTML = ""; return; }
-    const tipo = estado.arTipo || "gasto";
-    const cats = (D.categorias || []).filter(c => c.tipo === tipo).map(c => c.nombre);
-    const tits = D.titulares || [];
-    const hoy = new Date().toISOString().slice(0, 10);
-    cont.innerHTML = `<form class="anotarBar" id="formAnotar" autocomplete="off">
-      <div class="segm arTipo">
-        <button type="button" data-ar="gasto" aria-pressed="${tipo === "gasto"}">− Gasto</button>
-        <button type="button" data-ar="ingreso" aria-pressed="${tipo === "ingreso"}">+ Ingreso</button>
-      </div>
-      <input name="importe" inputmode="decimal" placeholder="Importe €" class="arImp" required>
-      <input name="categoria" placeholder="Categoría" list="arCats" class="arCat">
-      <datalist id="arCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
-      <input name="fecha" type="date" value="${hoy}" class="arFecha" aria-label="Fecha">
-      ${tits.length ? `<select name="titular" class="arTit" aria-label="Titular"><option value="">Titular…</option>${tits.map(t => `<option>${esc(t)}</option>`).join("")}</select>` : ""}
-      <label class="arRec" title="Guardar como plantilla para repetirlo cada mes"><input type="checkbox" id="arRecurrente"> 🔁 recurrente</label>
-      <button class="btn prim" type="submit">Anotar</button>
-      <span class="arMsg" id="arMsg"></span></form>
-      ${(D.recurrentes || []).length ? `<div class="recChips">${(D.recurrentes).map((r, i) => `
-        <span class="recChip ${r.tipo === "ingreso" ? "pos" : "neg"}" data-anotar="${i}" role="button" tabindex="0"
-          title="Anotar este mes">🔁 ${esc(r.categoria || r.nota || (r.tipo === "ingreso" ? "Ingreso" : "Gasto"))}
-          <b>${r.tipo === "gasto" ? "−" : "+"}${G.fmtEur(r.importe, 0)}</b>${r.titular ? ` · ${esc(r.titular)}` : ""}
-          <button class="recX" data-quitar="${i}" title="Quitar esta plantilla" aria-label="Quitar">×</button></span>`).join("")}</div>` : ""}`;
-    cont.querySelectorAll(".arTipo button").forEach(b => { b.onclick = () => { estado.arTipo = b.dataset.ar; pintaAnotarRapido(); }; });
-    cont.querySelectorAll("[data-anotar]").forEach(ch => {
-      ch.onclick = e => { if (!e.target.closest(".recX")) anotaRecurrente(D.recurrentes[+ch.dataset.anotar]); };
-    });
-    cont.querySelectorAll(".recX").forEach(x => {
-      x.onclick = async e => { e.stopPropagation(); await postRecurrente({ accion: "quitar", indice: +x.dataset.quitar }); };
-    });
-    $("#formAnotar").onsubmit = async e => {
-      e.preventDefault();
-      const f = e.target, btn = f.querySelector('button[type="submit"]');
-      const cuerpo = { tipo, importe: f.importe.value, fecha: f.fecha.value,
-        categoria: (f.categoria.value || "").trim(), titular: (f.titular && f.titular.value) || "" };
-      btn.disabled = true; btn.textContent = "Anotando…";
-      try {
-        const r = await fetch("api/flujos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
-        const j = await r.json().catch(() => ({}));
-        if (!r.ok || j.ok === false) throw new Error((j.errores || ["No se pudo guardar."]).join("\n"));
-        const rec = $("#arRecurrente");
-        if (rec && rec.checked) {
-          try { await fetch("api/recurrentes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accion: "añadir", recurrente: cuerpo }) }); } catch (e) { /* el gasto ya se guardó */ }
-        }
-        window.EDITOR_SUCIO = true;
-        recargaHoy();
-      } catch (x) { $("#arMsg").textContent = x.message || "No se pudo guardar."; btn.disabled = false; btn.textContent = "Anotar"; }
-    };
-  }
-
-  // Anota un recurrente con la fecha de hoy (un clic en su chip).
-  async function anotaRecurrente(r) {
-    if (!r) return;
-    const cuerpo = { tipo: r.tipo, importe: r.importe, fecha: new Date().toISOString().slice(0, 10),
-      categoria: r.categoria || "", titular: r.titular || "", nota: r.nota || "" };
-    try {
-      const resp = await fetch("api/flujos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
-      const j = await resp.json().catch(() => ({}));
-      if (!resp.ok || j.ok === false) throw new Error((j.errores || ["No se pudo anotar."]).join("\n"));
-      window.EDITOR_SUCIO = true;
-      recargaHoy();
-    } catch (x) { const m = $("#arMsg"); if (m) m.textContent = x.message; }
-  }
-
-  async function postRecurrente(cuerpo) {
-    try {
-      const resp = await fetch("api/recurrentes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
-      const j = await resp.json().catch(() => ({}));
-      if (!resp.ok || j.ok === false) throw new Error((j.errores || ["No se pudo actualizar."]).join("\n"));
-      window.EDITOR_SUCIO = true;
-      recargaHoy();
-    } catch (x) { const m = $("#arMsg"); if (m) m.textContent = x.message; }
-  }
-
   function pintaIngresos() {
-    pintaAnotarRapido();
     const f = D.flujos, hay = !!f;
     const nav = $("#igNav"); if (nav) nav.hidden = !hay;
     const vac = $("#igVacio"); if (vac) vac.hidden = hay;

@@ -339,6 +339,7 @@
       flujos: vistaFlujos, saldos: vistaSaldosMov, config: vistaConfig,
       importar: vistaImportar, copias: vistaCopias }[E.vista] || vistaActivos)();
     if (E.vista === "importar" || E.vista === "copias") conectaImportar();
+    if (E.vista === "flujos") montaAnotarRapido();
     const filtro = $("#edFiltro");
     if (filtro) filtro.onchange = e => { E.filtro = e.target.value; pinta(); };
     aplicaTablas();   // restaura búsqueda y orden de cada tabla tras el re-render
@@ -372,8 +373,7 @@
     const filas = lista.map(filaProducto).join("");
     return `<section class="tarjeta"><header><h2>Activos</h2>
         <span class="subt">Todo lo que suma: fondos, acciones, cripto, cuentas, planes, inmuebles… Desde la ficha de cada uno anotas sus compras o su saldo.</span>
-        <span class="sp"></span>${lista.length ? '<a class="btn" href="api/exportar/activos.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a>' : ""}
-        ${lista.length > 1 ? '<button class="btn" data-acc="repartirColores" title="Da a cada activo un color distinto">Repartir colores</button>' : ""}
+        <span class="sp"></span>${lista.length > 1 ? '<button class="btn" data-acc="repartirColores" title="Da a cada activo un color distinto">Repartir colores</button>' : ""}
         <button class="btn prim" data-acc="nuevoProducto">+ Añadir activo</button></header>
       ${filas ? envTabla("activos", `<tr><th>Activo</th><th>Tipo</th><th>Último precio</th>
         <th>Fuente del precio</th><th>Datos</th><th class="nosort"></th></tr>`, filas)
@@ -819,6 +819,68 @@
   }
 
   /* ---------------------------------------------- ingresos y gastos (flujos) */
+  // Estado del «Anotar rápido» (persiste entre re-renders para poder precargar una plantilla).
+  let AR = { tipo: "gasto" };
+
+  // Rellena el formulario rápido con una plantilla recurrente (NO guarda: el importe
+  // puede variar de un mes a otro, así que el usuario lo ajusta y confirma).
+  function rellenaDe(r) {
+    if (!r) return;
+    AR = { tipo: r.tipo, importe: r.importe, categoria: r.categoria || "", titular: r.titular || "" };
+    montaAnotarRapido();
+    const imp = $("#formAnotar") && $("#formAnotar").importe;
+    if (imp) { imp.focus(); if (imp.select) imp.select(); }
+  }
+  async function quitaRecurrente(i) {
+    try {
+      const j = await api("POST", "api/recurrentes", { accion: "quitar", indice: i });
+      E.cfg = j.cartera; window.EDITOR_SUCIO = true; pinta();
+    } catch (x) { const m = $("#arMsg"); if (m) m.textContent = x.message; }
+  }
+  function montaAnotarRapido() {
+    const cont = $("#anotarRapido"); if (!cont) return;
+    const conf = E.cfg.config || {};
+    const tipo = AR.tipo || "gasto";
+    const cats = (conf.categorias || []).filter(c => c.tipo === tipo).map(c => c.nombre);
+    const tits = E.cfg.titulares || [];
+    const recs = conf.recurrentes || [];
+    const hoy = new Date().toISOString().slice(0, 10);
+    cont.innerHTML = `<form class="anotarBar" id="formAnotar" autocomplete="off">
+        <div class="segm arTipo">
+          <button type="button" data-ar="gasto" aria-pressed="${tipo === "gasto"}">− Gasto</button>
+          <button type="button" data-ar="ingreso" aria-pressed="${tipo === "ingreso"}">+ Ingreso</button></div>
+        <input name="importe" inputmode="decimal" placeholder="Importe €" class="arImp" required>
+        <input name="categoria" placeholder="Categoría" list="arCats" class="arCat">
+        <datalist id="arCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
+        <input name="fecha" type="date" value="${hoy}" class="arFecha" aria-label="Fecha">
+        ${tits.length ? `<select name="titular" class="arTit" aria-label="Titular"><option value="">Titular…</option>${tits.map(t => `<option${t === AR.titular ? " selected" : ""}>${esc(t)}</option>`).join("")}</select>` : ""}
+        <label class="arRec" title="Guardar como plantilla para repetirlo cada mes"><input type="checkbox" id="arRecurrente"> 🔁 recurrente</label>
+        <button class="btn prim" type="submit">Anotar</button>
+        <span class="arMsg" id="arMsg"></span></form>
+      ${recs.length ? `<div class="recChips"><span class="recHint">Recurrentes · pulsa para rellenar:</span>${recs.map((r, i) => `
+        <span class="recChip ${r.tipo === "ingreso" ? "pos" : "neg"}" data-rellena="${i}" role="button" tabindex="0" title="Rellenar el formulario con esta plantilla">🔁 ${esc(r.categoria || r.nota || (r.tipo === "ingreso" ? "Ingreso" : "Gasto"))} <b>${r.tipo === "gasto" ? "−" : "+"}${eur(r.importe)}</b>${r.titular ? ` · ${esc(r.titular)}` : ""}<button class="recX" data-quitar="${i}" title="Quitar plantilla" aria-label="Quitar">×</button></span>`).join("")}</div>` : ""}`;
+    if (AR.importe != null) cont.querySelector('[name="importe"]').value = AR.importe;
+    if (AR.categoria != null) cont.querySelector('[name="categoria"]').value = AR.categoria;
+    cont.querySelectorAll(".arTipo button").forEach(b => { b.onclick = () => { AR = { tipo: b.dataset.ar }; montaAnotarRapido(); }; });
+    cont.querySelectorAll("[data-rellena]").forEach(ch => { ch.onclick = e => { if (!e.target.closest(".recX")) rellenaDe(recs[+ch.dataset.rellena]); }; });
+    cont.querySelectorAll(".recX").forEach(x => { x.onclick = e => { e.stopPropagation(); quitaRecurrente(+x.dataset.quitar); }; });
+    $("#formAnotar").onsubmit = async e => {
+      e.preventDefault();
+      const f = e.target, btn = f.querySelector('button[type="submit"]');
+      const cuerpo = { tipo, importe: f.importe.value, fecha: f.fecha.value,
+        categoria: (f.categoria.value || "").trim(), titular: (f.titular && f.titular.value) || "" };
+      btn.disabled = true; btn.textContent = "Anotando…";
+      try {
+        await guarda("flujos", cuerpo);
+        if ($("#arRecurrente") && $("#arRecurrente").checked) {
+          try { const j = await api("POST", "api/recurrentes", { accion: "añadir", recurrente: cuerpo }); E.cfg = j.cartera; } catch (_) { /* el apunte ya se guardó */ }
+        }
+        AR = { tipo };
+        pinta();
+      } catch (x) { $("#arMsg").textContent = x.message || "No se pudo guardar."; btn.disabled = false; btn.textContent = "Anotar"; }
+    };
+  }
+
   function vistaFlujos() {
     const fs = (E.cfg.flujos || []).slice().sort((a, b) => a.fecha < b.fecha ? 1 : -1);
     const filas = fs.map(x => `<tr>
@@ -828,10 +890,12 @@
       <td style="text-align:right" class="${x.tipo === "ingreso" ? "pos" : "neg"}">${x.tipo === "gasto" ? "−" : ""}${eur(x.importe)}</td>
       <td class="acc"><button data-acc="editarFlujo" data-id="${esc(x.id)}">Editar</button>
         <button data-acc="borrarFlujo" data-id="${esc(x.id)}">Borrar</button></td></tr>`).join("");
-    return `<section class="tarjeta"><header><h2>Ingresos y gastos</h2>
+    return `<section class="tarjeta"><header><h2>Anotar rápido</h2>
+        <span class="subt">Un gasto o ingreso al vuelo, sin abrir el formulario completo. Pulsa un recurrente para rellenarlo (ajusta el importe si varía).</span></header>
+      <div id="anotarRapido"></div></section>
+      <section class="tarjeta"><header><h2>Ingresos y gastos</h2>
         <span class="subt">Flujo de caja del hogar: nóminas, alquileres, gastos… No incluye compras de inversión ni traspasos entre tus cuentas.</span>
-        <span class="sp"></span>${fs.length ? '<a class="btn" href="api/exportar/flujos.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a>' : ""}
-        <button class="btn prim" data-acc="nuevoFlujo">+ Añadir apunte</button></header>
+        <span class="sp"></span><button class="btn prim" data-acc="nuevoFlujo">+ Añadir apunte</button></header>
       ${filas ? envTabla("flujos", `<tr><th>Fecha</th><th>Tipo</th><th>Categoría</th>
         <th>Titular</th><th style="text-align:right">Importe</th><th class="nosort"></th></tr>`, filas)
         : '<p class="subt">Todavía no has anotado ingresos ni gastos.</p>'}
@@ -895,7 +959,6 @@
         <span class="subt">Compras, ventas, dividendos y comisiones</span><span class="sp"></span>
         <select id="edFiltro" aria-label="Filtrar por producto"><option value="todos">Todos los productos</option>
           ${cotizables.map(p => `<option value="${esc(p.id)}"${p.id === E.filtro ? " selected" : ""}>${esc(nombre(p))}</option>`).join("")}</select>
-        ${(E.cfg.movimientos || []).length ? '<a class="btn" href="api/exportar/movimientos.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a>' : ""}
         <button class="btn prim" data-acc="nuevoMov">+ Añadir movimiento</button></header>
       ${filas ? envTabla("movimientos", `<tr><th>Fecha</th><th style="text-align:left">Producto</th>
         <th style="text-align:left">Tipo</th><th>Unidades</th><th>Importe</th><th>Precio por unidad</th>
