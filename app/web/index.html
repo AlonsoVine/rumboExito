@@ -723,6 +723,16 @@ body.video .tarjeta{padding:22px 24px}
 .exito b{flex:1;font-size:14px}
 @media(max-width:640px){.imOps{grid-template-columns:1fr}}
 /* ---- Ayuda y versión ---- */
+/* Resumen del mes (tarjeta de bienvenida del Panel) */
+.rmCard{margin-bottom:16px;border-left:4px solid var(--s1)}
+.rmCifras{display:flex;flex-wrap:wrap;gap:12px 28px;margin:2px 0 4px}
+.rmCifra{display:flex;flex-direction:column;gap:1px}
+.rmCifra .rmEt{font-size:12px;color:var(--tinta3);text-transform:uppercase;letter-spacing:.04em}
+.rmCifra b{font-size:22px;font-weight:680;font-variant-numeric:tabular-nums}
+.rmCifra small{font-size:12.5px;color:var(--tinta3)}
+.rmHacer{margin-top:12px;padding-top:12px;border-top:1px solid var(--borde);font-size:13.5px;color:var(--tinta2);line-height:1.5}
+.rmHacer b{color:var(--tinta)}
+.rmHacerEt{font-weight:650;color:var(--tinta);margin-right:4px}
 .ayudaTarjeta{margin-top:24px;max-width:860px}
 .webCard{border:2px solid var(--s1);background:color-mix(in srgb,var(--s1) 6%,var(--sup))}
 .webOficial{display:inline-block;margin-top:4px;padding:12px 18px;border-radius:12px;
@@ -888,6 +898,7 @@ body.video .tarjetaCanal{display:none}
 
   <!-- ===== PATRIMONIO ===== -->
   <div class="pv" id="pv-patrimonio">
+    <div id="resumenMes"></div>
     <section class="hero">
       <div class="hEtq" id="heroEtq">Patrimonio neto</div>
       <div class="hCifra" id="heroCifra">—</div>

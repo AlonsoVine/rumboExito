@@ -505,6 +505,35 @@
     });
   }
 
+  // Tarjeta «Resumen del mes»: qué ha cambiado (patrimonio, ahorro, dinero libre)
+  // y una sugerencia de qué conviene hacer (sin repetir los avisos del banner).
+  function pintaResumenMes() {
+    const cont = $("#resumenMes"); if (!cont) return;
+    const v = ((D.total.variacion || {}).neto) || {};
+    const varMes = v.varMes, base = v.hace1Mes;
+    const varPct = (base && varMes != null) ? varMes / Math.abs(base) : null;
+    const fl = D.flujos, em = fl ? fl.esteMes : null;
+    const libre = D.total.dineroLibre;
+    const mesNombre = fl && fl.meses.length ? G.fmtMes(fl.meses[fl.meses.length - 1]) : "";
+    const cif = (et, val, cl, sub) => `<div class="rmCifra"><span class="rmEt">${et}</span>
+      <b class="${cl || ""}">${val}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
+    const nAl = (D.alertas || []).length;
+    let hacer;
+    if (nAl) hacer = `Tienes <b>${nAl}</b> ${nAl === 1 ? "aviso que conviene revisar" : "avisos que conviene revisar"} <span class="rmFlecha">👇</span> (abajo).`;
+    else if (em && !em.gastos && !em.ingresos) hacer = 'Aún no has anotado nada este mes. Hazlo en <b>Mis datos → Ingresos y gastos</b> (o impórtalo del banco).';
+    else if (em && em.tasaAhorro != null && em.tasaAhorro >= 0.2) hacer = `Vas bien: has ahorrado el <b>${G.fmtPct(em.tasaAhorro, 0)}</b> de tus ingresos este mes. 💪`;
+    else hacer = "Todo en orden. 👌";
+    cont.innerHTML = `<section class="tarjeta rmCard">
+      <header><h2>Tu mes de un vistazo</h2><span class="subt">${mesNombre ? esc(mesNombre) + " · " : ""}qué ha cambiado y qué conviene hacer</span></header>
+      <div class="rmCifras">
+        ${cif("Patrimonio este mes", varMes != null ? G.fmtEurSigno(varMes) : "—", varMes >= 0 ? "pos" : "neg", varPct != null ? G.fmtPctSigno(varPct, 1) : "")}
+        ${em ? cif("Ahorro del mes", G.fmtEurSigno(em.ahorro), em.ahorro >= 0 ? "pos" : "neg", em.tasaAhorro != null ? "tasa " + G.fmtPct(em.tasaAhorro, 0) : "") : ""}
+        ${cif("Dinero libre", G.fmtEur(libre, 0), "", "para invertir")}
+      </div>
+      <div class="rmHacer"><span class="rmHacerEt">→ Qué conviene hacer</span> ${hacer}</div>
+    </section>`;
+  }
+
   function pintaHero(mVis, mTodo) {
     const filtro = filtrando();
     const m = filtro ? mVis : mTodo;
@@ -1544,6 +1573,7 @@
     const pv = estado.pv || "patrimonio";
     // Cifras y tablas (baratas): se rellenan siempre, aunque su vista esté oculta.
     pintaFiltros();
+    pintaResumenMes();
     pintaHero(mVis, mTodo);
     pintaKPIs(mVis);
     pintaAlertas();
