@@ -816,7 +816,45 @@
     return G.css("--s" + (h % 16 + 1));
   }
 
+  // Anotar un gasto/ingreso sin salir del Panel (bucle del día a día).
+  function pintaAnotarRapido() {
+    const cont = $("#anotarRapido"); if (!cont) return;
+    if (D.modo !== "propio") { cont.innerHTML = ""; return; }
+    const tipo = estado.arTipo || "gasto";
+    const cats = (D.categorias || []).filter(c => c.tipo === tipo).map(c => c.nombre);
+    const tits = D.titulares || [];
+    const hoy = new Date().toISOString().slice(0, 10);
+    cont.innerHTML = `<form class="anotarBar" id="formAnotar" autocomplete="off">
+      <div class="segm arTipo">
+        <button type="button" data-ar="gasto" aria-pressed="${tipo === "gasto"}">− Gasto</button>
+        <button type="button" data-ar="ingreso" aria-pressed="${tipo === "ingreso"}">+ Ingreso</button>
+      </div>
+      <input name="importe" inputmode="decimal" placeholder="Importe €" class="arImp" required>
+      <input name="categoria" placeholder="Categoría" list="arCats" class="arCat">
+      <datalist id="arCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
+      <input name="fecha" type="date" value="${hoy}" class="arFecha" aria-label="Fecha">
+      ${tits.length ? `<select name="titular" class="arTit" aria-label="Titular"><option value="">Titular…</option>${tits.map(t => `<option>${esc(t)}</option>`).join("")}</select>` : ""}
+      <button class="btn prim" type="submit">Anotar</button>
+      <span class="arMsg" id="arMsg"></span></form>`;
+    cont.querySelectorAll(".arTipo button").forEach(b => { b.onclick = () => { estado.arTipo = b.dataset.ar; pintaAnotarRapido(); }; });
+    $("#formAnotar").onsubmit = async e => {
+      e.preventDefault();
+      const f = e.target, btn = f.querySelector('button[type="submit"]');
+      const cuerpo = { tipo, importe: f.importe.value, fecha: f.fecha.value,
+        categoria: (f.categoria.value || "").trim(), titular: (f.titular && f.titular.value) || "" };
+      btn.disabled = true; btn.textContent = "Anotando…";
+      try {
+        const r = await fetch("api/flujos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || j.ok === false) throw new Error((j.errores || ["No se pudo guardar."]).join("\n"));
+        window.EDITOR_SUCIO = true;
+        recargaHoy();
+      } catch (x) { $("#arMsg").textContent = x.message || "No se pudo guardar."; btn.disabled = false; btn.textContent = "Anotar"; }
+    };
+  }
+
   function pintaIngresos() {
+    pintaAnotarRapido();
     const f = D.flujos, hay = !!f;
     const nav = $("#igNav"); if (nav) nav.hidden = !hay;
     const vac = $("#igVacio"); if (vac) vac.hidden = hay;

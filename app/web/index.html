@@ -90,6 +90,18 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 .igNav button:hover{color:var(--tinta)}
 .igNav button[aria-selected="true"]{color:var(--s1);border-bottom-color:var(--s1)}
 .ig[hidden]{display:none}
+/* Anotar rápido (bucle del día a día) */
+.anotarBar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 4px;padding:12px 14px;
+  background:var(--sup2);border:1px solid var(--borde);border-radius:14px}
+.anotarBar .arTipo button{font-size:13px;padding:7px 12px}
+.anotarBar input,.anotarBar select{font:inherit;font-size:14px;padding:8px 10px;border-radius:9px;
+  border:1px solid var(--borde);background:var(--sup);color:var(--tinta)}
+.anotarBar .arImp{width:120px}
+.anotarBar .arCat{flex:1;min-width:140px}
+.anotarBar .arFecha{width:150px}
+.anotarBar .arTit option{background:var(--sup);color:var(--tinta)}
+.anotarBar .arMsg{color:var(--mal);font-size:12.5px;flex-basis:100%}
+@media(max-width:640px){.anotarBar .arImp,.anotarBar .arFecha{width:100%}.anotarBar .arCat{flex-basis:100%}}
 /* Ranking de categorías (lista con barra) */
 .rankCat{display:flex;flex-direction:column;gap:9px;justify-content:center}
 .rankFila{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
@@ -1046,6 +1058,7 @@ body.video .tarjetaCanal{display:none}
   <!-- ===== INGRESOS Y GASTOS ===== -->
   <div class="pv" id="pv-ingresos" hidden>
     <p class="ayudaVista">El día a día del hogar: lo que entra, lo que sale y cuánto ahorras. Elige una vista.</p>
+    <div id="anotarRapido"></div>
     <nav class="igNav" id="igNav" role="tablist">
       <button data-ig="resumen" aria-selected="true">Resumen</button>
       <button data-ig="categorias" aria-selected="false">Categorías</button>

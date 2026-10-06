@@ -44,6 +44,8 @@ def test_demo_se_construye_sin_errores(tmp_path):
     assert len(f["porCategoria"][0]["serie"]) == 12, "cada categoría lleva su serie mensual"
     assert f["porTitular"], "debería haber desglose por titular"
     assert d.get("dimensiones"), "las dimensiones deberían exponerse al panel"
+    assert d.get("categorias"), "las categorías deberían exponerse (para anotar rápido)"
+    assert any(c["tipo"] == "gasto" for c in d["categorias"])
 
 
 def test_demo_esta_equilibrado(tmp_path):
