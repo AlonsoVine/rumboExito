@@ -571,6 +571,18 @@ def api_prompt_banco():
         return jsonify(texto=f.read())
 
 
+@app.get("/api/exportar/<que>.csv")
+def api_exportar_csv(que):
+    """Exporta una tabla a CSV (se abre en Excel/Numbers/Sheets)."""
+    spec = exportar.EXPORTABLES.get(que)
+    if not spec:
+        return jsonify(ok=False, errores=["No sé exportar eso."]), 404
+    nombre, fuente, fn = spec
+    datos = cartera() if fuente == "cartera" else (lee_json(ruta_calculado()) or {})
+    return Response(fn(datos), mimetype="text/csv",
+                    headers={"Content-Disposition": f'attachment; filename="{nombre}.csv"'})
+
+
 # ---------------------------------------------------------------- copias de seguridad
 
 def ruta_copias():

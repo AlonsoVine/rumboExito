@@ -13,7 +13,9 @@ porcentajes), nunca tu patrimonio real.
 """
 
 import base64
+import csv as _csv_mod
 import datetime as dt
+import io as _io
 import json
 import os
 import random
@@ -127,3 +129,106 @@ def pagina(web, datos, ocultar=False, titulo="Mi patrimonio"):
                  f'<!-- Exportado el {dt.datetime.now():%d/%m/%Y %H:%M} -->')
     html = html.replace("</head>", cabeceras + "\n</head>", 1)
     return html
+
+
+# ============================================================================
+#  Exportar tablas a CSV (se abren en Excel / Numbers / Google Sheets)
+#  Separador «;» y decimales con coma, como espera el Excel en español.
+# ============================================================================
+
+def _val_csv(v):
+    if v is None or v == "":
+        return ""
+    if isinstance(v, bool):
+        return "sí" if v else "no"
+    if isinstance(v, float):
+        return f"{v:.2f}".replace(".", ",")
+    if isinstance(v, int):
+        return str(v)
+    return str(v)
+
+
+def _csv(columnas, filas):
+    """columnas: [(clave, cabecera)]; filas: lista de dicts -> bytes CSV."""
+    buf = _io.StringIO()
+    w = _csv_mod.writer(buf, delimiter=";", lineterminator="\r\n")
+    w.writerow([c[1] for c in columnas])
+    for f in filas:
+        w.writerow([_val_csv(f.get(c[0])) for c in columnas])
+    return buf.getvalue().encode("utf-8-sig")
+
+
+def csv_activos(calc):
+    prods = calc.get("productos", []) or []
+    total = sum(p.get("valor") or 0 for p in prods) or 1
+    cols = [("nombre", "Nombre"), ("tipo", "Tipo"), ("titular", "Titular"), ("moneda", "Moneda"),
+            ("valor", "Valor (€)"), ("peso", "Peso (%)"), ("aportado", "Aportado (€)"),
+            ("rent", "Rentabilidad (%)")]
+    filas = []
+    for p in prods:
+        val = p.get("valor") or 0
+        rent = p.get("rentabilidad")
+        filas.append({
+            "nombre": p.get("corto") or p.get("nombre"), "tipo": p.get("tipo"),
+            "titular": p.get("titular") or "", "moneda": p.get("moneda") or "EUR",
+            "valor": round(val, 2), "peso": round(val / total * 100, 2),
+            "aportado": round(p.get("aportado"), 2) if p.get("aportado") else "",
+            "rent": round(rent * 100, 2) if rent is not None else "",
+        })
+    return _csv(cols, filas)
+
+
+def csv_movimientos(cartera):
+    nombres = {p["id"]: (p.get("corto") or p.get("nombre")) for p in cartera.get("productos", [])}
+    cols = [("fecha", "Fecha"), ("producto", "Producto"), ("tipo", "Tipo"), ("unidades", "Unidades"),
+            ("importe", "Importe (€)"), ("comision", "Comisión (€)"), ("nota", "Nota")]
+    filas = [{"fecha": m.get("fecha"), "producto": nombres.get(m.get("producto"), m.get("producto")),
+              "tipo": m.get("tipo"), "unidades": m.get("unidades"), "importe": m.get("importe"),
+              "comision": m.get("comision"), "nota": m.get("nota")}
+             for m in sorted(cartera.get("movimientos", []), key=lambda m: m.get("fecha", ""))]
+    return _csv(cols, filas)
+
+
+def csv_flujos(cartera):
+    cols = [("fecha", "Fecha"), ("tipo", "Tipo"), ("categoria", "Categoría"), ("titular", "Titular"),
+            ("importe", "Importe (€)"), ("nota", "Nota")]
+    filas = [{"fecha": f.get("fecha"), "tipo": f.get("tipo"), "categoria": f.get("categoria") or "",
+              "titular": f.get("titular") or "", "importe": f.get("importe"), "nota": f.get("nota") or ""}
+             for f in sorted(cartera.get("flujos", []), key=lambda f: f.get("fecha", ""))]
+    return _csv(cols, filas)
+
+
+def csv_ingresos_gastos(calc):
+    f = calc.get("flujos") or {}
+    meses = f.get("meses", [])
+    cols = [("mes", "Mes"), ("ingresos", "Ingresos (€)"), ("gastos", "Gastos (€)"),
+            ("ahorro", "Ahorro (€)"), ("tasa", "Tasa de ahorro (%)")]
+    filas = []
+    for i, m in enumerate(meses):
+        tasa = (f.get("tasaAhorro") or [])[i] if i < len(f.get("tasaAhorro") or []) else None
+        filas.append({"mes": m, "ingresos": (f.get("ingresos") or [None] * len(meses))[i],
+                      "gastos": (f.get("gastos") or [None] * len(meses))[i],
+                      "ahorro": (f.get("ahorro") or [None] * len(meses))[i],
+                      "tasa": round(tasa * 100, 1) if tasa is not None else ""})
+    return _csv(cols, filas)
+
+
+def csv_categorias(calc):
+    f = calc.get("flujos") or {}
+    cols = [("categoria", "Categoría"), ("tipo", "Tipo"), ("mes", "Este mes (€)"), ("anio", "Año (€)"),
+            ("total12", "Últimos 12m (€)"), ("media", "Media mensual (€)"), ("presupuesto", "Presupuesto (€)")]
+    tr = {"ingreso": "Ingreso", "gasto": "Gasto"}
+    filas = [{"categoria": c.get("categoria"), "tipo": tr.get(c.get("tipo"), c.get("tipo")),
+              "mes": c.get("mes"), "anio": c.get("anio"), "total12": c.get("total12"),
+              "media": c.get("media"), "presupuesto": c.get("presupuesto")}
+             for c in f.get("porCategoria", [])]
+    return _csv(cols, filas)
+
+
+EXPORTABLES = {
+    "activos": ("activos", "calc", csv_activos),
+    "movimientos": ("movimientos", "cartera", csv_movimientos),
+    "flujos": ("ingresos_gastos", "cartera", csv_flujos),
+    "ingresos-gastos": ("ingresos_gastos_mensual", "calc", csv_ingresos_gastos),
+    "categorias": ("gastos_por_categoria", "calc", csv_categorias),
+}

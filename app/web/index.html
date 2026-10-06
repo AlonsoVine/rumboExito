@@ -1064,7 +1064,8 @@ body.video .tarjetaCanal{display:none}
         <div class="envGraf" id="grafCascada"></div>
       </section>
       <section class="tarjeta" style="margin-top:16px">
-        <header><h2>Mes a mes</h2><span class="subt">Ingresos, gastos, ahorro y tasa de los últimos 12 meses</span></header>
+        <header><h2>Mes a mes</h2><span class="subt">Ingresos, gastos, ahorro y tasa de los últimos 12 meses</span>
+          <span class="sp"></span><a class="btn" href="api/exportar/ingresos-gastos.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a></header>
         <div class="tablaEnv"><table class="dt" id="flujosTabla"></table></div>
       </section>
     </div>
@@ -1076,6 +1077,7 @@ body.video .tarjetaCanal{display:none}
           <h2>¿En qué se va el dinero?</h2><div class="sep"></div>
           <div class="segm" id="segCatTipo"></div>
           <div class="segm" id="segCatPeriodo"></div>
+          <a class="btn" href="api/exportar/categorias.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a>
         </header>
         <div class="rejilla2">
           <div class="envGraf" id="grafCatDonut"></div>

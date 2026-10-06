@@ -372,7 +372,8 @@
     const filas = lista.map(filaProducto).join("");
     return `<section class="tarjeta"><header><h2>Activos</h2>
         <span class="subt">Todo lo que suma: fondos, acciones, cripto, cuentas, planes, inmuebles… Desde la ficha de cada uno anotas sus compras o su saldo.</span>
-        <span class="sp"></span>${lista.length > 1 ? '<button class="btn" data-acc="repartirColores" title="Da a cada activo un color distinto">Repartir colores</button>' : ""}
+        <span class="sp"></span>${lista.length ? '<a class="btn" href="api/exportar/activos.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a>' : ""}
+        ${lista.length > 1 ? '<button class="btn" data-acc="repartirColores" title="Da a cada activo un color distinto">Repartir colores</button>' : ""}
         <button class="btn prim" data-acc="nuevoProducto">+ Añadir activo</button></header>
       ${filas ? envTabla("activos", `<tr><th>Activo</th><th>Tipo</th><th>Último precio</th>
         <th>Fuente del precio</th><th>Datos</th><th class="nosort"></th></tr>`, filas)
@@ -816,7 +817,8 @@
         <button data-acc="borrarFlujo" data-id="${esc(x.id)}">Borrar</button></td></tr>`).join("");
     return `<section class="tarjeta"><header><h2>Ingresos y gastos</h2>
         <span class="subt">Flujo de caja del hogar: nóminas, alquileres, gastos… No incluye compras de inversión ni traspasos entre tus cuentas.</span>
-        <span class="sp"></span><button class="btn prim" data-acc="nuevoFlujo">+ Añadir apunte</button></header>
+        <span class="sp"></span>${fs.length ? '<a class="btn" href="api/exportar/flujos.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a>' : ""}
+        <button class="btn prim" data-acc="nuevoFlujo">+ Añadir apunte</button></header>
       ${filas ? envTabla("flujos", `<tr><th>Fecha</th><th>Tipo</th><th>Categoría</th>
         <th>Titular</th><th style="text-align:right">Importe</th><th class="nosort"></th></tr>`, filas)
         : '<p class="subt">Todavía no has anotado ingresos ni gastos.</p>'}
@@ -880,6 +882,7 @@
         <span class="subt">Compras, ventas, dividendos y comisiones</span><span class="sp"></span>
         <select id="edFiltro" aria-label="Filtrar por producto"><option value="todos">Todos los productos</option>
           ${cotizables.map(p => `<option value="${esc(p.id)}"${p.id === E.filtro ? " selected" : ""}>${esc(nombre(p))}</option>`).join("")}</select>
+        ${(E.cfg.movimientos || []).length ? '<a class="btn" href="api/exportar/movimientos.csv" download title="Exportar a CSV (Excel)">⬇ CSV</a>' : ""}
         <button class="btn prim" data-acc="nuevoMov">+ Añadir movimiento</button></header>
       ${filas ? envTabla("movimientos", `<tr><th>Fecha</th><th style="text-align:left">Producto</th>
         <th style="text-align:left">Tipo</th><th>Unidades</th><th>Importe</th><th>Precio por unidad</th>
