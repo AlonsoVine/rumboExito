@@ -339,6 +339,7 @@
       flujos: vistaFlujos, saldos: vistaSaldosMov, config: vistaConfig,
       importar: vistaImportar, copias: vistaCopias }[E.vista] || vistaActivos)();
     if (E.vista === "importar" || E.vista === "copias") conectaImportar();
+    if (E.vista === "flujos") montaAnotarRapido();
     const filtro = $("#edFiltro");
     if (filtro) filtro.onchange = e => { E.filtro = e.target.value; pinta(); };
     aplicaTablas();   // restaura búsqueda y orden de cada tabla tras el re-render
@@ -728,6 +729,13 @@
       </div>
       <p class="ayuda">Aparecen en el desplegable al anotar. En los gastos puedes añadir un presupuesto mensual con
         «= importe» (p. ej. <code>Alimentación = 600</code>); el Panel te dirá si te pasas. Si las dejas vacías, escribes la categoría a mano.</p>
+      ${seccion("Reglas para categorizar el banco")}
+      <div class="rejilla">
+        ${campo("Una regla por línea: «palabra = Categoría»", '<textarea name="reglasCat" rows="4" placeholder="mercadona = Alimentación\niberdrola = Suministros\nnetflix = Ocio y restaurantes"></textarea>', "", "ancho")}
+      </div>
+      <p class="ayuda">Al <b>importar movimientos del banco</b>, si el concepto contiene esa palabra se asigna esa categoría
+        (si existe y es del tipo correcto). Tienen prioridad sobre las que trae la app. Al importar puedes marcar
+        «recordar mis correcciones» y se añaden aquí solas.</p>
       ${seccion("Dimensiones de clasificación")}
       <div class="rejilla">
         ${campo("Una dimensión por línea: «Nombre: valor1, valor2, …»", '<textarea name="dimensiones" rows="4" placeholder="Clase de activo: Renta variable, Renta fija, Liquidez, Alternativos\nGeografía: Global, EEUU, Europa, Emergentes"></textarea>', "", "ancho")}
@@ -757,6 +765,10 @@
         return o;
       }).filter(o => o.nombre);
       const categorias = lineas("catIng").map(n => ({ nombre: n, tipo: "ingreso" })).concat(catGas);
+      const reglasCategoria = lineas("reglasCat").map(l => {
+        const i = l.indexOf("=");
+        return i < 0 ? null : { palabra: l.slice(0, i).trim(), categoria: l.slice(i + 1).trim() };
+      }).filter(r => r && r.palabra && r.categoria);
       const dimensiones = lineas("dimensiones").map(l => {
         const i = l.indexOf(":");
         const nombre = (i >= 0 ? l.slice(0, i) : l).trim();
@@ -774,7 +786,7 @@
         diasAviso: d.diasAviso,
         diasSinAnotar: d.diasSinAnotar,
         buscarActualizaciones: f.elements.buscarActualizaciones.checked,
-        objetivos, monedas, categorias, dimensiones,
+        objetivos, monedas, categorias, dimensiones, reglasCategoria,
       });
       // El nombre sale en el selector de arriba: recargar para que se vea al momento.
       location.reload();
@@ -801,10 +813,74 @@
       .map(c => c.presupuesto != null ? `${c.nombre} = ${c.presupuesto}` : c.nombre).join("\n");
     f.elements.dimensiones.value = (conf.dimensiones || [])
       .map(dm => (dm.valores || []).length ? `${dm.nombre}: ${dm.valores.join(", ")}` : dm.nombre).join("\n");
+    f.elements.reglasCat.value = (conf.reglasCategoria || [])
+      .map(r => `${r.palabra} = ${r.categoria}`).join("\n");
     return f;
   }
 
   /* ---------------------------------------------- ingresos y gastos (flujos) */
+  // Estado del «Anotar rápido» (persiste entre re-renders para poder precargar una plantilla).
+  let AR = { tipo: "gasto" };
+
+  // Rellena el formulario rápido con una plantilla recurrente (NO guarda: el importe
+  // puede variar de un mes a otro, así que el usuario lo ajusta y confirma).
+  function rellenaDe(r) {
+    if (!r) return;
+    AR = { tipo: r.tipo, importe: r.importe, categoria: r.categoria || "", titular: r.titular || "" };
+    montaAnotarRapido();
+    const imp = $("#formAnotar") && $("#formAnotar").importe;
+    if (imp) { imp.focus(); if (imp.select) imp.select(); }
+  }
+  async function quitaRecurrente(i) {
+    try {
+      const j = await api("POST", "api/recurrentes", { accion: "quitar", indice: i });
+      E.cfg = j.cartera; window.EDITOR_SUCIO = true; pinta();
+    } catch (x) { const m = $("#arMsg"); if (m) m.textContent = x.message; }
+  }
+  function montaAnotarRapido() {
+    const cont = $("#anotarRapido"); if (!cont) return;
+    const conf = E.cfg.config || {};
+    const tipo = AR.tipo || "gasto";
+    const cats = (conf.categorias || []).filter(c => c.tipo === tipo).map(c => c.nombre);
+    const tits = E.cfg.titulares || [];
+    const recs = conf.recurrentes || [];
+    const hoy = new Date().toISOString().slice(0, 10);
+    cont.innerHTML = `<form class="anotarBar" id="formAnotar" autocomplete="off">
+        <div class="segm arTipo">
+          <button type="button" data-ar="gasto" aria-pressed="${tipo === "gasto"}">− Gasto</button>
+          <button type="button" data-ar="ingreso" aria-pressed="${tipo === "ingreso"}">+ Ingreso</button></div>
+        <input name="importe" inputmode="decimal" placeholder="Importe €" class="arImp" required>
+        <input name="categoria" placeholder="Categoría" list="arCats" class="arCat">
+        <datalist id="arCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
+        <input name="fecha" type="date" value="${hoy}" class="arFecha" aria-label="Fecha">
+        ${tits.length ? `<select name="titular" class="arTit" aria-label="Titular"><option value="">Titular…</option>${tits.map(t => `<option${t === AR.titular ? " selected" : ""}>${esc(t)}</option>`).join("")}</select>` : ""}
+        <label class="arRec" title="Guardar como plantilla para repetirlo cada mes"><input type="checkbox" id="arRecurrente"> 🔁 recurrente</label>
+        <button class="btn prim" type="submit">Anotar</button>
+        <span class="arMsg" id="arMsg"></span></form>
+      ${recs.length ? `<div class="recChips"><span class="recHint">Recurrentes · pulsa para rellenar:</span>${recs.map((r, i) => `
+        <span class="recChip ${r.tipo === "ingreso" ? "pos" : "neg"}" data-rellena="${i}" role="button" tabindex="0" title="Rellenar el formulario con esta plantilla">🔁 ${esc(r.categoria || r.nota || (r.tipo === "ingreso" ? "Ingreso" : "Gasto"))} <b>${r.tipo === "gasto" ? "−" : "+"}${eur(r.importe)}</b>${r.titular ? ` · ${esc(r.titular)}` : ""}<button class="recX" data-quitar="${i}" title="Quitar plantilla" aria-label="Quitar">×</button></span>`).join("")}</div>` : ""}`;
+    if (AR.importe != null) cont.querySelector('[name="importe"]').value = AR.importe;
+    if (AR.categoria != null) cont.querySelector('[name="categoria"]').value = AR.categoria;
+    cont.querySelectorAll(".arTipo button").forEach(b => { b.onclick = () => { AR = { tipo: b.dataset.ar }; montaAnotarRapido(); }; });
+    cont.querySelectorAll("[data-rellena]").forEach(ch => { ch.onclick = e => { if (!e.target.closest(".recX")) rellenaDe(recs[+ch.dataset.rellena]); }; });
+    cont.querySelectorAll(".recX").forEach(x => { x.onclick = e => { e.stopPropagation(); quitaRecurrente(+x.dataset.quitar); }; });
+    $("#formAnotar").onsubmit = async e => {
+      e.preventDefault();
+      const f = e.target, btn = f.querySelector('button[type="submit"]');
+      const cuerpo = { tipo, importe: f.importe.value, fecha: f.fecha.value,
+        categoria: (f.categoria.value || "").trim(), titular: (f.titular && f.titular.value) || "" };
+      btn.disabled = true; btn.textContent = "Anotando…";
+      try {
+        await guarda("flujos", cuerpo);
+        if ($("#arRecurrente") && $("#arRecurrente").checked) {
+          try { const j = await api("POST", "api/recurrentes", { accion: "añadir", recurrente: cuerpo }); E.cfg = j.cartera; } catch (_) { /* el apunte ya se guardó */ }
+        }
+        AR = { tipo };
+        pinta();
+      } catch (x) { $("#arMsg").textContent = x.message || "No se pudo guardar."; btn.disabled = false; btn.textContent = "Anotar"; }
+    };
+  }
+
   function vistaFlujos() {
     const fs = (E.cfg.flujos || []).slice().sort((a, b) => a.fecha < b.fecha ? 1 : -1);
     const filas = fs.map(x => `<tr>
@@ -814,7 +890,10 @@
       <td style="text-align:right" class="${x.tipo === "ingreso" ? "pos" : "neg"}">${x.tipo === "gasto" ? "−" : ""}${eur(x.importe)}</td>
       <td class="acc"><button data-acc="editarFlujo" data-id="${esc(x.id)}">Editar</button>
         <button data-acc="borrarFlujo" data-id="${esc(x.id)}">Borrar</button></td></tr>`).join("");
-    return `<section class="tarjeta"><header><h2>Ingresos y gastos</h2>
+    return `<section class="tarjeta"><header><h2>Anotar rápido</h2>
+        <span class="subt">Un gasto o ingreso al vuelo, sin abrir el formulario completo. Pulsa un recurrente para rellenarlo (ajusta el importe si varía).</span></header>
+      <div id="anotarRapido"></div></section>
+      <section class="tarjeta"><header><h2>Ingresos y gastos</h2>
         <span class="subt">Flujo de caja del hogar: nóminas, alquileres, gastos… No incluye compras de inversión ni traspasos entre tus cuentas.</span>
         <span class="sp"></span><button class="btn prim" data-acc="nuevoFlujo">+ Añadir apunte</button></header>
       ${filas ? envTabla("flujos", `<tr><th>Fecha</th><th>Tipo</th><th>Categoría</th>
@@ -1285,7 +1364,10 @@
       ${filas ? `<div class="tablaEnv alto" style="margin-top:16px"><table class="dt"><thead><tr><th>Fecha</th>
         <th style="text-align:left">Concepto</th><th>Tipo</th><th style="text-align:left">Categoría</th><th>Importe</th>
         <th>Estado</th></tr></thead><tbody>${filas}</tbody></table></div>` : ""}
-      <div class="imAcc"><button class="btn" data-acc="imCancelar">Cancelar</button><span class="sp"></span>
+      <div class="imAcc"><button class="btn" data-acc="imCancelar">Cancelar</button>
+        <label class="imRecordar" title="Guarda tus categorías como reglas para la próxima importación">
+          <input type="checkbox" id="imRecordar" checked> Recordar mis correcciones</label>
+        <span class="sp"></span>
         <button class="btn prim" data-acc="imConfirmar" id="imConfirmarBtn"${n ? "" : " disabled"}>
           ${n ? `Importar ${n} ${n === 1 ? "movimiento" : "movimientos"}` : "No hay nada nuevo que importar"}</button></div></section>`;
   }
@@ -1296,7 +1378,11 @@
     b.textContent = "Importando…";
     try {
       const cuerpo = { token: IMP.token };
-      if (IMP.informe && IMP.informe.tipoImport === "banco") cuerpo.categorias = IMP.cats;
+      if (IMP.informe && IMP.informe.tipoImport === "banco") {
+        cuerpo.categorias = IMP.cats;
+        const rec = $("#imRecordar");
+        cuerpo.recordar = rec ? rec.checked : false;
+      }
       const j = await api("POST", "api/importar/confirmar", cuerpo);
       E.cfg = j.cartera;
       window.EDITOR_SUCIO = true;
@@ -1304,7 +1390,8 @@
       const pl = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
       if (IMP.informe && IMP.informe.tipoImport === "banco") {
         IMP.hecho = "Importado: " + (pl(i.flujosAñadidos || 0, "movimiento del banco", "movimientos del banco")) +
-          (i.flujosRepetidos ? `. ${pl(i.flujosRepetidos, "ya estaba y se ha omitido", "ya estaban y se han omitido")}` : "") + ".";
+          (i.flujosRepetidos ? `. ${pl(i.flujosRepetidos, "ya estaba y se ha omitido", "ya estaban y se han omitido")}` : "") + "." +
+          (i.reglasAprendidas ? ` Aprendí ${pl(i.reglasAprendidas, "regla de categoría", "reglas de categoría")} para la próxima vez.` : "");
       } else {
         IMP.hecho = "Importado: " + [i.añadidos && pl(i.añadidos, "movimiento", "movimientos"),
           i.saldos && pl(i.saldos, "saldo", "saldos")].filter(Boolean).join(" y ") +
@@ -1553,7 +1640,16 @@
     }, 6000);
   })();
 
-  window.Editor = { mostrar: pinta };
+  window.Editor = {
+    mostrar: pinta,
+    // Navegar a una sección de «Mis datos» desde fuera (p. ej. la paleta de acciones).
+    ir(v) {
+      if (["activos", "deudas", "apartados", "flujos", "saldos", "config", "importar", "copias"].includes(v)) {
+        E.vista = v; recuerda.guarda("patrimonio.editor", v);
+      }
+      pinta();
+    },
+  };
   carga().then(pinta).catch(x => {
     const cont = $("#editor");
     if (cont) cont.innerHTML = `<div class="av"><span>⚠</span><span>${esc(x.message)}</span></div>`;

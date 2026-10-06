@@ -521,9 +521,12 @@ def api_importar_confirmar():
             key = str(fl.get("fila"))
             if key in cambios_cat:
                 fl["categoria"] = str(cambios_cat[key] or "")[:40]
+    aprender = bool(cuerpo.get("recordar")) and cambios_cat and getattr(plan, "flujos", None)
     informe = {}
 
     def fn(cfg):
+        if aprender:
+            informe["reglasAprendidas"] = importar.aprende_reglas(cfg, plan, cambios_cat)
         informe.update(importar.aplicar(cfg, plan))
         return None
     respuesta = cambia(fn)
@@ -531,7 +534,8 @@ def api_importar_confirmar():
         return respuesta
     datos = respuesta.get_json()
     datos["informe"] = {k: informe.get(k, 0) for k in
-                        ("añadidos", "repetidos", "saldos", "sustituidos", "flujosAñadidos", "flujosRepetidos")}
+                        ("añadidos", "repetidos", "saldos", "sustituidos", "flujosAñadidos",
+                         "flujosRepetidos", "reglasAprendidas")}
     return jsonify(datos)
 
 
@@ -569,6 +573,27 @@ def api_prompt():
 def api_prompt_banco():
     with open(os.path.join(RAIZ, "app", "prompt_ia_banco.txt"), encoding="utf-8") as f:
         return jsonify(texto=f.read())
+
+
+@app.post("/api/recurrentes")
+def api_recurrentes():
+    """Añade o quita una plantilla de ingreso/gasto recurrente (config.recurrentes)."""
+    cuerpo = request.get_json(silent=True) or {}
+    accion = cuerpo.get("accion")
+
+    def fn(cfg):
+        lista = cfg.setdefault("config", {}).setdefault("recurrentes", [])
+        if accion == "quitar":
+            i = cuerpo.get("indice")
+            if isinstance(i, int) and 0 <= i < len(lista):
+                lista.pop(i)
+        else:
+            r = almacen.sanea_recurrente(cuerpo.get("recurrente") or cuerpo)
+            if not r:
+                raise almacen.ErrorValidacion(["Esa plantilla recurrente no es válida (tipo e importe)."])
+            lista.append(r)
+        return None
+    return cambia(fn)
 
 
 # ---------------------------------------------------------------- copias de seguridad

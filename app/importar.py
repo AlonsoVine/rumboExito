@@ -555,14 +555,54 @@ def lee_numero_con_signo(v):
     return -n if neg else n
 
 
-def _categoria_auto(concepto, tipo, cats_del_tipo):
-    """Asigna una categoría por palabra clave, solo si existe en la config del usuario."""
+def _categoria_auto(concepto, tipo, cats_del_tipo, reglas_usuario=None):
+    """Asigna una categoría por palabra clave, solo si existe en la config del usuario.
+    Las reglas del usuario (reglas_usuario = [(palabra, categoria)]) tienen prioridad."""
     disponibles = {sin_tildes(c): c for c in cats_del_tipo}
     conc = " " + sin_tildes(concepto) + " "
+    for palabra, categoria in (reglas_usuario or []):
+        if sin_tildes(categoria) in disponibles and sin_tildes(palabra) in conc:
+            return disponibles[sin_tildes(categoria)]
     for cat, claves in REGLAS_CATEGORIA.get(tipo, {}).items():
         if sin_tildes(cat) in disponibles and any(sin_tildes(k) in conc for k in claves):
             return disponibles[sin_tildes(cat)]
     return ""
+
+
+# Palabras demasiado genéricas para convertirse en una regla aprendida.
+_STOP_PALABRAS = {"compra", "pago", "pagos", "recibo", "recibos", "transferencia", "transf",
+                  "tarjeta", "bizum", "cargo", "abono", "ingreso", "domiciliacion", "factura",
+                  "nomina", "comision", "comisiones", "liquidacion", "operacion", "cuenta",
+                  "madrid", "barcelona", "espana", "online", "web", "www"}
+
+
+def palabra_clave(concepto):
+    """Extrae del concepto una palabra representativa para una regla aprendida
+    (la más larga, ≥4 letras, que no sea genérica). '' si no hay ninguna buena."""
+    tokens = re.findall(r"[a-záéíóúñ]{4,}", sin_tildes(str(concepto or "")).lower())
+    tokens = [t for t in tokens if t not in _STOP_PALABRAS]
+    return max(tokens, key=len) if tokens else ""
+
+
+def aprende_reglas(cfg, plan, cambios_cat):
+    """A partir de las categorías que el usuario corrigió en la vista previa del banco,
+    guarda reglas propias (palabra del concepto -> categoría) para la próxima vez."""
+    conf = cfg.setdefault("config", {})
+    reglas = conf.setdefault("reglasCategoria", [])
+    existentes = {r["palabra"] for r in reglas}
+    por_fila = {str(fl.get("fila")): fl for fl in getattr(plan, "flujos", [])}
+    añadidas = 0
+    for fila, categoria in (cambios_cat or {}).items():
+        categoria = str(categoria or "").strip()
+        fl = por_fila.get(str(fila))
+        if not categoria or not fl:
+            continue
+        palabra = palabra_clave(fl.get("concepto"))
+        if palabra and palabra not in existentes:
+            reglas.append({"palabra": palabra, "categoria": categoria[:40]})
+            existentes.add(palabra)
+            añadidas += 1
+    return añadidas
 
 
 def preparar_banco(cfg, filas):
@@ -572,6 +612,8 @@ def preparar_banco(cfg, filas):
     cats = (cfg.get("config") or {}).get("categorias") or []
     por_tipo = {"ingreso": [c["nombre"] for c in cats if c.get("tipo") == "ingreso"],
                 "gasto": [c["nombre"] for c in cats if c.get("tipo") == "gasto"]}
+    reglas_usuario = [(r.get("palabra", ""), r.get("categoria", ""))
+                      for r in ((cfg.get("config") or {}).get("reglasCategoria") or [])]
     titulares = cfg.get("titulares") or []
     for n, f in filas:
         fecha = lee_fecha(f.get("fecha"))
@@ -588,7 +630,7 @@ def preparar_banco(cfg, filas):
         concepto = str(f.get("concepto") or "").strip()
         cat_dada = str(f.get("categoria") or "").strip()
         disp = {sin_tildes(c): c for c in por_tipo.get(tipo, [])}
-        categoria = disp.get(sin_tildes(cat_dada), "") if cat_dada else _categoria_auto(concepto, tipo, por_tipo.get(tipo, []))
+        categoria = disp.get(sin_tildes(cat_dada), "") if cat_dada else _categoria_auto(concepto, tipo, por_tipo.get(tipo, []), reglas_usuario)
         tit = str(f.get("titular") or "").strip()
         titular = next((t for t in titulares if sin_tildes(t) == sin_tildes(tit)), tit if tit else "")
         plan.flujos.append({"fila": n, "fecha": fecha, "tipo": tipo, "importe": round(abs(importe), 2),

@@ -90,6 +90,30 @@ code{background:var(--sup2);padding:1px 6px;border-radius:5px;font-size:.9em}
 .igNav button:hover{color:var(--tinta)}
 .igNav button[aria-selected="true"]{color:var(--s1);border-bottom-color:var(--s1)}
 .ig[hidden]{display:none}
+/* Anotar rápido (bucle del día a día) */
+.anotarBar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 4px;padding:12px 14px;
+  background:var(--sup2);border:1px solid var(--borde);border-radius:14px}
+.anotarBar .arTipo button{font-size:13px;padding:7px 12px}
+.anotarBar input,.anotarBar select{font:inherit;font-size:14px;padding:8px 10px;border-radius:9px;
+  border:1px solid var(--borde);background:var(--sup);color:var(--tinta)}
+.anotarBar .arImp{width:120px}
+.anotarBar .arCat{flex:1;min-width:140px}
+.anotarBar .arFecha{width:150px}
+.anotarBar .arTit option{background:var(--sup);color:var(--tinta)}
+.anotarBar .arMsg{color:var(--mal);font-size:12.5px;flex-basis:100%}
+.anotarBar .arRec{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--tinta2);cursor:pointer}
+.anotarBar .arRec input{accent-color:var(--s1)}
+@media(max-width:640px){.anotarBar .arImp,.anotarBar .arFecha{width:100%}.anotarBar .arCat{flex-basis:100%}}
+.recChips{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0 2px}
+.recHint{font-size:12.5px;color:var(--tinta3);margin-right:2px}
+.recChip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:6px 8px 6px 11px;border-radius:999px;
+  background:var(--sup);border:1px solid var(--borde);color:var(--tinta2);cursor:pointer;transition:.12s}
+.recChip:hover{border-color:var(--s1);color:var(--tinta)}
+.recChip b{font-variant-numeric:tabular-nums}
+.recChip.pos b{color:var(--bien,#1f9d72)}
+.recChip.neg b{color:var(--mal,#d6455d)}
+.recChip .recX{border:0;background:none;color:var(--tinta3);font-size:15px;line-height:1;cursor:pointer;padding:0 2px;border-radius:6px}
+.recChip .recX:hover{color:var(--mal);background:color-mix(in srgb,var(--mal) 14%,transparent)}
 /* Ranking de categorías (lista con barra) */
 .rankCat{display:flex;flex-direction:column;gap:9px;justify-content:center}
 .rankFila{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
@@ -640,6 +664,8 @@ body.video .tarjeta{padding:22px 24px}
 .imCatSel{font:inherit;font-size:13px;padding:5px 8px;border-radius:9px;border:1px solid var(--borde);
   background:var(--sup);color:var(--tinta);max-width:200px}
 .imCatSel option{background:var(--sup);color:var(--tinta)}
+.imRecordar{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--tinta2);margin-left:14px;cursor:pointer}
+.imRecordar input{accent-color:var(--s1)}
 .imPaso{margin-top:20px;padding-top:20px;border-top:1px solid var(--borde)}
 .pasos{list-style:none;counter-reset:paso;margin:0;padding:0;display:grid;gap:12px}
 .pasos li{counter-increment:paso;position:relative;padding-left:40px;font-size:14px;line-height:1.55;color:var(--tinta2);min-height:28px}
@@ -697,7 +723,46 @@ body.video .tarjeta{padding:22px 24px}
 .exito b{flex:1;font-size:14px}
 @media(max-width:640px){.imOps{grid-template-columns:1fr}}
 /* ---- Ayuda y versión ---- */
+/* Paleta de acciones (Ctrl/⌘+K) */
+dialog.paleta{padding:0;border:none;background:none;margin-top:9vh}
+dialog.paleta::backdrop{background:rgba(0,0,0,.45)}
+.palCuerpo{width:min(560px,92vw);background:var(--sup);border:1px solid var(--borde);border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
+#palInput{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid var(--borde);background:none;
+  color:var(--tinta);font:inherit;font-size:16px;padding:16px 18px;outline:none}
+#palLista{list-style:none;margin:0;padding:6px;max-height:52vh;overflow:auto}
+.palItem{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;cursor:pointer;font-size:14px}
+.palItem.sel{background:var(--s1);color:#fff}
+.palItem.sel .palHint{color:rgba(255,255,255,.8)}
+.palIco{width:20px;text-align:center;flex:0 0 auto}
+.palLbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.palHint{font-size:11.5px;color:var(--tinta3);text-transform:uppercase;letter-spacing:.04em}
+.palVacio{padding:16px 12px;color:var(--tinta3);font-size:14px}
+.palPie{padding:9px 14px;border-top:1px solid var(--borde);font-size:11.5px;color:var(--tinta3)}
+.palPie kbd{margin-right:3px}
+/* Overlay de atajos de teclado */
+.atajosCuerpo{padding:24px 26px;max-width:460px}
+.atajos{width:100%;border-collapse:collapse}
+.atajos td{padding:8px 4px;border-top:1px solid var(--borde);font-size:14px;color:var(--tinta2)}
+.atajos td:first-child{white-space:nowrap;width:1%;padding-right:18px}
+kbd{display:inline-block;min-width:16px;text-align:center;padding:2px 7px;border-radius:7px;font:inherit;font-size:12.5px;
+  font-weight:600;color:var(--tinta);background:var(--sup2);border:1px solid var(--borde);box-shadow:0 1px 0 var(--borde)}
+/* Resumen del mes (tarjeta de bienvenida del Panel) */
+.rmCard{margin-bottom:16px;border-left:4px solid var(--s1)}
+.rmCifras{display:flex;flex-wrap:wrap;gap:12px 28px;margin:2px 0 4px}
+.rmCifra{display:flex;flex-direction:column;gap:1px}
+.rmCifra .rmEt{font-size:12px;color:var(--tinta3);text-transform:uppercase;letter-spacing:.04em}
+.rmCifra b{font-size:22px;font-weight:680;font-variant-numeric:tabular-nums}
+.rmCifra small{font-size:12.5px;color:var(--tinta3)}
+.rmHacer{margin-top:12px;padding-top:12px;border-top:1px solid var(--borde);font-size:13.5px;color:var(--tinta2);line-height:1.5}
+.rmHacer b{color:var(--tinta)}
+.rmHacerEt{font-weight:650;color:var(--tinta);margin-right:4px}
 .ayudaTarjeta{margin-top:24px;max-width:860px}
+.webCard{border:2px solid var(--s1);background:color-mix(in srgb,var(--s1) 6%,var(--sup))}
+.webOficial{display:inline-block;margin-top:4px;padding:12px 18px;border-radius:12px;
+  background:var(--s1);color:#fff;font-size:18px;font-weight:700;text-decoration:none;letter-spacing:.01em}
+.webOficial:hover{filter:brightness(1.08)}
+.webOficial::before{content:"🔗 ";font-weight:400}
 .faq{border-top:1px solid var(--borde)}
 .faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;padding:15px 2px;font-size:14.5px;font-weight:620}
 .faq summary::-webkit-details-marker{display:none}
@@ -797,7 +862,7 @@ body.video .tarjetaCanal{display:none}
 @media print{
   :root{--fondo:#fff;--sup:#fff;--tinta:#000;--tinta2:#222;--tinta3:#555;--borde:#ccc}
   body{background:#fff;color:#000;zoom:1}
-  .topFila,.tabsPrin,#subtabs,#btnPrecios,#btnImprimir,
+  .topFila,.tabsPrin,#subtabs,#btnPrecios,#btnImprimir,#btnPaleta,
   .tarjetaCanal,#bannerDemo,#bannerVersion,#filtroTitular,.aviso-legal,
   #selFiscalCont,.mesRefCtrl,#tab-datos,#tab-ayuda,#tab-ajustes{display:none !important}
   .pv,.panel{display:block !important}
@@ -816,6 +881,7 @@ body.video .tarjetaCanal{display:none}
       <div class="marca"><img class="logoIcono" src="icono-64.png" alt="" width="24" height="24"><span class="nombreApp">Liberty</span><span class="marcaSep"></span><span id="marcaTexto">Mi patrimonio</span><select id="selCartera" class="selCartera" aria-label="Elegir o crear patrimonio" hidden></select></div>
       <div class="sep"></div>
       <span class="meta" id="metaFecha"></span>
+      <button class="btn" id="btnPaleta" title="Buscar e ir a cualquier sitio (Ctrl+K)" aria-label="Buscar acciones">🔍 Buscar <kbd>⌘K</kbd></button>
       <button class="btn" id="btnPrecios" title="Descarga los precios de hoy de cada producto">↻ Actualizar precios</button>
       <button class="btn" id="btnImprimir" title="Imprimir esta vista o guardarla como PDF (elige «Guardar como PDF» en el destino)">🖨 Imprimir</button>
     </div>
@@ -857,6 +923,7 @@ body.video .tarjetaCanal{display:none}
 
   <!-- ===== PATRIMONIO ===== -->
   <div class="pv" id="pv-patrimonio">
+    <div id="resumenMes"></div>
     <section class="hero">
       <div class="hEtq" id="heroEtq">Patrimonio neto</div>
       <div class="hCifra" id="heroCifra">—</div>
@@ -1043,7 +1110,7 @@ body.video .tarjetaCanal{display:none}
 
   <!-- ===== INGRESOS Y GASTOS ===== -->
   <div class="pv" id="pv-ingresos" hidden>
-    <p class="ayudaVista">El día a día del hogar: lo que entra, lo que sale y cuánto ahorras. Elige una vista.</p>
+    <p class="ayudaVista">El día a día del hogar: lo que entra, lo que sale y cuánto ahorras. Elige una vista. Para anotar o importar apuntes, ve a «Mis datos → Ingresos y gastos».</p>
     <nav class="igNav" id="igNav" role="tablist">
       <button data-ig="resumen" aria-selected="true">Resumen</button>
       <button data-ig="categorias" aria-selected="false">Categorías</button>
@@ -1065,7 +1132,11 @@ body.video .tarjetaCanal{display:none}
       </section>
       <section class="tarjeta" style="margin-top:16px">
         <header><h2>Mes a mes</h2><span class="subt">Ingresos, gastos, ahorro y tasa de los últimos 12 meses</span></header>
-        <div class="tablaEnv"><table class="dt" id="flujosTabla"></table></div>
+        <div class="tablaBloque" data-tabla="ingresos_gastos_mensual">
+          <div class="tablaTools" style="display:flex;justify-content:flex-end;margin-bottom:8px">
+            <button type="button" class="btn" data-csv title="Descargar esta tabla en CSV (para Excel)">⤓ CSV</button></div>
+          <div class="tablaEnv"><table class="dt" id="flujosTabla"></table></div>
+        </div>
       </section>
     </div>
 
@@ -1152,6 +1223,19 @@ body.video .tarjetaCanal{display:none}
   <div class="banner" id="bannerVersion" hidden><span id="bannerVersionTexto"></span></div>
   <div style="margin:4px 0 2px"><button class="btn" id="btnVerBienvenida">👋 Ver la presentación de bienvenida</button></div>
 
+  <section class="tarjeta ayudaTarjeta webCard">
+    <header><h2>🌐 Web oficial de Liberty</h2><span class="subt">La página desde donde se descarga y se actualiza</span></header>
+    <p>Esta es la página oficial de Liberty. Guárdala en favoritos: desde ahí consigues siempre la última versión.</p>
+    <a class="webOficial" href="https://alonsovine.github.io/liberty/" target="_blank" rel="noopener">alonsovine.github.io/liberty</a>
+    <p style="margin-top:14px">Para <b>actualizar</b>, descarga el nuevo <code>.exe</code> desde la web y copia tu carpeta <code>mis_datos</code> a la nueva ubicación: así no pierdes nada.
+      Activa «Buscar actualizaciones» en <b>Configuración</b> si quieres que la app te avise cuando haya versión nueva.</p>
+    <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <a class="btn prim" href="https://alonsovine.github.io/liberty/" target="_blank" rel="noopener">🌐 Abrir la web oficial</a>
+      <a class="btn" href="https://alonsovine.github.io/liberty/#descarga" target="_blank" rel="noopener">⬇ Descargar la última versión</a>
+      <a class="btn" href="https://github.com/AlonsoVine/liberty" target="_blank" rel="noopener">Repositorio en GitHub</a>
+    </div>
+  </section>
+
   <section class="tarjeta ayudaTarjeta" style="border-left:4px solid var(--s1)">
     <header><h2>Explora un patrimonio de ejemplo</h2><span class="subt">Un hogar de muestra, para ver cómo se usa todo sin tocar tus datos</span></header>
     <p>Crea un <b>patrimonio de ejemplo</b> (un hogar de muestra con inversiones, deudas, apartados, ingresos y gastos
@@ -1217,17 +1301,6 @@ body.video .tarjetaCanal{display:none}
       <li><b>100 % local y privado</b>, sin cuentas ni servidores; con repaso de seguridad (anti-XSS, CSP) y el chequeo de versión <b>apagado por defecto</b>.</li>
     </ul>
     <p style="color:var(--tinta3);font-size:13px;margin-top:6px">Y por dentro: motor de cálculo revisado, validaciones, pruebas automáticas y decisiones de diseño documentadas.</p>
-  </section>
-
-  <section class="tarjeta ayudaTarjeta" style="border-left:4px solid var(--s1)">
-    <header><h2>Liberty: descargas y actualizaciones</h2><span class="subt">Dónde conseguir la última versión</span></header>
-    <p>Liberty se descarga y se actualiza desde su repositorio en GitHub. Para actualizar, baja el nuevo
-      <code>.exe</code> y copia tu carpeta <code>mis_datos</code> a la nueva ubicación: así no pierdes nada.</p>
-    <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-      <a class="btn prim" href="https://alonsovine.github.io/liberty/" target="_blank" rel="noopener">⬇ Descargar la última versión</a>
-      <a class="btn" href="https://github.com/AlonsoVine/liberty" target="_blank" rel="noopener">Repositorio en GitHub</a>
-    </div>
-    <p style="color:var(--tinta3);font-size:13px;margin-top:10px">Activa «Buscar actualizaciones» en Configuración si quieres que la app te avise cuando haya una versión nueva.</p>
   </section>
 
   <section class="tarjeta ayudaTarjeta" style="border-left:4px solid var(--s1)">

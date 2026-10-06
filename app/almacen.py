@@ -410,6 +410,22 @@ def fecha_suave(valor):
 
 # ---------------------------------------------------------------- configuración
 
+def sanea_recurrente(x):
+    """Plantilla de ingreso/gasto recurrente: {tipo, importe, categoria, titular, nota}.
+    Devuelve el dict saneado o None si no vale (tipo válido e importe > 0)."""
+    x = x or {}
+    tipo = x.get("tipo")
+    if tipo not in TIPOS_FLUJO:
+        return None
+    err = []
+    importe = numero(x.get("importe"), "el importe", err, obligatorio=True, mayor_que=0)
+    if importe is None or err:
+        return None
+    importe = round(importe, 2)
+    return {"tipo": tipo, "importe": importe, "categoria": texto(x.get("categoria"), 40),
+            "titular": texto(x.get("titular"), 40), "nota": texto(x.get("nota"), 120)}
+
+
 def guarda_config(cfg, datos):
     """Ajusta los parámetros del hogar: colchón y lista de titulares."""
     errores = []
@@ -517,6 +533,21 @@ def guarda_config(cfg, datos):
                     valores.append(x)
             dims.append({"id": did, "nombre": nombre, "valores": valores})
         conf["dimensiones"] = dims
+    if "reglasCategoria" in datos:
+        # Reglas propias para auto-categorizar la importación del banco: si el concepto
+        # del movimiento contiene «palabra», se le asigna «categoria» (si existe para
+        # su tipo). Prevalecen sobre las reglas que trae la app por defecto.
+        reglas, vistos = [], set()
+        for it in (datos.get("reglasCategoria") or [])[:200]:
+            palabra = texto((it or {}).get("palabra"), 40).lower()
+            categoria = texto((it or {}).get("categoria"), 40)
+            if palabra and categoria and palabra not in vistos:
+                vistos.add(palabra)
+                reglas.append({"palabra": palabra, "categoria": categoria})
+        conf["reglasCategoria"] = reglas
+    if "recurrentes" in datos:
+        conf["recurrentes"] = [r for r in
+                               (sanea_recurrente(x) for x in (datos.get("recurrentes") or [])[:100]) if r]
     if "inflacion" in datos:
         # Inflación anual (%) para la línea de referencia de la evolución. Se guarda
         # como fracción (2,5 % -> 0.025). Vacío = sin valor por defecto.
