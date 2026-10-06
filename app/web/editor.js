@@ -1640,7 +1640,16 @@
     }, 6000);
   })();
 
-  window.Editor = { mostrar: pinta };
+  window.Editor = {
+    mostrar: pinta,
+    // Navegar a una sección de «Mis datos» desde fuera (p. ej. la paleta de acciones).
+    ir(v) {
+      if (["activos", "deudas", "apartados", "flujos", "saldos", "config", "importar", "copias"].includes(v)) {
+        E.vista = v; recuerda.guarda("patrimonio.editor", v);
+      }
+      pinta();
+    },
+  };
   carga().then(pinta).catch(x => {
     const cont = $("#editor");
     if (cont) cont.innerHTML = `<div class="av"><span>⚠</span><span>${esc(x.message)}</span></div>`;

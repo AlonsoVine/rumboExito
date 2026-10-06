@@ -528,7 +528,7 @@
       <div class="rmCifras">
         ${cif("Patrimonio este mes", varMes != null ? G.fmtEurSigno(varMes) : "—", varMes >= 0 ? "pos" : "neg", varPct != null ? G.fmtPctSigno(varPct, 1) : "")}
         ${em ? cif("Ahorro del mes", G.fmtEurSigno(em.ahorro), em.ahorro >= 0 ? "pos" : "neg", em.tasaAhorro != null ? "tasa " + G.fmtPct(em.tasaAhorro, 0) : "") : ""}
-        ${cif("Dinero libre", G.fmtEur(libre, 0), "", "para invertir")}
+        ${cif("Dinero libre" + info("Lo que te queda de verdad para invertir: disponible − apartados − colchón."), G.fmtEur(libre, 0), "", "para invertir")}
       </div>
       <div class="rmHacer"><span class="rmHacerEt">→ Qué conviene hacer</span> ${hacer}</div>
     </section>`;
@@ -586,14 +586,15 @@
     const kpis = [
       { e: "Aportado", v: G.fmtEur(m.aportado, 0), n: `${m.numAportaciones} aportaciones` },
       {
-        e: "Plusvalía latente", v: G.fmtEurSigno(m.plusvalia),
+        e: "Plusvalía latente" + info("La ganancia (o pérdida) que llevas pero aún no has realizado: valor actual − lo que te costó. Se hace real al vender."),
+        v: G.fmtEurSigno(m.plusvalia),
         n: m.rentabilidad != null ? G.fmtPctSigno(m.rentabilidad) + " sobre el coste" : "sin coste registrado",
         cl: m.plusvalia >= 0 ? "pos" : "neg"
       },
       { e: "TIR anualizada" + info("La rentabilidad real de tu dinero: tiene en cuenta cuándo metiste y sacaste cada euro. En % anual."), v: G.fmtPctSigno(m.tir), n: "rentabilidad real del dinero", cl: m.tir >= 0 ? "pos" : "neg" },
       { e: "Ritmo mensual", v: G.fmtEur(m.ritmo, 0), n: "media de los últimos 12 meses" },
       { e: "Racha", v: m.racha + (m.racha === 1 ? " mes" : " meses"), n: "aportando sin fallar" },
-      { e: "Peor caída", v: G.fmtPctSigno(m.caida), n: m.caidaFecha ? "del patrimonio, el " + G.fmtFecha(m.caidaFecha) : "", cl: "neg" },
+      { e: "Peor caída" + info("La mayor bajada desde un máximo hasta un mínimo posterior (drawdown): cuánto llegó a caer tu patrimonio en su peor racha."), v: G.fmtPctSigno(m.caida), n: m.caidaFecha ? "del patrimonio, el " + G.fmtFecha(m.caidaFecha) : "", cl: "neg" },
     ];
     $("#kpis").innerHTML = kpis.map(k =>
       `<div class="kpi"><div class="e">${k.e}</div>
@@ -2246,6 +2247,88 @@
   window.borrarPatrimonio = borrarPatrimonio;
   { const cb = $("#borrarConfirmo"), ok = $("#borrarOk"); if (cb && ok) cb.onchange = () => { ok.disabled = !cb.checked; }; }
 
+  /* ---------------------------------------------- atajos de teclado (?) */
+  function muestraAtajos() {
+    let dlg = $("#dlgAtajos");
+    if (!dlg) {
+      dlg = document.createElement("dialog");
+      dlg.id = "dlgAtajos"; dlg.className = "modal";
+      dlg.innerHTML = `<div class="atajosCuerpo"><h2 style="margin:0 0 2px">Atajos de teclado</h2>
+        <p class="subt" style="margin:0 0 14px">Funcionan cuando no estás escribiendo en un campo.</p>
+        <table class="atajos"><tbody>
+          <tr><td><kbd>1</kbd> … <kbd>7</kbd></td><td>Cambiar de sub-pestaña del Panel</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>K</kbd></td><td>Paleta de acciones: buscar e ir a cualquier sitio</td></tr>
+          <tr><td><kbd>L</kbd></td><td>Ver solo lo de largo plazo (y volver)</td></tr>
+          <tr><td><kbd>V</kbd></td><td>Modo vídeo (oculta importes para grabar)</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Quitar el filtro activo</td></tr>
+          <tr><td><kbd>?</kbd></td><td>Mostrar esta ayuda</td></tr>
+        </tbody></table>
+        <div style="text-align:right;margin-top:16px"><button class="btn prim" type="button">Entendido</button></div></div>`;
+      document.body.appendChild(dlg);
+      dlg.querySelector("button").onclick = () => { try { dlg.close(); } catch (e) { dlg.removeAttribute("open"); } };
+      dlg.addEventListener("click", e => { if (e.target === dlg) dlg.querySelector("button").click(); });
+    }
+    try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); }
+  }
+
+  /* ---------------------------------------------- paleta de acciones (Ctrl/⌘+K) */
+  const _norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  function construyeComandos() {
+    const c = [];
+    const irPanel = pv => () => { if (estado.tab !== "panel") irA("panel"); irVista(pv); };
+    const irDatos = v => () => { irA("datos"); if (window.Editor && window.Editor.ir) window.Editor.ir(v); };
+    const pvN = { patrimonio: "Patrimonio", distribucion: "Distribución", rentabilidad: "Rentabilidad", evolucion: "Evolución", ingresos: "Ingresos y gastos", deudas: "Deudas y vencimientos", fiscal: "Informe fiscal" };
+    Object.entries(pvN).forEach(([pv, nm]) => { if (document.getElementById("pv-" + pv)) c.push({ ico: "📊", label: "Panel · " + nm, hint: "ver", run: irPanel(pv) }); });
+    c.push({ ico: "⚡", label: "Anotar un gasto o ingreso", hint: "acción", run: irDatos("flujos") });
+    c.push({ ico: "➕", label: "Añadir un activo", hint: "acción", run: irDatos("activos") });
+    c.push({ ico: "📥", label: "Importar datos", hint: "acción", run: irDatos("importar") });
+    if ($("#btnPrecios") && !$("#btnPrecios").hidden) c.push({ ico: "↻", label: "Actualizar precios", hint: "acción", run: () => $("#btnPrecios").click() });
+    const dv = { activos: "Activos", deudas: "Deudas", apartados: "Apartados", flujos: "Ingresos y gastos", saldos: "Saldos y movimientos", config: "Configuración", importar: "Importar", copias: "Copias y seguridad" };
+    Object.entries(dv).forEach(([v, nm]) => c.push({ ico: "✏️", label: "Mis datos · " + nm, hint: "editar", run: irDatos(v) }));
+    c.push({ ico: "❓", label: "Ayuda", run: () => irA("ayuda") });
+    c.push({ ico: "⚙️", label: "Ajustes", run: () => irA("ajustes") });
+    c.push({ ico: "⌨️", label: "Ver atajos de teclado", run: () => muestraAtajos() });
+    (D.productos || []).forEach(p => c.push({ ico: "🔎", label: p.corto || p.nombre, hint: "activo", run: () => { estado.fondo = p.id; if (estado.tab !== "panel") irA("panel"); irVista("producto"); } }));
+    return c;
+  }
+  function abrePaleta() {
+    let dlg = $("#dlgPaleta");
+    if (!dlg) {
+      dlg = document.createElement("dialog");
+      dlg.id = "dlgPaleta"; dlg.className = "modal paleta";
+      dlg.innerHTML = `<div class="palCuerpo">
+        <input id="palInput" type="text" placeholder="Buscar una sección, acción o activo…" autocomplete="off" spellcheck="false">
+        <ul id="palLista"></ul>
+        <div class="palPie"><kbd>↑</kbd><kbd>↓</kbd> moverse · <kbd>↵</kbd> abrir · <kbd>Esc</kbd> cerrar</div></div>`;
+      document.body.appendChild(dlg);
+      dlg.addEventListener("click", e => { if (e.target === dlg) { try { dlg.close(); } catch (_) { dlg.removeAttribute("open"); } } });
+    }
+    const comandos = construyeComandos();
+    const input = dlg.querySelector("#palInput"), lista = dlg.querySelector("#palLista");
+    let sel = 0;
+    const render = () => {
+      const q = _norm(input.value);
+      const res = comandos.filter(c => !q || _norm(c.label + " " + (c.hint || "")).includes(q)).slice(0, 40);
+      sel = Math.max(0, Math.min(sel, res.length - 1));
+      lista.innerHTML = res.map((c, i) => `<li class="palItem${i === sel ? " sel" : ""}" data-i="${i}">
+        <span class="palIco">${c.ico || "›"}</span><span class="palLbl">${esc(c.label)}</span>${c.hint ? `<span class="palHint">${esc(c.hint)}</span>` : ""}</li>`).join("") || '<li class="palVacio">Nada coincide.</li>';
+      lista._res = res;
+      const act = lista.querySelector(".palItem.sel"); if (act && act.scrollIntoView) act.scrollIntoView({ block: "nearest" });
+    };
+    const ejec = () => { const c = (lista._res || [])[sel]; if (c) { try { dlg.close(); } catch (_) { dlg.removeAttribute("open"); } setTimeout(c.run, 10); } };
+    input.oninput = () => { sel = 0; render(); };
+    input.onkeydown = e => {
+      if (e.key === "ArrowDown") { e.preventDefault(); sel++; render(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); sel = Math.max(0, sel - 1); render(); }
+      else if (e.key === "Enter") { e.preventDefault(); ejec(); }
+    };
+    lista.onclick = e => { const li = e.target.closest("[data-i]"); if (li) { sel = +li.dataset.i; ejec(); } };
+    lista.onmousemove = e => { const li = e.target.closest("[data-i]"); if (li && +li.dataset.i !== sel) { sel = +li.dataset.i; render(); } };
+    input.value = ""; render();
+    try { dlg.showModal(); } catch (e) { dlg.setAttribute("open", ""); }
+    setTimeout(() => input.focus(), 30);
+  }
+
   /* ---------------------------------------------- arranque */
   document.title = "Liberty · " + (D.titular || "Mi patrimonio");
   $("#marcaTexto").textContent = D.titular || "Mi patrimonio";
@@ -2254,6 +2337,7 @@
 
   _repinta = () => { try { pintar(); } catch (e) { /* al cambiar un ajuste */ } };
   if ($("#btnImprimir")) $("#btnImprimir").onclick = () => window.print();
+  if ($("#btnPaleta")) $("#btnPaleta").onclick = () => abrePaleta();
   if ($("#btnPrecios")) $("#btnPrecios").onclick = async () => {
     const b = $("#btnPrecios");
     b.disabled = true;
@@ -2312,6 +2396,8 @@
       estado.ocultos = filtrando() ? new Set() : new Set(idsCorto());
       pintaPatrimonio();
     }
+    if (e.key === "?") { muestraAtajos(); return; }
+    if ((e.key === "k" || e.key === "K") && (e.metaKey || e.ctrlKey)) { e.preventDefault(); abrePaleta(); return; }
     // Teclas 1-7: sub-pestañas del Panel.
     const n = "1234567".indexOf(e.key);
     const pv = ["patrimonio", "distribucion", "rentabilidad", "evolucion", "ingresos", "deudas", "fiscal"][n];
