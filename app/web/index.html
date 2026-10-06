@@ -1151,6 +1151,19 @@ body.video .tarjetaCanal{display:none}
 <div class="panel" id="tab-ayuda" role="tabpanel" hidden>
   <div class="banner" id="bannerVersion" hidden><span id="bannerVersionTexto"></span></div>
   <div style="margin:4px 0 2px"><button class="btn" id="btnVerBienvenida">👋 Ver la presentación de bienvenida</button></div>
+
+  <section class="tarjeta ayudaTarjeta" style="border-left:4px solid var(--s1)">
+    <header><h2>Explora un patrimonio de ejemplo</h2><span class="subt">Un hogar de muestra, para ver cómo se usa todo sin tocar tus datos</span></header>
+    <p>Crea un <b>patrimonio de ejemplo</b> (un hogar de muestra con inversiones, deudas, apartados, ingresos y gastos
+      de un año) para <b>ver cómo está estructurado todo y cómo funcionan los gráficos</b>. Se crea como una
+      <b>cartera aparte</b>: no toca la tuya, y puedes volver a la tuya cuando quieras desde el selector de arriba, o
+      borrar el ejemplo cuando ya no lo necesites.</p>
+    <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <button class="btn prim" id="btnCrearEjemplo">🧪 Crear un patrimonio de ejemplo</button>
+    </div>
+    <p style="color:var(--tinta3);font-size:13px;margin-top:10px">Aparecerá en el selector de carteras de arriba como «Ejemplo». Para quitarlo: <b>Mis datos → Copias y seguridad → Eliminar este patrimonio</b>.</p>
+  </section>
+
   <section class="tarjeta ayudaTarjeta">
     <header><h2>De dónde viene esta aplicación</h2><span class="subt">Gracias a Dani Dominguez Quant</span></header>
     <p>Esta herramienta nace de <b>Rumbo</b>, la aplicación que creó <span class="autorCanal"></span> para seguir una cartera
@@ -1293,17 +1306,26 @@ body.video .tarjetaCanal{display:none}
       <p>Arriba hay solo tres botones grandes:</p>
       <ul>
         <li><b>📊 Panel</b>: mirar tus números. Dentro tiene pestañas: <b>Patrimonio</b> (tu foto de hoy),
-          <b>Distribución</b> (en qué está el dinero), <b>Rentabilidad</b> (cuánto gana), <b>Evolución</b>
-          (cómo cambia en el tiempo y el mes a mes), <b>Ingresos y gastos</b> y <b>Deudas y vencimientos</b>.</li>
+          <b>Distribución</b> (en qué está el dinero, con un botón <b>Anillo / Mapa</b> para verlo como anillo o como
+          mapa de bloques), <b>Rentabilidad</b> (cuánto gana), <b>Evolución</b> (cómo cambia en el tiempo y el mes a
+          mes), <b>Ingresos y gastos</b> (con sub-pestañas <b>Resumen · Categorías · Tendencias · Presupuesto</b>) y
+          <b>Deudas y vencimientos</b>.</li>
         <li><b>✏️ Mis datos</b>: lo que escribes tú. Dentro: Activos, Deudas, Apartados, Ingresos y gastos,
           Saldos y movimientos, Configuración, Importar y Copias y seguridad.</li>
         <li><b>❓ Ayuda</b>: esto.</li>
       </ul></div></details>
 
     <details class="faq"><summary>¿Puedo tener varias carteras y cambiar entre ellas?</summary><div>
-      <p>Sí. Arriba, junto al nombre de la app, hay un desplegable con tus carteras. Elige <b>«＋ Nueva cartera…»</b>,
-      ponle un nombre y se crea vacía. Cada cartera guarda sus propios productos, saldos y copias. Para cambiar de una
+      <p>Sí. Arriba, junto al nombre de la app, hay un desplegable con tus carteras. Elige <b>«＋ Nuevo patrimonio…»</b>,
+      ponle un nombre y se crea vacío. Cada cartera guarda sus propios productos, saldos y copias. Para cambiar de una
       a otra, elígela en ese mismo desplegable.</p></div></details>
+
+    <details class="faq"><summary>¿Puedo ver un ejemplo para aprender, sin tocar mis datos?</summary><div>
+      <p>Sí. Al abrir la app por primera vez ves un <b>patrimonio de ejemplo</b>; en cuanto creas el tuyo, desaparece.
+      Para volver a tenerlo (aunque ya tengas el tuyo), ve a <b>❓ Ayuda</b> y pulsa <b>«🧪 Crear un patrimonio de
+      ejemplo»</b>: se crea como una <b>cartera aparte</b> llamada «Ejemplo», con inversiones, deudas, ingresos y
+      gastos de un año, para ver cómo está todo estructurado y comparar. No toca tu patrimonio, y puedes volver al tuyo
+      desde el selector de arriba o borrar el ejemplo en <b>Mis datos → Copias y seguridad → Eliminar este patrimonio</b>.</p></div></details>
 
     <details class="faq"><summary>¿Cómo le cambio el nombre a una cartera?</summary><div>
       <p>En <b>Mis datos → Configuración</b>, campo <b>«Nombre de esta cartera»</b>. El nombre nuevo aparece
@@ -1333,9 +1355,29 @@ body.video .tarjetaCanal{display:none}
       estimados y los ratios deuda/activos y cuota/ingresos.</p></div></details>
 
     <details class="faq"><summary>¿Cómo llevo los ingresos y gastos del hogar?</summary><div>
-      <p>En <b>Mis datos → Ingresos y gastos</b> anotas nóminas, alquileres, gastos… por categoría. En el Panel
-      verás ingresos, gastos, ahorro y <b>tasa de ahorro</b> por mes, año y media de 12 meses. Las categorías las
-      defines en <b>Configuración</b> (cada una como ingreso o gasto).</p></div></details>
+      <p>En <b>Mis datos → Ingresos y gastos</b> anotas nóminas, alquileres, gastos… por categoría (o los
+      <b>importas del banco</b>, ver la pregunta siguiente). Las categorías las defines en <b>Configuración</b>
+      (cada una como ingreso o gasto). En <b>Panel → Ingresos y gastos</b> tienes cuatro vistas:</p>
+      <ul>
+        <li><b>Resumen</b>: ingresos, gastos, ahorro y <b>tasa de ahorro</b> (mes, año y media 12m), y una <b>cascada</b>
+          que va de tus ingresos a lo que te queda, restando cada categoría.</li>
+        <li><b>Categorías</b>: en qué se va el dinero (anillo + ranking) y un desglose <b>por titular</b> (quién ingresa y quién gasta).</li>
+        <li><b>Tendencias</b>: cómo cambia cada categoría mes a mes y un <b>mapa de calor</b> para ver la estacionalidad.</li>
+        <li><b>Presupuesto</b>: lo gastado frente al presupuesto por categoría, con semáforo (si pones presupuestos en Configuración).</li>
+      </ul></div></details>
+
+    <details class="faq"><summary>¿Puedo importar los gastos e ingresos de mi banco?</summary><div>
+      <p>Sí. En <b>Mis datos → Importar</b>, elige <b>«Datos del banco»</b> (es una sección aparte de la de activos e
+      inversiones). Puedes traerlos de tres formas: descargando la <b>plantilla</b> (Excel o CSV) y rellenándola,
+      pegando directamente el <b>Excel/CSV que exporta tu banco</b>, o con ayuda de una <b>IA</b> (copias un prompt,
+      le pasas el extracto y pegas el resultado). La app <b>adivina la categoría</b> de cada movimiento por el concepto
+      y, antes de guardar, te enseña una <b>vista previa donde puedes corregir cada categoría</b>. No duplica lo que ya tengas.</p></div></details>
+
+    <details class="faq"><summary>¿Qué son las dimensiones de clasificación?</summary><div>
+      <p>Además del tipo, la entidad y los titulares, puedes crear tus propias <b>dimensiones</b> para clasificar los
+      activos a tu manera (por ejemplo «Clase de activo» con valores Renta variable / Renta fija / Alternativos, o
+      «Geografía»). Se definen en <b>Mis datos → Configuración</b> y asignas un valor a cada activo en su ficha. Luego,
+      en <b>Panel → Distribución</b> puedes agrupar y filtrar por esas dimensiones (tanto en el anillo como en el mapa).</p></div></details>
 
     <details class="faq"><summary>¿Qué son los objetivos de asignación y la concentración?</summary><div>
       <p>En <b>Configuración</b> puedes fijar un <b>objetivo (%)</b> por tipo de activo (deberían sumar 100 %). El

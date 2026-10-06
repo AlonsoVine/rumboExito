@@ -103,6 +103,19 @@
     dlg.addEventListener("close", marca, { once: true });
   }
   { const bv = $("#btnVerBienvenida"); if (bv) bv.onclick = () => muestraBienvenida(true); }
+  { const be = $("#btnCrearEjemplo"); if (be) be.onclick = async () => {
+    if (!confirm("Se creará un patrimonio de EJEMPLO como cartera aparte (no toca el tuyo).\n\nPodrás volver al tuyo desde el selector de carteras de arriba, y borrar el ejemplo cuando quieras.\n\n¿Crear el ejemplo ahora?")) return;
+    const t0 = be.textContent; be.disabled = true; be.textContent = "Creando ejemplo…";
+    try {
+      const r = await fetch("api/cartera/nueva", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nombre: "Ejemplo", desde: "ejemplo" }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || j.ok === false) throw new Error((j.errores || ["No se pudo crear el ejemplo."]).join("\n"));
+      recuerda.guarda("patrimonio.tab", "panel");
+      recargaHoy();
+    } catch (e) { alert(e.message || "No he podido crear el ejemplo."); be.disabled = false; be.textContent = t0; }
+  }; }
 
   if (!D) {
     pintaAjustes();

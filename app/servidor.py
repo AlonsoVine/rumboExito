@@ -392,14 +392,22 @@ def api_carteras():
 
 @app.post("/api/cartera/nueva")
 def api_cartera_nueva():
-    nombre = ((request.get_json(silent=True) or {}).get("nombre") or "").strip()[:60]
+    cuerpo = request.get_json(silent=True) or {}
+    desde = cuerpo.get("desde")
+    nombre = (cuerpo.get("nombre") or "").strip()[:60]
+    if not nombre:
+        nombre = "Ejemplo" if desde == "ejemplo" else ""
     if not nombre:
         return jsonify(ok=False, errores=["Ponle un nombre a la cartera."]), 400
     with cerrojo:
         asegura_multi()   # si venías del modo antiguo, lo pasa a multi
         cid = almacen.slug(nombre, {c["id"] for c in carteras()})
-        cfg = json.loads(json.dumps(almacen.CARTERA_VACIA))
-        cfg["titular"] = nombre
+        if desde == "ejemplo":
+            # Copia del patrimonio de ejemplo (demo): para comparar y aprender sin tocar el tuyo.
+            cfg = dict(lee_json(DEMO, {}), titular=nombre)
+        else:
+            cfg = json.loads(json.dumps(almacen.CARTERA_VACIA))
+            cfg["titular"] = nombre
         os.makedirs(os.path.join(_carteras_dir(), cid), exist_ok=True)
         almacen.guarda(os.path.join(_carteras_dir(), cid, "cartera.json"), cfg)
         guarda_registro({"activa": cid})
