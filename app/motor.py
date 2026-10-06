@@ -1734,6 +1734,7 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
         "titular": cfg.get("titular", "Mi patrimonio"),
         "titulares": cfg.get("titulares", []) or [],
         "categorias": [{"nombre": c.get("nombre"), "tipo": c.get("tipo")} for c in cats_cfg if c.get("nombre")],
+        "recurrentes": (cfg.get("config") or {}).get("recurrentes", []) or [],
         "dimensiones": (cfg.get("config") or {}).get("dimensiones", []) or [],
         "inflacion": (cfg.get("config") or {}).get("inflacion"),
         "apartados": apartados_out,

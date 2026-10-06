@@ -834,9 +834,21 @@
       <datalist id="arCats">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
       <input name="fecha" type="date" value="${hoy}" class="arFecha" aria-label="Fecha">
       ${tits.length ? `<select name="titular" class="arTit" aria-label="Titular"><option value="">Titular…</option>${tits.map(t => `<option>${esc(t)}</option>`).join("")}</select>` : ""}
+      <label class="arRec" title="Guardar como plantilla para repetirlo cada mes"><input type="checkbox" id="arRecurrente"> 🔁 recurrente</label>
       <button class="btn prim" type="submit">Anotar</button>
-      <span class="arMsg" id="arMsg"></span></form>`;
+      <span class="arMsg" id="arMsg"></span></form>
+      ${(D.recurrentes || []).length ? `<div class="recChips">${(D.recurrentes).map((r, i) => `
+        <span class="recChip ${r.tipo === "ingreso" ? "pos" : "neg"}" data-anotar="${i}" role="button" tabindex="0"
+          title="Anotar este mes">🔁 ${esc(r.categoria || r.nota || (r.tipo === "ingreso" ? "Ingreso" : "Gasto"))}
+          <b>${r.tipo === "gasto" ? "−" : "+"}${G.fmtEur(r.importe, 0)}</b>${r.titular ? ` · ${esc(r.titular)}` : ""}
+          <button class="recX" data-quitar="${i}" title="Quitar esta plantilla" aria-label="Quitar">×</button></span>`).join("")}</div>` : ""}`;
     cont.querySelectorAll(".arTipo button").forEach(b => { b.onclick = () => { estado.arTipo = b.dataset.ar; pintaAnotarRapido(); }; });
+    cont.querySelectorAll("[data-anotar]").forEach(ch => {
+      ch.onclick = e => { if (!e.target.closest(".recX")) anotaRecurrente(D.recurrentes[+ch.dataset.anotar]); };
+    });
+    cont.querySelectorAll(".recX").forEach(x => {
+      x.onclick = async e => { e.stopPropagation(); await postRecurrente({ accion: "quitar", indice: +x.dataset.quitar }); };
+    });
     $("#formAnotar").onsubmit = async e => {
       e.preventDefault();
       const f = e.target, btn = f.querySelector('button[type="submit"]');
@@ -847,10 +859,38 @@
         const r = await fetch("api/flujos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
         const j = await r.json().catch(() => ({}));
         if (!r.ok || j.ok === false) throw new Error((j.errores || ["No se pudo guardar."]).join("\n"));
+        const rec = $("#arRecurrente");
+        if (rec && rec.checked) {
+          try { await fetch("api/recurrentes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ accion: "añadir", recurrente: cuerpo }) }); } catch (e) { /* el gasto ya se guardó */ }
+        }
         window.EDITOR_SUCIO = true;
         recargaHoy();
       } catch (x) { $("#arMsg").textContent = x.message || "No se pudo guardar."; btn.disabled = false; btn.textContent = "Anotar"; }
     };
+  }
+
+  // Anota un recurrente con la fecha de hoy (un clic en su chip).
+  async function anotaRecurrente(r) {
+    if (!r) return;
+    const cuerpo = { tipo: r.tipo, importe: r.importe, fecha: new Date().toISOString().slice(0, 10),
+      categoria: r.categoria || "", titular: r.titular || "", nota: r.nota || "" };
+    try {
+      const resp = await fetch("api/flujos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
+      const j = await resp.json().catch(() => ({}));
+      if (!resp.ok || j.ok === false) throw new Error((j.errores || ["No se pudo anotar."]).join("\n"));
+      window.EDITOR_SUCIO = true;
+      recargaHoy();
+    } catch (x) { const m = $("#arMsg"); if (m) m.textContent = x.message; }
+  }
+
+  async function postRecurrente(cuerpo) {
+    try {
+      const resp = await fetch("api/recurrentes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
+      const j = await resp.json().catch(() => ({}));
+      if (!resp.ok || j.ok === false) throw new Error((j.errores || ["No se pudo actualizar."]).join("\n"));
+      window.EDITOR_SUCIO = true;
+      recargaHoy();
+    } catch (x) { const m = $("#arMsg"); if (m) m.textContent = x.message; }
   }
 
   function pintaIngresos() {

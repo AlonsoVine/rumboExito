@@ -575,6 +575,27 @@ def api_prompt_banco():
         return jsonify(texto=f.read())
 
 
+@app.post("/api/recurrentes")
+def api_recurrentes():
+    """Añade o quita una plantilla de ingreso/gasto recurrente (config.recurrentes)."""
+    cuerpo = request.get_json(silent=True) or {}
+    accion = cuerpo.get("accion")
+
+    def fn(cfg):
+        lista = cfg.setdefault("config", {}).setdefault("recurrentes", [])
+        if accion == "quitar":
+            i = cuerpo.get("indice")
+            if isinstance(i, int) and 0 <= i < len(lista):
+                lista.pop(i)
+        else:
+            r = almacen.sanea_recurrente(cuerpo.get("recurrente") or cuerpo)
+            if not r:
+                raise almacen.ErrorValidacion(["Esa plantilla recurrente no es válida (tipo e importe)."])
+            lista.append(r)
+        return None
+    return cambia(fn)
+
+
 @app.get("/api/exportar/<que>.csv")
 def api_exportar_csv(que):
     """Exporta una tabla a CSV (se abre en Excel/Numbers/Sheets)."""
