@@ -667,7 +667,7 @@
 
   /* Ingresos, gastos y ahorro: mes en curso vs. media de 12 meses + tabla mensual. */
   function pintaFlujos() {
-    const f = D.flujos, kp = $("#flujosKpis");
+    const f = flujosSel(), kp = $("#flujosKpis");
     if (!kp) return;
     if (!f) {
       kp.innerHTML = "";
@@ -797,7 +797,7 @@
 
   /* Evolución de ingresos, gastos y ahorro mes a mes (últimos 12 meses). */
   function pintaFlujosGraf() {
-    const cont = $("#grafFlujosEvol"), f = D.flujos;
+    const cont = $("#grafFlujosEvol"), f = flujosSel();
     if (!cont) return;
     if (!f) { cont.innerHTML = ""; return; }
     G.multiLinea(cont, {
@@ -820,6 +820,47 @@
     return G.css("--s" + (h % 16 + 1));
   }
 
+  // Reagrega los flujos crudos (ya filtrados por titular) a la misma forma que D.flujos.
+  function agregaFlujos(lista, meses) {
+    const idx = {}; meses.forEach((m, i) => { idx[m] = i; });
+    const mesRef = meses[meses.length - 1], anioRef = mesRef.slice(0, 4);
+    const r2 = v => Math.round(v * 100) / 100;
+    const serIng = Array(12).fill(0), serGas = Array(12).fill(0);
+    const catMap = new Map();
+    let eIng = 0, eGas = 0, aIng = 0, aGas = 0;
+    lista.forEach(f => {
+      const mk = f.fecha.slice(0, 7), t = f.tipo, imp = +f.importe || 0, enWin = mk in idx;
+      if (enWin) (t === "ingreso" ? serIng : serGas)[idx[mk]] += imp;
+      if (mk === mesRef) { if (t === "ingreso") eIng += imp; else eGas += imp; }
+      if (f.fecha.slice(0, 4) === anioRef) { if (t === "ingreso") aIng += imp; else aGas += imp; }
+      const key = (f.categoria || "Sin categoría") + "|" + t;
+      let c = catMap.get(key);
+      if (!c) { c = { categoria: f.categoria || "Sin categoría", tipo: t, mes: 0, anio: 0, total12: 0, serie: Array(12).fill(0) }; catMap.set(key, c); }
+      if (enWin) { c.total12 += imp; c.serie[idx[mk]] += imp; }
+      if (mk === mesRef) c.mes += imp;
+      if (f.fecha.slice(0, 4) === anioRef) c.anio += imp;
+    });
+    const bloque = (i, g) => ({ ingresos: r2(i), gastos: r2(g), ahorro: r2(i - g), tasaAhorro: i ? Math.round((i - g) / i * 1e4) / 1e4 : null });
+    const pres = {}; ((D.flujos || {}).porCategoria || []).forEach(c => { if (c.presupuesto != null) pres[c.categoria + "|" + c.tipo] = c.presupuesto; });
+    const porCategoria = [...catMap.values()].map(c => {
+      const pv = pres[c.categoria + "|" + c.tipo];
+      return { categoria: c.categoria, tipo: c.tipo, mes: r2(c.mes), anio: r2(c.anio), total12: r2(c.total12),
+        media: r2(c.total12 / 12), presupuesto: pv != null ? pv : null,
+        diferencia: pv != null ? r2(c.mes - pv) : null, serie: c.serie.map(r2) };
+    }).sort((a, b) => b.total12 - a.total12);
+    const sum = a => a.reduce((x, y) => x + y, 0);
+    return { meses, ingresos: serIng.map(r2), gastos: serGas.map(r2),
+      ahorro: serIng.map((v, i) => r2(v - serGas[i])), tasaAhorro: serIng.map((v, i) => v ? Math.round((v - serGas[i]) / v * 1e4) / 1e4 : null),
+      esteMes: bloque(eIng, eGas), anio: bloque(aIng, aGas), media12: bloque(sum(serIng) / 12, sum(serGas) / 12),
+      porCategoria, porTitular: (D.flujos || {}).porTitular || [], presupuestoMensual: (D.flujos || {}).presupuestoMensual || 0 };
+  }
+  // Los flujos a mostrar: todos, o reagregados para el titular filtrado.
+  function flujosSel() {
+    const tit = estado.titular;
+    if (!tit || tit === "todos" || !D.flujosLista || !D.flujos) return D.flujos;
+    return agregaFlujos(D.flujosLista.filter(f => (f.titular || "") === tit), D.flujos.meses);
+  }
+
   function pintaIngresos() {
     const f = D.flujos, hay = !!f;
     const nav = $("#igNav"); if (nav) nav.hidden = !hay;
@@ -838,7 +879,8 @@
 
   function pintaCascada() {
     const cont = $("#grafCascada"); if (!cont) return;
-    const f = D.flujos, em = f.esteMes;
+    const f = flujosSel(); if (!f) { cont.innerHTML = ""; return; }
+    const em = f.esteMes;
     const gastos = f.porCategoria.filter(c => c.tipo === "gasto" && c.mes > 0).sort((a, b) => b.mes - a.mes);
     const sub = $("#cascSub");
     if (!em.ingresos && !gastos.length) {
@@ -860,7 +902,8 @@
       estado.catTipo || "gasto", id => { estado.catTipo = id; pintaCategorias(); });
     pintaSegm($("#segCatPeriodo"), [{ id: "mes", et: "Este mes" }, { id: "anio", et: "Año" }, { id: "total12", et: "12 meses" }],
       estado.catPeriodo || "total12", id => { estado.catPeriodo = id; pintaCategorias(); });
-    const f = D.flujos, tipo = estado.catTipo || "gasto", per = estado.catPeriodo || "total12";
+    const f = flujosSel(); if (!f) return;
+    const tipo = estado.catTipo || "gasto", per = estado.catPeriodo || "total12";
     const campo = { mes: "mes", anio: "anio", total12: "total12" }[per];
     const cats = f.porCategoria.filter(c => c.tipo === tipo && c[campo] > 0).sort((a, b) => b[campo] - a[campo]);
     const total = cats.reduce((a, c) => a + c[campo], 0);
@@ -884,9 +927,11 @@
 
   function pintaTitular() {
     const cont = $("#grafTitular"), card = $("#tarjetaTitular"); if (!cont) return;
-    const pt = (D.flujos.porTitular || []).filter(x => x.total12.ingresos || x.total12.gastos);
+    const pt = ((D.flujos || {}).porTitular || []).filter(x => x.total12.ingresos || x.total12.gastos);
     const utiles = pt.filter(x => x.titular !== "Sin asignar");
-    if (pt.length <= 1 || !utiles.length) { if (card) card.hidden = true; return; }
+    // Si ya se está filtrando por un titular concreto, el desglose por titular sobra.
+    const filtradoTit = estado.titular && estado.titular !== "todos";
+    if (filtradoTit || pt.length <= 1 || !utiles.length) { if (card) card.hidden = true; return; }
     if (card) card.hidden = false;
     G.barrasAgrupadas(cont, {
       categorias: pt.map(x => x.titular), alto: 240,
@@ -903,7 +948,8 @@
   function pintaTendencias() {
     pintaSegm($("#segTendTipo"), [{ id: "gasto", et: "Gastos" }, { id: "ingreso", et: "Ingresos" }],
       estado.tendTipo || "gasto", id => { estado.tendTipo = id; pintaTendencias(); });
-    const f = D.flujos, tipo = estado.tendTipo || "gasto";
+    const f = flujosSel(); if (!f) return;
+    const tipo = estado.tendTipo || "gasto";
     const cats = f.porCategoria.filter(c => c.tipo === tipo && c.total12 > 0).sort((a, b) => b.total12 - a.total12);
     const TOP = 8, top = cats.slice(0, TOP), resto = cats.slice(TOP);
     const series = top.map(c => ({ nombre: c.categoria, color: colorCat(c.categoria), valores: c.serie }));
@@ -925,7 +971,7 @@
   }
 
   function pintaPresupuesto() {
-    const f = D.flujos;
+    const f = flujosSel(); if (!f) return;
     const cats = f.porCategoria.filter(c => c.tipo === "gasto" && (c.presupuesto != null || c.mes > 0));
     const conPres = cats.filter(c => c.presupuesto != null).sort((a, b) => b.presupuesto - a.presupuesto);
     const sinPres = cats.filter(c => c.presupuesto == null && c.mes > 0).sort((a, b) => b.mes - a.mes);

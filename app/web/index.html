@@ -724,6 +724,11 @@ body.video .tarjeta{padding:22px 24px}
 @media(max-width:640px){.imOps{grid-template-columns:1fr}}
 /* ---- Ayuda y versión ---- */
 .ayudaTarjeta{margin-top:24px;max-width:860px}
+.webCard{border:2px solid var(--s1);background:color-mix(in srgb,var(--s1) 6%,var(--sup))}
+.webOficial{display:inline-block;margin-top:4px;padding:12px 18px;border-radius:12px;
+  background:var(--s1);color:#fff;font-size:18px;font-weight:700;text-decoration:none;letter-spacing:.01em}
+.webOficial:hover{filter:brightness(1.08)}
+.webOficial::before{content:"🔗 ";font-weight:400}
 .faq{border-top:1px solid var(--borde)}
 .faq summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;padding:15px 2px;font-size:14.5px;font-weight:620}
 .faq summary::-webkit-details-marker{display:none}
@@ -1182,6 +1187,19 @@ body.video .tarjetaCanal{display:none}
   <div class="banner" id="bannerVersion" hidden><span id="bannerVersionTexto"></span></div>
   <div style="margin:4px 0 2px"><button class="btn" id="btnVerBienvenida">👋 Ver la presentación de bienvenida</button></div>
 
+  <section class="tarjeta ayudaTarjeta webCard">
+    <header><h2>🌐 Web oficial de Liberty</h2><span class="subt">La página desde donde se descarga y se actualiza</span></header>
+    <p>Esta es la página oficial de Liberty. Guárdala en favoritos: desde ahí consigues siempre la última versión.</p>
+    <a class="webOficial" href="https://alonsovine.github.io/liberty/" target="_blank" rel="noopener">alonsovine.github.io/liberty</a>
+    <p style="margin-top:14px">Para <b>actualizar</b>, descarga el nuevo <code>.exe</code> desde la web y copia tu carpeta <code>mis_datos</code> a la nueva ubicación: así no pierdes nada.
+      Activa «Buscar actualizaciones» en <b>Configuración</b> si quieres que la app te avise cuando haya versión nueva.</p>
+    <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+      <a class="btn prim" href="https://alonsovine.github.io/liberty/" target="_blank" rel="noopener">🌐 Abrir la web oficial</a>
+      <a class="btn" href="https://alonsovine.github.io/liberty/#descarga" target="_blank" rel="noopener">⬇ Descargar la última versión</a>
+      <a class="btn" href="https://github.com/AlonsoVine/liberty" target="_blank" rel="noopener">Repositorio en GitHub</a>
+    </div>
+  </section>
+
   <section class="tarjeta ayudaTarjeta" style="border-left:4px solid var(--s1)">
     <header><h2>Explora un patrimonio de ejemplo</h2><span class="subt">Un hogar de muestra, para ver cómo se usa todo sin tocar tus datos</span></header>
     <p>Crea un <b>patrimonio de ejemplo</b> (un hogar de muestra con inversiones, deudas, apartados, ingresos y gastos
@@ -1247,17 +1265,6 @@ body.video .tarjetaCanal{display:none}
       <li><b>100 % local y privado</b>, sin cuentas ni servidores; con repaso de seguridad (anti-XSS, CSP) y el chequeo de versión <b>apagado por defecto</b>.</li>
     </ul>
     <p style="color:var(--tinta3);font-size:13px;margin-top:6px">Y por dentro: motor de cálculo revisado, validaciones, pruebas automáticas y decisiones de diseño documentadas.</p>
-  </section>
-
-  <section class="tarjeta ayudaTarjeta" style="border-left:4px solid var(--s1)">
-    <header><h2>Liberty: descargas y actualizaciones</h2><span class="subt">Dónde conseguir la última versión</span></header>
-    <p>Liberty se descarga y se actualiza desde su repositorio en GitHub. Para actualizar, baja el nuevo
-      <code>.exe</code> y copia tu carpeta <code>mis_datos</code> a la nueva ubicación: así no pierdes nada.</p>
-    <div class="botones" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-      <a class="btn prim" href="https://alonsovine.github.io/liberty/" target="_blank" rel="noopener">⬇ Descargar la última versión</a>
-      <a class="btn" href="https://github.com/AlonsoVine/liberty" target="_blank" rel="noopener">Repositorio en GitHub</a>
-    </div>
-    <p style="color:var(--tinta3);font-size:13px;margin-top:10px">Activa «Buscar actualizaciones» en Configuración si quieres que la app te avise cuando haya una versión nueva.</p>
   </section>
 
   <section class="tarjeta ayudaTarjeta" style="border-left:4px solid var(--s1)">

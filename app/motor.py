@@ -1740,6 +1740,13 @@ def construir(cfg, carpeta, descargar=True, hasta=None):
         "apartados": apartados_out,
         "deudas": deudas_detalle,
         "flujos": flujos_out,
+        # Flujos crudos (acotados a 'hasta') para filtrar por titular en el cliente,
+        # sin recalcular en el servidor: el Panel reagrega al vuelo.
+        "flujosLista": [{"fecha": f["fecha"], "tipo": f.get("tipo"),
+                         "importe": round(float(f.get("importe") or 0), 2),
+                         "categoria": f.get("categoria") or "Sin categoría",
+                         "titular": (f.get("titular") or "").strip()}
+                        for f in flujos_cfg if f.get("tipo") in ("ingreso", "gasto")] if flujos_cfg else [],
         "asignacion": asignacion,
         "concentracionEntidad": concentracion_entidad,
         "vencimientos": vencimientos,
